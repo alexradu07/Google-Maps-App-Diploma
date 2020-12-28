@@ -37,9 +37,10 @@ public static class DefaultStyles
 
         // Create default materials for use by buildings, as well as other materials for use by water,
         // ground, roads, etc.
-        Material wallMaterial = new Material(standardShader) { color = new Color(1f, 0.75f, 0.5f) };
+        // Material wallMaterial = new Material(standardShader) { color = new Color(1f, 0.75f, 0.5f) };
+        Material wallMaterial = Resources.Load("DummyMaterials/dummyMaterial") as Material;
 
-        Material roofMaterial = new Material(standardShader) { color = new Color(1f, 0.8f, 0.6f) };
+        Material roofMaterial = new Material(standardShader) { color = new Color(1f, 0.8f, 0.6f) };   
 
         Material regionMaterial = new Material(baseMapShader)
         {
@@ -53,11 +54,14 @@ public static class DefaultStyles
         };
         waterMaterial.SetFloat("_Glossiness", 1f);
 
+        /*
         Material segmentMaterial = new Material(baseMapShader)
         {
             color = new Color(0.5f, 0.5f, 0.5f),
         };
         segmentMaterial.SetFloat("_Glossiness", 0.5f);
+        */
+        Material segmentMaterial = Resources.Load("DummyMaterials/dummyMaterialRoad") as Material;
 
         Material intersectionMaterial = new Material(baseMapShader)
         {
