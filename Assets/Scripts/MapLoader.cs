@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Google.Maps.Coord;
-//using Google.Maps.Event;
+using Google.Maps.Event;
 using Google.Maps;
 
 //namespace Diploma
@@ -28,6 +28,20 @@ public class MapLoader : MonoBehaviour
 
     }
 
+    private void AddCollidersToBuildings(MapLoadedArgs args)
+    {
+        GameObject[] buildingObjects = GameObject.FindObjectsOfType<GameObject>();
+        // Debug.Log(buildingObjects.Length);
+        foreach (GameObject obj in buildingObjects)
+        {
+            // if (obj.name.StartsWith("ExtrudedStructure "))
+            if (obj.transform.parent != null && obj.transform.parent.name == "GoogleMaps")
+            {
+                obj.AddComponent<MeshCollider>();
+            }
+        }
+    }
+
     public void LoadMap(double lat, double lng)
     {
         latLng = new LatLng(lat, lng);
@@ -45,6 +59,9 @@ public class MapLoader : MonoBehaviour
         // Load map with default options.
         DefaultGameObjectOptions = DefaultStyles.getDefaultStyles();
         mapsService.LoadMap(new Bounds(Vector3.zero, new Vector3(500, 0, 500)), DefaultGameObjectOptions);
+
+        mapsService.Events.MapEvents.Loaded.AddListener(AddCollidersToBuildings);
+
         Debug.Log("Start end");
     }
 }

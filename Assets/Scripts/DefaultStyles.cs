@@ -40,19 +40,25 @@ public static class DefaultStyles
         // Material wallMaterial = new Material(standardShader) { color = new Color(1f, 0.75f, 0.5f) };
         Material wallMaterial = Resources.Load("DummyMaterials/dummyMaterial") as Material;
 
-        Material roofMaterial = new Material(standardShader) { color = new Color(1f, 0.8f, 0.6f) };   
+        Material roofMaterial = new Material(standardShader) { color = new Color(1f, 0.8f, 0.6f) };
 
+        /*
         Material regionMaterial = new Material(baseMapShader)
         {
             color = new Color(0.5f, 0.7f, 0.5f),
         };
         regionMaterial.SetFloat("_Glossiness", 1f);
+        */
+        Material regionMaterial = Resources.Load("DummyMaterials/grassMaterial") as Material;
 
+        /*
         Material waterMaterial = new Material(baseMapShader)
         {
             color = new Color(0.0f, 1.0f, 1.0f),
         };
         waterMaterial.SetFloat("_Glossiness", 1f);
+        */
+        Material waterMaterial = Resources.Load("DummyMaterials/waterMaterial") as Material;
 
         /*
         Material segmentMaterial = new Material(baseMapShader)
