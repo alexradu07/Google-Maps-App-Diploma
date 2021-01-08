@@ -1284,6 +1284,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   movementSpeed: 10
+  lateralMovementAmount: 1.5
 --- !u!4 &1296368462
 Transform:
   m_ObjectHideFlags: 0
