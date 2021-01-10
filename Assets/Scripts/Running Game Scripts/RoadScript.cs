@@ -39,10 +39,11 @@ public class RoadScript : MonoBehaviour
             // Move to the left
             // player.GetComponent<Rigidbody>().velocity = new Vector3(endNode.Location.x - startNode.Location.x, 0, startNode.Location.y - endNode.Location.y).normalized * movementSpeed;
             // player.transform.position = player.transform.position + new Vector3(endNode.Location.x - startNode.Location.x, 0, startNode.Location.y - endNode.Location.y).normalized;
-            player.transform.position = player.transform.position + Vector3.Cross(new Vector3(endNode.Location.x - startNode.Location.x, 0, endNode.Location.y - startNode.Location.y).normalized * lateralMovementAmount,
-                                                    Vector3.up);
+            
             if (roadPosition > -1)
             {
+                player.transform.position = player.transform.position + Vector3.Cross(new Vector3(endNode.Location.x - startNode.Location.x, 0, endNode.Location.y - startNode.Location.y).normalized * lateralMovementAmount,
+                                                    Vector3.up);
                 roadPosition--;
             }
         }
@@ -51,10 +52,11 @@ public class RoadScript : MonoBehaviour
             // Move to the right
             // player.GetComponent<Rigidbody>().velocity = new Vector3(startNode.Location.x - endNode.Location.x, 0, endNode.Location.y - startNode.Location.y).normalized * movementSpeed;
             // player.transform.position = player.transform.position + new Vector3(startNode.Location.x - endNode.Location.x, 0, endNode.Location.y - startNode.Location.y).normalized;
-            player.transform.position = player.transform.position - Vector3.Cross(new Vector3(endNode.Location.x - startNode.Location.x, 0, endNode.Location.y - startNode.Location.y).normalized * lateralMovementAmount,
-                                                    Vector3.up);
+            
             if (roadPosition < 1)
             {
+                player.transform.position = player.transform.position - Vector3.Cross(new Vector3(endNode.Location.x - startNode.Location.x, 0, endNode.Location.y - startNode.Location.y).normalized * lateralMovementAmount,
+                                                    Vector3.up);
                 roadPosition++;
             }
         }
