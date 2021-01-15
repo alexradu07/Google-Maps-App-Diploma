@@ -197,7 +197,7 @@ public class RoadScript : MonoBehaviour
                             new Vector3(neigh.Location.x - startNode.Location.x, 0, neigh.Location.y - startNode.Location.y), Vector3.up);
                         if (Mathf.Abs(angle) <= closestToZeroAngle)
                         {
-                            closestToZeroAngle = angle;
+                            closestToZeroAngle = Mathf.Abs(angle);
                             endNode = neigh;
                         }
                     }
