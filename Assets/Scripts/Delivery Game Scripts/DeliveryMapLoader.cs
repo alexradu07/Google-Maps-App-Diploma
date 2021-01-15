@@ -18,7 +18,8 @@ public class DeliveryMapLoader : MonoBehaviour
 {
     private LatLng latLng = new LatLng(0, 0);
     private static MapsService mapsService;
-    public static Renderer renderer;
+    // public static Renderer renderer;
+    private static GameObject cylinder;
 
     //public MapsService MapsService;
     public GameObjectOptions DefaultGameObjectOptions;
@@ -26,7 +27,8 @@ public class DeliveryMapLoader : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        renderer = GetComponent<Renderer>();
+        // renderer = GetComponent<Renderer>();
+        cylinder = GameObject.Find("Marker");
     }
 
     // Update is called once per frame
@@ -106,11 +108,10 @@ public class DeliveryMapLoader : MonoBehaviour
                         Debug.Log("Spartan latitude : " + result.geometry.location.lat);
                         Debug.Log("Spartan longitude : " + result.geometry.location.lng);
                         Vector3 restaurantPosition = mapsService.Coords.FromLatLngToVector3(new LatLng(result.geometry.location.lat, result.geometry.location.lng));
-                        GameObject cylinder = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-                        cylinder.transform.localScale = new Vector3(1, 100, 1);
-                        cylinder.transform.position = restaurantPosition;
+                        // GameObject cylinder = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+                        cylinder.transform.position = restaurantPosition + new Vector3(0, 100.5f, 0);
                         // cylinder.transform.position = new Vector3(-2, 1, 0);
-                        renderer.material.SetColor("_Color", Color.red);
+                        // renderer.material.SetColor("_Color", Color.red);
                     }
                 }
 
