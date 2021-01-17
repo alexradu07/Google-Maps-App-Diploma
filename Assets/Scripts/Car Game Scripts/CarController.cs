@@ -31,19 +31,19 @@ public class CarController : MonoBehaviour
                 angle -= 2;
             }
         }
-        else if (Input.GetKey(KeyCode.D))
+        if (Input.GetKey(KeyCode.D))
         {
             if (angle < maxAngle)
             {
                 angle += 2;
             }
         }
-        else if (Input.GetKey(KeyCode.W))
+        if (Input.GetKey(KeyCode.W))
         {
             FR.motorTorque = power;
             FL.motorTorque = power;
         }
-        else if (Input.GetKey(KeyCode.S))
+        if (Input.GetKey(KeyCode.S))
         {
             FR.brakeTorque = power;
             FL.brakeTorque = power;
