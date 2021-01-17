@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class emptySCript : MonoBehaviour
+public class MarkerScript : MonoBehaviour
 {
     // Start is called before the first frame update
     void Start()
@@ -14,5 +14,11 @@ public class emptySCript : MonoBehaviour
     void Update()
     {
         
+    }
+
+    private void OnTriggerStay(Collider collider)
+    {
+        this.transform.position += new Vector3(1, 0, 0);
+        Debug.Log("Se colizioneaza!!");
     }
 }
