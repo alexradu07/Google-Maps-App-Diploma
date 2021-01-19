@@ -1285,6 +1285,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   movementSpeed: 10
   lateralMovementAmount: 1.5
+  obstacle: {fileID: 2631879257833576779, guid: ae68ecfcdde9df64bb99522499c741e0,
+    type: 3}
+  distanceBetweenObstacles: 10
+  iterations: 0
+  maxIterations: 5000
+  maxIt: 50
 --- !u!4 &1296368462
 Transform:
   m_ObjectHideFlags: 0
