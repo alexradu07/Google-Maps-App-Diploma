@@ -19,6 +19,5 @@ public class MarkerScript : MonoBehaviour
     private void OnTriggerStay(Collider collider)
     {
         this.transform.position += new Vector3(1, 0, 0);
-        Debug.Log("Se colizioneaza!!");
     }
 }
