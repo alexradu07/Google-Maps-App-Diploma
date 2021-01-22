@@ -15,6 +15,7 @@ public class NavigationScript : MonoBehaviour
     public RoadLatticeNode endNavi;
     public List<RoadLatticeNode> track;
     public List<RoadLatticeNode> lattices;
+    public List<RoadLatticeNode> suitableTargets = new List<RoadLatticeNode>();
     public GameObject carObj;
     public MapsService mapsService;
     public GameObject prefab;
@@ -37,13 +38,23 @@ public class NavigationScript : MonoBehaviour
                 min = dist;
                 startNavi = i;
             }
-            if (dist > max)
+            if (dist > 200)
             {
-                max = dist;
-                endNavi = i;
+                //max = dist;
+                //endNavi = i;
+                suitableTargets.Add(i);
             }
         }
-        track = new List<RoadLatticeNode>(RoadLattice.FindPath(startNavi, endNavi, 10000, null));
+        int x = Random.Range(0, suitableTargets.Count - 1);
+        try
+        {
+            track = new List<RoadLatticeNode>(RoadLattice.FindPath(startNavi, suitableTargets[x], 10000, null));
+        }
+        catch
+        {
+            x = Random.Range(0, suitableTargets.Count - 1);
+            track = new List<RoadLatticeNode>(RoadLattice.FindPath(startNavi, suitableTargets[x], 10000, null));
+        }
         Vector3 initCoord = carPos.position;
         foreach (RoadLatticeNode i in track)
         {
@@ -51,6 +62,10 @@ public class NavigationScript : MonoBehaviour
             {
                 initCoord = new Vector3(i.Location.x, 0, i.Location.y);
                 checkpoints.Add(Object.Instantiate(prefab, new Vector3(i.Location.x, 0, i.Location.y), Quaternion.identity));
+            }
+            if (checkpoints.Count == 1)
+            {
+                carObj.transform.LookAt(checkpoints[0].transform.position);
             }
             //Object.Instantiate(prefab, new Vector3(i.Location.x, 0, i.Location.y), Quaternion.identity);
         }
