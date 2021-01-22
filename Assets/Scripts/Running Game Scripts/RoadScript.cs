@@ -9,6 +9,8 @@ public class RoadScript : MonoBehaviour
 {
     public float movementSpeed;
     public float lateralMovementAmount;
+    public GameObject obstacle;
+    public float distanceBetweenObstacles;
 
     private RoadLatticeNode startNode;
     private RoadLatticeNode endNode;
@@ -17,6 +19,9 @@ public class RoadScript : MonoBehaviour
 
     private List<RoadLatticeNode> visitedNodes = new List<RoadLatticeNode>();
     private Vector3 runningDirection;
+    //public int iterations = 0;
+    //public int maxIterations;
+    //public int maxIt;
 
     /*
      * -1 -> left
@@ -122,29 +127,21 @@ public class RoadScript : MonoBehaviour
                     + Vector3.Cross(runningDirection.normalized * lateralMovementAmount, Vector3.up);
         }
 
-        // Player passed the endNode, new segment is used
-        if ((endNode.Location.x > startNode.Location.x && endNode.Location.y > startNode.Location.y
+        // Check if player passed the endNode, so a new segment is used
+        if ((endNode.Location.x >= startNode.Location.x && endNode.Location.y >= startNode.Location.y
             && playerCenterPosition.x >= endNode.Location.x && playerCenterPosition.z >= endNode.Location.y)
-            || (endNode.Location.x < startNode.Location.x && endNode.Location.y < startNode.Location.y
+            || (endNode.Location.x <= startNode.Location.x && endNode.Location.y <= startNode.Location.y
             && playerCenterPosition.x <= endNode.Location.x && playerCenterPosition.z <= endNode.Location.y)
-            || (endNode.Location.x > startNode.Location.x && endNode.Location.y < startNode.Location.y
+            || (endNode.Location.x >= startNode.Location.x && endNode.Location.y <= startNode.Location.y
             && playerCenterPosition.x >= endNode.Location.x && playerCenterPosition.z <= endNode.Location.y)
-            || (endNode.Location.x < startNode.Location.x && endNode.Location.y > startNode.Location.y
+            || (endNode.Location.x <= startNode.Location.x && endNode.Location.y >= startNode.Location.y
             && playerCenterPosition.x <= endNode.Location.x && playerCenterPosition.z >= endNode.Location.y))
         {
             prevNode = startNode;
             startNode = endNode;
-            visitedNodes.Add(startNode);
 
             // Choose neighbor and update runningDirection
             List<RoadLatticeNode> neighbors = new List<RoadLatticeNode>(startNode.Neighbors);
-            /*
-            endNode = neighbors[neighbors.Count - 1];
-            if (visitedNodes.Contains(endNode))
-            {
-                endNode = neighbors[neighbors.Count - 2];
-            }
-            */
             float angle;
             float minAngle = 0;
             float maxAngle = 0;
@@ -261,7 +258,10 @@ public class RoadScript : MonoBehaviour
 
             slope = (startNode.Location.y - endNode.Location.y) / (startNode.Location.x - endNode.Location.x);
             // Debug.Log(slope);
-            
+
+            // Generate obstacles
+            //GenerateObstacles();
+
         }
     }
 
@@ -309,5 +309,120 @@ public class RoadScript : MonoBehaviour
         // player.GetComponent<Rigidbody>().AddForce(new Vector3(endNode.Location.x - startNode.Location.x, 0, endNode.Location.y - startNode.Location.y), ForceMode.Force);
         player.GetComponent<Rigidbody>().velocity = new Vector3(endNode.Location.x - startNode.Location.x, 0, endNode.Location.y - startNode.Location.y).normalized * movementSpeed;
 
+        // Generate all obstacles
+        GenerateAllObstacles(startNode, endNode);
     }
+
+    private void GenerateObstacles()
+    {
+        Vector3 currentObstaclePos = new Vector3(startNode.Location.x, 0.5f, startNode.Location.y);
+        currentObstaclePos += runningDirection.normalized * distanceBetweenObstacles;
+
+        while (true) {
+            // Check if currentObstaclePos passed the endNode, so generating obstacles stops
+            if ((endNode.Location.x > startNode.Location.x && endNode.Location.y > startNode.Location.y
+                && currentObstaclePos.x >= endNode.Location.x && currentObstaclePos.z >= endNode.Location.y)
+                || (endNode.Location.x < startNode.Location.x && endNode.Location.y < startNode.Location.y
+                && currentObstaclePos.x <= endNode.Location.x && currentObstaclePos.z <= endNode.Location.y)
+                || (endNode.Location.x > startNode.Location.x && endNode.Location.y < startNode.Location.y
+                && currentObstaclePos.x >= endNode.Location.x && currentObstaclePos.z <= endNode.Location.y)
+                || (endNode.Location.x < startNode.Location.x && endNode.Location.y > startNode.Location.y
+                && currentObstaclePos.x <= endNode.Location.x && currentObstaclePos.z >= endNode.Location.y))
+            {
+                break;
+            }
+
+            // Generate new obstacle
+            GameObject currentObstacle = Object.Instantiate(obstacle, currentObstaclePos, Quaternion.Euler(0, 0, 0));
+            currentObstacle.transform.LookAt(new Vector3(startNode.Location.x, 0.5f, startNode.Location.y));
+            currentObstaclePos += runningDirection.normalized * distanceBetweenObstacles;
+
+            int laneNr = Random.Range(0, 3);
+            if (laneNr == 0)
+            {
+                // Generate obstacle on left lane
+                currentObstacle.transform.position += Vector3.Cross(runningDirection.normalized * lateralMovementAmount, Vector3.up);
+            } else if (laneNr == 2)
+            {
+                // Right obstacle on right lane
+                currentObstacle.transform.position -= Vector3.Cross(runningDirection.normalized * lateralMovementAmount, Vector3.up);
+            }
+
+
+        }
+    }
+
+    private void GenerateAllObstacles(RoadLatticeNode start, RoadLatticeNode end)
+    {
+        Vector3 runningDir = new Vector3(end.Location.x - start.Location.x, 0, end.Location.y - start.Location.y);
+        Vector3 currentObstaclePos = new Vector3(start.Location.x, 0.5f, start.Location.y);
+        currentObstaclePos += runningDir.normalized * distanceBetweenObstacles;
+
+        visitedNodes.Add(start);
+
+        /*
+        iterations++;
+        if (iterations >= maxIterations)
+        {
+            return;
+        }
+        */
+
+        // int it = 0;
+
+        // Debug.Log("Start " + start);
+        // Debug.Log("End " + end);
+
+        while (true)
+        {
+            // Check if currentObstaclePos passed the end node, so generating obstacles stops
+            if ((end.Location.x >= start.Location.x && end.Location.y >= start.Location.y
+                && currentObstaclePos.x >= end.Location.x && currentObstaclePos.z >= end.Location.y)
+                || (end.Location.x <= start.Location.x && end.Location.y <= start.Location.y
+                && currentObstaclePos.x <= end.Location.x && currentObstaclePos.z <= end.Location.y)
+                || (end.Location.x >= start.Location.x && end.Location.y <= start.Location.y
+                && currentObstaclePos.x >= end.Location.x && currentObstaclePos.z <= end.Location.y)
+                || (end.Location.x <= start.Location.x && end.Location.y >= start.Location.y
+                && currentObstaclePos.x <= end.Location.x && currentObstaclePos.z >= end.Location.y))
+            {
+                break;
+            }
+
+            /*
+            it++;
+            Debug.Log(it);
+            if (it > maxIt)
+            {
+                return;
+            }
+            */
+
+            // Generate new obstacle
+            GameObject currentObstacle = Object.Instantiate(obstacle, currentObstaclePos, Quaternion.Euler(0, 0, 0));
+            currentObstacle.transform.LookAt(new Vector3(start.Location.x, 0.5f, start.Location.y));
+            currentObstaclePos += runningDir.normalized * distanceBetweenObstacles;
+
+            int laneNr = Random.Range(0, 3);
+            if (laneNr == 0)
+            {
+                // Generate obstacle on left lane
+                currentObstacle.transform.position += Vector3.Cross(runningDir.normalized * lateralMovementAmount, Vector3.up);
+            }
+            else if (laneNr == 2)
+            {
+                // Right obstacle on right lane
+                currentObstacle.transform.position -= Vector3.Cross(runningDir.normalized * lateralMovementAmount, Vector3.up);
+            }
+        }
+
+        List<RoadLatticeNode> endNeighbors = new List<RoadLatticeNode>(end.Neighbors);
+        foreach (RoadLatticeNode neigh in endNeighbors)
+        {
+            if (!visitedNodes.Contains(neigh))
+            {
+                GenerateAllObstacles(end, neigh);
+            }
+        }
+    }
+
 }

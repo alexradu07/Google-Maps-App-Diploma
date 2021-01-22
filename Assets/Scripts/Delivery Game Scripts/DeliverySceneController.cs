@@ -25,7 +25,7 @@ public class DeliverySceneController : MonoBehaviour
 
     public void SelectLocation()
     {
-        string locationString = GameObject.Find("Canvas/LocationDropdownSelector/Label").GetComponent<Text>().text;
+        string locationString = GameObject.Find("Canvas/Panel/LocationDropdownSelector/Label").GetComponent<Text>().text;
         switch (locationString)
         {
             case "Grozavesti":
@@ -42,7 +42,5 @@ public class DeliverySceneController : MonoBehaviour
         }
 
         GameObject.Find("Canvas/Panel").SetActive(false);
-        GameObject.Find("Canvas/LocationDropdownSelector").SetActive(false);
-        GameObject.Find("Canvas/LocationButton").SetActive(false);
     }
 }
