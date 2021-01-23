@@ -14,6 +14,8 @@ public class CarController : MonoBehaviour
     public float cameraX;
     public float cameraY;
     public float cameraZ;
+    public GameObject needle;
+    public float baseRot = -133;
     public float velocity = 0;
     public Camera cam;
     // Start is called before the first frame update
@@ -28,13 +30,16 @@ public class CarController : MonoBehaviour
     }
     void Start()
     {
-      
+
     }
 
     // Update is called once per frame
     void Update()
     {
-        float tempVelocity = Mathf.Sqrt(Mathf.Pow(car_rigid.velocity.x, 2) + Mathf.Pow(car_rigid.velocity.x, 2));
+        float tempVelocity = Mathf.Sqrt(Mathf.Pow(car_rigid.velocity.x, 2) + Mathf.Pow(car_rigid.velocity.z, 2));
+        needle.transform.eulerAngles = new Vector3(needle.transform.eulerAngles.x, needle.transform.eulerAngles.y, baseRot - 6 * velocity);
+        Debug.Log(tempVelocity);
+        //Debug.Log(car_rigid.velocity);
         if (Input.GetKey(KeyCode.A))
         {
             if (angle > -maxAngle)
@@ -65,7 +70,12 @@ public class CarController : MonoBehaviour
         {
             FR.motorTorque = power;
             FL.motorTorque = power;
-            Debug.Log("accel");
+            if (tempVelocity > 44)
+            {
+                FR.motorTorque = 0;
+                FL.motorTorque = 0;
+            }
+            //Debug.Log("accel");
             /*if (tempVelocity < velocity && angle == 0)
             {
                 RR.brakeTorque = 1000;
@@ -80,7 +90,7 @@ public class CarController : MonoBehaviour
         }
         if (Input.GetKey(KeyCode.S))
         {
-            Debug.Log("braking");
+            //Debug.Log("braking");
             FR.motorTorque = -1000;
             FL.motorTorque = -1000;
             if(Mathf.Sqrt(Mathf.Pow(car_rigid.velocity.x,2) + Mathf.Pow(car_rigid.velocity.x, 2)) > 2) 
@@ -91,7 +101,7 @@ public class CarController : MonoBehaviour
         }
         if (Input.GetKey(KeyCode.Space))
         {
-            Debug.Log("handbrake");
+            //Debug.Log("handbrake");
             RR.brakeTorque = 10000;
             RL.brakeTorque = 10000;
         }
@@ -118,6 +128,6 @@ public class CarController : MonoBehaviour
         UpdateWheelPosition(FL, fl_tran);
         UpdateWheelPosition(RR, rr_tran);
         UpdateWheelPosition(RL, rl_tran);
-        velocity = Mathf.Sqrt(Mathf.Pow(car_rigid.velocity.x, 2) + Mathf.Pow(car_rigid.velocity.x, 2));
+        velocity = Mathf.Sqrt(Mathf.Pow(car_rigid.velocity.x, 2) + Mathf.Pow(car_rigid.velocity.z, 2));
     }
 }
