@@ -10,14 +10,20 @@ public class CarController : MonoBehaviour
     public Rigidbody car_rigid;
     public float maxAngle = 30;
     public float angle = 0;
-    public float power = 100.0f;
+    private float power = 500;
     public float cameraX;
     public float cameraY;
     public float cameraZ;
     public GameObject needle;
+    public GameObject needle2;
     public float baseRot = -133;
     public float velocity = 0;
     public Camera cam;
+    private float rpm = 0;
+    private int currentGear = 0;
+    private float currentPower = 0;
+    private List<float> ratios = new List<float>();
+   
     // Start is called before the first frame update
     public void UpdateWheelPosition(WheelCollider col, Transform tran)
     {
@@ -30,7 +36,12 @@ public class CarController : MonoBehaviour
     }
     void Start()
     {
-
+        ratios.Add(0.00171428f);
+        ratios.Add(0.0024285f);
+        ratios.Add(0.0034285f);
+        ratios.Add(0.0048571f);
+        ratios.Add(0.0062857f);
+        currentPower = power * (ratios[2] / ratios[currentGear]);
     }
 
     // Update is called once per frame
@@ -38,7 +49,23 @@ public class CarController : MonoBehaviour
     {
         float tempVelocity = Mathf.Sqrt(Mathf.Pow(car_rigid.velocity.x, 2) + Mathf.Pow(car_rigid.velocity.z, 2));
         needle.transform.eulerAngles = new Vector3(needle.transform.eulerAngles.x, needle.transform.eulerAngles.y, baseRot - 6 * velocity);
-        Debug.Log(tempVelocity);
+        if (rpm < 1000)
+        {
+            needle2.transform.eulerAngles = new Vector3(needle2.transform.eulerAngles.x, needle2.transform.eulerAngles.y, 210 - 1000 * 0.03f);
+        } else
+        {
+            needle2.transform.eulerAngles = new Vector3(needle2.transform.eulerAngles.x, needle2.transform.eulerAngles.y, 210 - rpm * 0.03f);
+        }
+        rpm = tempVelocity / ratios[currentGear];
+        if (rpm > 7000 && currentGear != 4)
+        {
+            changeUp();
+        }
+        if (rpm < 4500 && currentGear != 0)
+        {
+            changeDown();
+        }
+        Debug.Log(needle2.transform.eulerAngles.z);
         //Debug.Log(car_rigid.velocity);
         if (Input.GetKey(KeyCode.A))
         {
@@ -129,5 +156,17 @@ public class CarController : MonoBehaviour
         UpdateWheelPosition(RR, rr_tran);
         UpdateWheelPosition(RL, rl_tran);
         velocity = Mathf.Sqrt(Mathf.Pow(car_rigid.velocity.x, 2) + Mathf.Pow(car_rigid.velocity.z, 2));
+        Debug.Log(currentPower);
+    }
+
+    void changeUp()
+    {
+        currentGear += 1;
+        currentPower = power * (ratios[2] / ratios[currentGear]);
+    }
+    void changeDown()
+    {
+        currentGear -= 1;
+        currentPower = power * (ratios[2] / ratios[currentGear]);
     }
 }
