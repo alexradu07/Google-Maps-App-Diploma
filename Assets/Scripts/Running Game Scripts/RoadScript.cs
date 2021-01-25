@@ -11,14 +11,17 @@ public class RoadScript : MonoBehaviour
     public float lateralMovementAmount;
     public GameObject obstacle;
     public float distanceBetweenObstacles;
+    public float cameraLerpPos;
+    public float cameraLerpRot;
 
     private RoadLatticeNode startNode;
     private RoadLatticeNode endNode;
     private RoadLatticeNode prevNode;
-    private float slope;
+    //private float slope;
 
     private List<RoadLatticeNode> visitedNodes = new List<RoadLatticeNode>();
     private Vector3 runningDirection;
+    private float cameraAngle;
     //public int iterations = 0;
     //public int maxIterations;
     //public int maxIt;
@@ -49,8 +52,9 @@ public class RoadScript : MonoBehaviour
             
             if (roadPosition > -1)
             {
-                player.transform.position = player.transform.position + Vector3.Cross(runningDirection.normalized * lateralMovementAmount,
-                                                    Vector3.up);
+                player.transform.position = Vector3.Lerp(player.transform.position, player.transform.position + Vector3.Cross(runningDirection.normalized * lateralMovementAmount,
+                                                    Vector3.up), 1.0f);
+                //StartCoroutine(MovePlayer(player, player.transform.position + Vector3.Cross(runningDirection.normalized * lateralMovementAmount, Vector3.up)));
                 roadPosition--;
             }
         }
@@ -62,8 +66,8 @@ public class RoadScript : MonoBehaviour
             
             if (roadPosition < 1)
             {
-                player.transform.position = player.transform.position - Vector3.Cross(runningDirection.normalized * lateralMovementAmount,
-                                                    Vector3.up);
+                player.transform.position = Vector3.Lerp(player.transform.position, player.transform.position - Vector3.Cross(runningDirection.normalized * lateralMovementAmount,
+                                                    Vector3.up), 1.0f);
                 roadPosition++;
             }
         }
@@ -90,30 +94,40 @@ public class RoadScript : MonoBehaviour
         {
             player.GetComponent<Rigidbody>().velocity = runningDirection.normalized * movementSpeed;
 
+            /*
             mainCamera.transform.position = Vector3.Lerp(mainCamera.transform.position, new Vector3(player.transform.position.x + 5 * Mathf.Cos(Mathf.Atan(slope)),
                                                             mainCamera.transform.position.y,
                                                             player.transform.position.z + 5 * Mathf.Sin(Mathf.Atan(slope))), 0.1f);
-            /*
-            mainCamera.transform.eulerAngles = Vector3.Lerp(new Vector3(mainCamera.transform.eulerAngles.x,
-                                                        -90-45 - Mathf.Atan(slope) * 180 / Mathf.PI,
-                                                        mainCamera.transform.eulerAngles.z), mainCamera.transform.eulerAngles, 0.1f);
-                                                        */
             mainCamera.transform.rotation = Quaternion.Lerp(mainCamera.transform.rotation, Quaternion.Euler(new Vector3(mainCamera.transform.eulerAngles.x,
                                                         -90 - Mathf.Atan(slope) * 180 / Mathf.PI,
                                                         mainCamera.transform.eulerAngles.z)), 0.1f);
+            */
+
+            Vector3 cameraPos = player.transform.position - runningDirection.normalized * 5;
+            mainCamera.transform.position = Vector3.Lerp(mainCamera.transform.position, new Vector3(cameraPos.x, 2, cameraPos.z), cameraLerpPos);
+            //mainCamera.transform.position += new Vector3(0, 1.5f, 0);
+            //mainCamera.transform.LookAt(player.transform);
+            mainCamera.transform.rotation = Quaternion.Lerp(mainCamera.transform.rotation, Quaternion.Euler(new Vector3(mainCamera.transform.eulerAngles.x,
+                                                        cameraAngle,
+                                                        mainCamera.transform.eulerAngles.z)), cameraLerpRot);
         } else
         {
+            /*
             mainCamera.transform.position = Vector3.Lerp(mainCamera.transform.position, new Vector3(player.transform.position.x - 5 * Mathf.Cos(Mathf.Atan(slope)),
                                                         mainCamera.transform.position.y,
                                                         player.transform.position.z - 5 * Mathf.Sin(Mathf.Atan(slope))), 0.1f);
-            /*
-            mainCamera.transform.eulerAngles = Vector3.Lerp(mainCamera.transform.eulerAngles, new Vector3(mainCamera.transform.eulerAngles.x,
-                                                        90 - Mathf.Atan(slope) * 180 / Mathf.PI,
-                                                        mainCamera.transform.eulerAngles.z), 0.1f);
-                                                        */
             mainCamera.transform.rotation = Quaternion.Lerp(mainCamera.transform.rotation, Quaternion.Euler(new Vector3(mainCamera.transform.eulerAngles.x,
                                                         90 - Mathf.Atan(slope) * 180 / Mathf.PI,
                                                         mainCamera.transform.eulerAngles.z)), 0.1f);
+            */
+
+            Vector3 cameraPos = player.transform.position - runningDirection.normalized * 5;
+            mainCamera.transform.position = Vector3.Lerp(mainCamera.transform.position, new Vector3(cameraPos.x, 2, cameraPos.z), cameraLerpPos);
+            //mainCamera.transform.position += new Vector3(0, 1.5f, 0);
+            //mainCamera.transform.LookAt(player.transform);
+            mainCamera.transform.rotation = Quaternion.Lerp(mainCamera.transform.rotation, Quaternion.Euler(new Vector3(mainCamera.transform.eulerAngles.x,
+                                                        cameraAngle,
+                                                        mainCamera.transform.eulerAngles.z)), cameraLerpRot);
         }
 
         // Calculate player center position
@@ -230,6 +244,8 @@ public class RoadScript : MonoBehaviour
                 }
             }
             runningDirection = new Vector3(endNode.Location.x - startNode.Location.x, 0, endNode.Location.y - startNode.Location.y);
+            cameraAngle = mainCamera.transform.eulerAngles.y + Vector3.SignedAngle(new Vector3(mainCamera.transform.forward.x, 0, mainCamera.transform.forward.z),
+                                                                                    runningDirection.normalized, Vector3.up);
 
             // Keep lane when new segment is used
             if (roadPosition == 0)
@@ -256,7 +272,7 @@ public class RoadScript : MonoBehaviour
             // player.transform.position = Vector3.Lerp(player.transform.position, new Vector3(startNode.Location.x, 0, startNode.Location.y), 0.1f);
 
 
-            slope = (startNode.Location.y - endNode.Location.y) / (startNode.Location.x - endNode.Location.x);
+            //slope = (startNode.Location.y - endNode.Location.y) / (startNode.Location.x - endNode.Location.x);
             // Debug.Log(slope);
 
             // Generate obstacles
@@ -290,8 +306,8 @@ public class RoadScript : MonoBehaviour
         List<RoadLatticeNode> neighbors = new List<RoadLatticeNode>(startNode.Neighbors);
         endNode = neighbors[0];
 
-        slope = (startNode.Location.y - endNode.Location.y) / (startNode.Location.x - endNode.Location.x);
-        Debug.Log(slope);
+        //slope = (startNode.Location.y - endNode.Location.y) / (startNode.Location.x - endNode.Location.x);
+        //Debug.Log(slope);
         /*
         Debug.Log(startNode.Location.x);
         Debug.Log(startNode.Location.y);
@@ -299,12 +315,20 @@ public class RoadScript : MonoBehaviour
         Debug.Log(endNode.Location.y);
         */
 
+        /*
         mainCamera.transform.position = new Vector3(player.transform.position.x - 5 * Mathf.Cos(Mathf.Atan(slope)),
                                                     mainCamera.transform.position.y,
                                                     player.transform.position.z - 5 * Mathf.Sin(Mathf.Atan(slope)));
         mainCamera.transform.eulerAngles = new Vector3(mainCamera.transform.eulerAngles.x,
                                                     90 - Mathf.Atan(slope) * 180 / Mathf.PI,
                                                     mainCamera.transform.eulerAngles.z);
+        */
+        runningDirection = new Vector3(endNode.Location.x - startNode.Location.x, 0, endNode.Location.y - startNode.Location.y);
+        mainCamera.transform.position = Vector3.Lerp(mainCamera.transform.position, player.transform.position - runningDirection.normalized * 5, cameraLerpPos);
+        //mainCamera.transform.position = player.transform.position - runningDirection.normalized * 5;
+        mainCamera.transform.position += new Vector3(0, 1.5f, 0);
+        cameraAngle = mainCamera.transform.eulerAngles.y + Vector3.SignedAngle(new Vector3(mainCamera.transform.forward.x, 0, mainCamera.transform.forward.z),
+                                                                                    runningDirection.normalized, Vector3.up);
 
         // player.GetComponent<Rigidbody>().AddForce(new Vector3(endNode.Location.x - startNode.Location.x, 0, endNode.Location.y - startNode.Location.y), ForceMode.Force);
         player.GetComponent<Rigidbody>().velocity = new Vector3(endNode.Location.x - startNode.Location.x, 0, endNode.Location.y - startNode.Location.y).normalized * movementSpeed;
@@ -425,4 +449,12 @@ public class RoadScript : MonoBehaviour
         }
     }
 
+    IEnumerator MovePlayer(GameObject player, Vector3 targetPos)
+    {
+        while (Vector3.Distance(player.transform.position, targetPos) > 0.1f) {
+            player.transform.position = Vector3.Lerp(player.transform.position, player.transform.position + Vector3.Cross(runningDirection.normalized * lateralMovementAmount,
+                                                        Vector3.up), 0.1f);
+            yield return null;
+        }  
+    }
 }

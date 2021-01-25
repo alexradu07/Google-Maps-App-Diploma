@@ -891,7 +891,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1068118120}
   m_LocalRotation: {x: 0.13052616, y: 0, z: 0, w: 0.9914449}
-  m_LocalPosition: {x: -9.141891, y: 2, z: -10}
+  m_LocalPosition: {x: -9.141891, y: 200, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -1288,9 +1288,8 @@ MonoBehaviour:
   obstacle: {fileID: 2631879257833576779, guid: ae68ecfcdde9df64bb99522499c741e0,
     type: 3}
   distanceBetweenObstacles: 10
-  iterations: 0
-  maxIterations: 5000
-  maxIt: 50
+  cameraLerpPos: 0.1
+  cameraLerpRot: 0.05
 --- !u!4 &1296368462
 Transform:
   m_ObjectHideFlags: 0

@@ -9,7 +9,6 @@ public class SceneController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
     }
 
     // Update is called once per frame
@@ -44,5 +43,9 @@ public class SceneController : MonoBehaviour
         GameObject.Find("Canvas/Panel").SetActive(false);
         GameObject.Find("Canvas/LocationDropdownSelector").SetActive(false);
         GameObject.Find("Canvas/LocationButton").SetActive(false);
+        GameObject.Find("Canvas/Speedo/needle").SetActive(true);
+        GameObject.Find("Canvas/Speedo/speedo").SetActive(true);
+        GameObject.Find("Canvas/Speedo/needle2").SetActive(true);
+        GameObject.Find("Canvas/Speedo/revs").SetActive(true);
     }
 }
