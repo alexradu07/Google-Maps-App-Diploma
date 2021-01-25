@@ -47,6 +47,5 @@ public class SceneController : MonoBehaviour
         GameObject.Find("Canvas/Speedo/speedo").SetActive(true);
         GameObject.Find("Canvas/Speedo/needle2").SetActive(true);
         GameObject.Find("Canvas/Speedo/revs").SetActive(true);
-        GameObject.Find("Canvas/Text").SetActive(true);
     }
 }
