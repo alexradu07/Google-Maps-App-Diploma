@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class CarController : MonoBehaviour
 {
@@ -23,6 +24,12 @@ public class CarController : MonoBehaviour
     private int currentGear = 0;
     private float currentPower = 0;
     private List<float> ratios = new List<float>();
+    public Text timeElapsed;
+    private float time = 0;
+    static public bool gameEnded = false;
+    private bool firstWPressed = false;
+    private float airResistance = 0;
+    private float tempVelocity = 0;
    
     // Start is called before the first frame update
     public void UpdateWheelPosition(WheelCollider col, Transform tran)
@@ -47,7 +54,11 @@ public class CarController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        float tempVelocity = Mathf.Sqrt(Mathf.Pow(car_rigid.velocity.x, 2) + Mathf.Pow(car_rigid.velocity.z, 2));
+        if (firstWPressed && !gameEnded)
+        {
+            time += Time.deltaTime;
+        }
+        tempVelocity = Mathf.Sqrt(Mathf.Pow(car_rigid.velocity.x, 2) + Mathf.Pow(car_rigid.velocity.z, 2));
         needle.transform.eulerAngles = new Vector3(needle.transform.eulerAngles.x, needle.transform.eulerAngles.y, baseRot - 6 * velocity);
         if (rpm < 1000)
         {
@@ -95,6 +106,10 @@ public class CarController : MonoBehaviour
         }
         if (Input.GetKey(KeyCode.W))
         {
+            if (!firstWPressed)
+            {
+                firstWPressed = true;
+            }
             FR.motorTorque = power;
             FL.motorTorque = power;
             if (tempVelocity > 44)
@@ -157,6 +172,7 @@ public class CarController : MonoBehaviour
         UpdateWheelPosition(RL, rl_tran);
         velocity = Mathf.Sqrt(Mathf.Pow(car_rigid.velocity.x, 2) + Mathf.Pow(car_rigid.velocity.z, 2));
         Debug.Log(currentPower);
+        timeElapsed.text = string.Format("{0:00}:{1:00}", Mathf.FloorToInt(time / 60), Mathf.FloorToInt(time % 60));
     }
 
     void changeUp()

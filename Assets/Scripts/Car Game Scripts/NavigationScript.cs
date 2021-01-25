@@ -22,6 +22,7 @@ public class NavigationScript : MonoBehaviour
     public GameObject arrow;
     public List<GameObject> checkpoints = new List<GameObject>();
     public int currentIndex = 0;
+    private bool checkpointsReady = false;
     private void Initialise(MapLoadedArgs args)
     {
         lattices = new List<RoadLatticeNode>(mapsService.RoadLattice.Nodes);
@@ -69,6 +70,7 @@ public class NavigationScript : MonoBehaviour
             }
             //Object.Instantiate(prefab, new Vector3(i.Location.x, 0, i.Location.y), Quaternion.identity);
         }
+        checkpointsReady = true;
         //Object.Instantiate(prefab, new Vector3(startNavi.Location.x, 0, startNavi.Location.y), Quaternion.identity);
     }
 
@@ -93,6 +95,12 @@ public class NavigationScript : MonoBehaviour
                 currentIndex++;
             }
         }
+        if (currentIndex == checkpoints.Count && checkpointsReady == true)
+        {
+            CarController.gameEnded = true;
+            arrow.SetActive(false);
+        }
+
     }
 
 }
