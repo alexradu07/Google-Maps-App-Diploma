@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using Google.Maps.Unity.Intersections;
 using Google.Maps;
 using Google.Maps.Event;
@@ -13,6 +14,10 @@ public class RoadScript : MonoBehaviour
     public float distanceBetweenObstacles;
     public float cameraLerpPos;
     public float cameraLerpRot;
+
+    public GameObject roadNamePanel;
+    public GameObject miniMap;
+    private string roadName;
 
     private RoadLatticeNode startNode;
     private RoadLatticeNode endNode;
@@ -83,6 +88,9 @@ public class RoadScript : MonoBehaviour
         MapsService mapsService = GameObject.Find("GoogleMaps").GetComponent<MapLoaderRunningGame>().mapsService;
         GameObject player = GameObject.Find("Player");
         Camera mainCamera = Camera.main;
+
+        //Debug.Log(edges[0].Segment.GameObjectName());
+        //Debug.Log(edges[0].Segment.MapFeatureMetadata.Name);
 
         // player.GetComponent<Rigidbody>().AddForce(new Vector3(endNode.Location.x - startNode.Location.x, 0, endNode.Location.y - startNode.Location.y), ForceMode.Force);
         runningDirection = new Vector3(endNode.Location.x - startNode.Location.x, 0, endNode.Location.y - startNode.Location.y);
@@ -278,6 +286,9 @@ public class RoadScript : MonoBehaviour
             // Generate obstacles
             //GenerateObstacles();
 
+            // Update road name
+            roadName = startNode.EdgeTo(endNode).Segment.MapFeatureMetadata.Name;
+            roadNamePanel.GetComponentInChildren<Text>().text = roadName;
         }
     }
 
@@ -335,6 +346,14 @@ public class RoadScript : MonoBehaviour
 
         // Generate all obstacles
         GenerateAllObstacles(startNode, endNode);
+
+        // Update road name
+        roadName = startNode.EdgeTo(endNode).Segment.MapFeatureMetadata.Name;
+        roadNamePanel.SetActive(true);
+        roadNamePanel.GetComponentInChildren<Text>().text = roadName;
+
+        // Make minimap visible
+        miniMap.SetActive(true);
     }
 
     private void GenerateObstacles()
