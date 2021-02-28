@@ -23,6 +23,8 @@ public class DeliveryCarController : MonoBehaviour
     public GameObject dialogPanel;
     public GameObject orderPickupAck;
     public GameObject arrow;
+    public GameObject timerPanel;
+    public GameObject timerText;
     private float maxAngle;
     private float angle;
     public Transform frontWheelTransform, rearLeftWheelTransform, rearRightWheelTransform;
@@ -121,6 +123,8 @@ public class DeliveryCarController : MonoBehaviour
                 orderPickupAck.SetActive(true);
                 Text prompt = GameObject.Find("Canvas/OrderPickUpAck/PromptText").GetComponent<Text>();
                 prompt.text = "You have successfully delivered order to destination.";
+                DeliveryTimerScript timerScript = timerText.GetComponent<DeliveryTimerScript>();
+                timerScript.StopTimer();
             }
         }
 
@@ -194,6 +198,7 @@ public class DeliveryCarController : MonoBehaviour
             {
                 if (!dialogPanel.activeSelf)
                 {
+                    timerPanel.SetActive(false);
                     System.Random random = new System.Random();
                     int orderRestaurantIndex = random.Next(mapLoader.objectContainer.results.Count);
                     Debug.Log("Random number selected : " + orderRestaurantIndex);
@@ -225,6 +230,10 @@ public class DeliveryCarController : MonoBehaviour
         Vector3 restaurantPosition = mapLoader.mapsService.Coords.FromLatLngToVector3(new LatLng(currentRestaurant.geometry.location.lat, currentRestaurant.geometry.location.lng));
         marker.transform.position = restaurantPosition + new Vector3(0, 100.5f, 0);
         arrow.SetActive(true);
+        timerPanel.SetActive(true);
+        DeliveryTimerScript timerScript = timerText.GetComponent<DeliveryTimerScript>();
+        timerScript.ResetTimer();
+        timerScript.StartTimer();
     }
 
     public void onRejectOrder()
@@ -273,5 +282,11 @@ public class DeliveryCarController : MonoBehaviour
     public void toggleStatus()
     {
         tuktukActive = !tuktukActive;
+        if (!tuktukActive)
+        {
+            timerPanel.SetActive(false);
+            DeliveryTimerScript timerScript = timerText.GetComponent<DeliveryTimerScript>();
+            timerScript.ResetTimer();
+        }
     }
 }
