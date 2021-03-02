@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Google.Maps.Coord;
+using Google.Maps.Unity.Intersections;
 using UnityEditor;
 using System.Timers;
 using System.Diagnostics;
@@ -25,12 +26,14 @@ public class DeliveryCarController : MonoBehaviour
     public GameObject arrow;
     public GameObject timerPanel;
     public GameObject timerText;
+    public GameObject minimap;
+    public GameObject tukTukStatusDialog;
+    public GameObject pathSphere;
+    public Transform frontWheelTransform, rearLeftWheelTransform, rearRightWheelTransform;
     private float maxAngle;
     private float angle;
-    public Transform frontWheelTransform, rearLeftWheelTransform, rearRightWheelTransform;
     private DeliveryMapLoader mapLoader;
     private bool waitingForOrder;
-    private bool receivedOrder;
     private bool deliveringOrder;
     private bool onWayToRestaurant;
     private bool coroutineStarted;
@@ -39,6 +42,7 @@ public class DeliveryCarController : MonoBehaviour
     private Stopwatch watch;
     private bool tuktukActive;
     private Text statusText;
+    private List<GameObject> currentActivePath;
 
     // Start is called before the first frame update
     void Start()
@@ -51,11 +55,12 @@ public class DeliveryCarController : MonoBehaviour
             Debug.Log("maploader is null");
         }
         waitingForOrder = true;
-        receivedOrder = false;
         deliveringOrder = false;
         onWayToRestaurant = false;
         arrow.SetActive(false);
         marker.SetActive(false);
+        minimap.SetActive(true);
+        tukTukStatusDialog.SetActive(true);
         watch = new Stopwatch();
         watch.Start();
         coroutineStarted = true;
@@ -99,7 +104,7 @@ public class DeliveryCarController : MonoBehaviour
             Vector3 arrowDirection = (marker.transform.position - this.transform.position).normalized;
             arrow.transform.position = this.transform.position + new Vector3(0, 4, 0);
             arrow.transform.LookAt(marker.transform);
-            arrow.transform.rotation = Quaternion.Euler(arrow.transform.eulerAngles.x,
+            arrow.transform.rotation = Quaternion.Euler(0,
                     arrow.transform.eulerAngles.y - 90,
                     arrow.transform.eulerAngles.z);
             if (Vector3.Distance(rb.transform.position, marker.transform.position) - 100 < .7f)
@@ -114,7 +119,7 @@ public class DeliveryCarController : MonoBehaviour
             Vector3 arrowDirection = (marker.transform.position - this.transform.position).normalized;
             arrow.transform.position = this.transform.position + new Vector3(0, 4, 0);
             arrow.transform.LookAt(marker.transform);
-            arrow.transform.rotation = Quaternion.Euler(arrow.transform.eulerAngles.x,
+            arrow.transform.rotation = Quaternion.Euler(0,
                     arrow.transform.eulerAngles.y - 90,
                     arrow.transform.eulerAngles.z);
 
@@ -168,7 +173,6 @@ public class DeliveryCarController : MonoBehaviour
         {
             rearLeftWheelCollider.brakeTorque = 500;
             rearRightWheelCollider.brakeTorque = 500;
-            //frontWheelCollider.brakeTorque = 500;
         }
 
         if (!Input.GetKey(KeyCode.A) && !Input.GetKey(KeyCode.D))
@@ -186,6 +190,58 @@ public class DeliveryCarController : MonoBehaviour
         UpdateWheelPosition(rearRightWheelCollider, rearRightWheelTransform);
         UpdateWheelPosition(rearLeftWheelCollider, rearLeftWheelTransform);
         UpdateWheelPosition(frontWheelCollider, frontWheelTransform);
+    }
+
+    List<GameObject> GeneratePath(Vector3 destinationPosition)
+    {
+        List<RoadLatticeNode> allLattices;
+        allLattices = new List<RoadLatticeNode>(mapLoader.mapsService.RoadLattice.Nodes);
+        Vector3 currentPosition = tuktuk.transform.position;
+        float minDistance = 1000;
+        Vector3 closestPosition = new Vector3(1000, 1000, 1000);
+        float minDistanceUser = 1000;
+        Vector3 closestPositionUser = new Vector3(1000, 1000, 1000);
+        RoadLatticeNode destinationNode;
+        destinationNode = allLattices[0];
+        RoadLatticeNode sourceNode;
+        sourceNode = allLattices[0];
+        foreach (RoadLatticeNode lattice in allLattices)
+        {
+            Vector3 roadLatticePosition = new Vector3(lattice.Location.x, 0, lattice.Location.y);
+            float distance = Vector3.Distance(roadLatticePosition, destinationPosition);
+            if (distance < minDistance)
+            {
+                minDistance = distance;
+                closestPosition = roadLatticePosition;
+                destinationNode = lattice;
+            }
+            distance = Vector3.Distance(roadLatticePosition, currentPosition);
+            if (distance < minDistanceUser)
+            {
+                minDistanceUser = distance;
+                closestPositionUser = roadLatticePosition;
+                sourceNode = lattice;
+            }
+        }
+        List<RoadLatticeNode> pathToDestination;
+        pathToDestination = new List<RoadLatticeNode>(RoadLattice.FindPath(sourceNode, destinationNode, 10000, null));
+        List<GameObject> createdPathObjects = new List<GameObject>();    
+        foreach (RoadLatticeNode lattice in pathToDestination)
+        {
+            if (createdPathObjects.Count == 0)
+            {
+                createdPathObjects.Add(Object.Instantiate(pathSphere, new Vector3(lattice.Location.x, 0, lattice.Location.y), Quaternion.identity));
+            }
+            else
+            {
+                if (Vector3.Distance(new Vector3(lattice.Location.x, 0, lattice.Location.y), createdPathObjects[createdPathObjects.Count - 1].transform.position) > 1)
+                {
+                    createdPathObjects.Add(Object.Instantiate(pathSphere, new Vector3(lattice.Location.x, 0, lattice.Location.y), Quaternion.identity));
+                }
+
+            }
+        }
+        return createdPathObjects;
     }
 
     private IEnumerator TimerTicked(Stopwatch wotspatch)
@@ -234,6 +290,7 @@ public class DeliveryCarController : MonoBehaviour
         DeliveryTimerScript timerScript = timerText.GetComponent<DeliveryTimerScript>();
         timerScript.ResetTimer();
         timerScript.StartTimer();
+        currentActivePath = GeneratePath(marker.transform.position);
     }
 
     public void onRejectOrder()
@@ -245,6 +302,14 @@ public class DeliveryCarController : MonoBehaviour
 
     public void onPromptOk()
     {
+        if (currentActivePath.Count != 0)
+        {
+            foreach (GameObject spherePath in currentActivePath)
+            {
+                spherePath.SetActive(false);
+            }
+            currentActivePath.Clear();
+        }
         if (onWayToRestaurant)
         {
             onWayToRestaurant = false;
@@ -268,6 +333,7 @@ public class DeliveryCarController : MonoBehaviour
             marker.transform.position = currentDeliverySpot.transform.position + new Vector3(0, 100.5f, 0);
             arrow.SetActive(true);
             Debug.Log("Delivering order");
+            currentActivePath = GeneratePath(marker.transform.position);
         }
         else if (deliveringOrder)
         {
