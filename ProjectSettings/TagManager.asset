@@ -14,8 +14,9 @@ TagManager:
   - 
   - 
   - PostProcessing
+  - Camera1
+  - Minimap
   - PathLayer
-  - 
   - 
   - 
   - 
