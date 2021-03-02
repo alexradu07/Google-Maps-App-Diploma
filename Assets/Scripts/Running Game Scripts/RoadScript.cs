@@ -10,7 +10,7 @@ public class RoadScript : MonoBehaviour
 {
     public float movementSpeed;
     public float lateralMovementAmount;
-    public GameObject obstacle;
+    public List<GameObject> obstacles;
     public float distanceBetweenObstacles;
     public float cameraLerpPos;
     public float cameraLerpRot;
@@ -356,6 +356,7 @@ public class RoadScript : MonoBehaviour
         miniMap.SetActive(true);
     }
 
+    /*
     private void GenerateObstacles()
     {
         Vector3 currentObstaclePos = new Vector3(startNode.Location.x, 0.5f, startNode.Location.y);
@@ -394,6 +395,7 @@ public class RoadScript : MonoBehaviour
 
         }
     }
+    */
 
     private void GenerateAllObstacles(RoadLatticeNode start, RoadLatticeNode end)
     {
@@ -441,8 +443,9 @@ public class RoadScript : MonoBehaviour
             */
 
             // Generate new obstacle
-            GameObject currentObstacle = Object.Instantiate(obstacle, currentObstaclePos, Quaternion.Euler(0, 0, 0));
+            GameObject currentObstacle = Object.Instantiate(obstacles[Random.Range(0, obstacles.Count)], currentObstaclePos, Quaternion.Euler(0, 0, 0));
             currentObstacle.transform.LookAt(new Vector3(start.Location.x, 0.5f, start.Location.y));
+            currentObstacle.transform.Rotate(0, 90, 0);
             currentObstaclePos += runningDir.normalized * distanceBetweenObstacles;
 
             int laneNr = Random.Range(0, 3);
