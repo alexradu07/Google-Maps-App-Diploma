@@ -286,6 +286,9 @@ public class RoadScript : MonoBehaviour
             // Generate obstacles
             //GenerateObstacles();
 
+            // Update player rotation
+            player.transform.LookAt(new Vector3(endNode.Location.x, player.transform.position.y, endNode.Location.y));
+
             // Update road name
             roadName = startNode.EdgeTo(endNode).Segment.MapFeatureMetadata.Name;
             roadNamePanel.GetComponentInChildren<Text>().text = roadName;
@@ -343,6 +346,9 @@ public class RoadScript : MonoBehaviour
 
         // player.GetComponent<Rigidbody>().AddForce(new Vector3(endNode.Location.x - startNode.Location.x, 0, endNode.Location.y - startNode.Location.y), ForceMode.Force);
         player.GetComponent<Rigidbody>().velocity = new Vector3(endNode.Location.x - startNode.Location.x, 0, endNode.Location.y - startNode.Location.y).normalized * movementSpeed;
+        
+        // Update player rotation
+        player.transform.LookAt(new Vector3(endNode.Location.x, player.transform.position.y, endNode.Location.y));
 
         // Generate all obstacles
         GenerateAllObstacles(startNode, endNode);
