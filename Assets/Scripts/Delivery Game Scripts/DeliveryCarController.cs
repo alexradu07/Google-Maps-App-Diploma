@@ -151,14 +151,14 @@ public class DeliveryCarController : MonoBehaviour
         {
             if (angle > -maxAngle)
             {
-                angle -= 2;
+                angle -= 1;
             }
         }
         if (Input.GetKey(KeyCode.D))
         {
             if (angle < maxAngle)
             {
-                angle += 2;
+                angle += 1;
             }
         }
         if (Input.GetKey(KeyCode.W))
@@ -167,10 +167,11 @@ public class DeliveryCarController : MonoBehaviour
         }
         if (Input.GetKey(KeyCode.S))
         {
-            frontWheelCollider.motorTorque = -200;
+            frontWheelCollider.motorTorque = -300;
         }
         if (Input.GetKey(KeyCode.Space))
         {
+            frontWheelCollider.brakeTorque = 300;
             rearLeftWheelCollider.brakeTorque = 500;
             rearRightWheelCollider.brakeTorque = 500;
         }
@@ -223,6 +224,7 @@ public class DeliveryCarController : MonoBehaviour
                 sourceNode = lattice;
             }
         }
+        marker.transform.position = closestPosition + new Vector3(0, 100.5f, 0);
         List<RoadLatticeNode> pathToDestination;
         pathToDestination = new List<RoadLatticeNode>(RoadLattice.FindPath(sourceNode, destinationNode, 10000, null));
         List<GameObject> createdPathObjects = new List<GameObject>();    
@@ -234,9 +236,19 @@ public class DeliveryCarController : MonoBehaviour
             }
             else
             {
-                if (Vector3.Distance(new Vector3(lattice.Location.x, 0, lattice.Location.y), createdPathObjects[createdPathObjects.Count - 1].transform.position) > 5)
+                float currentDistance = Vector3.Distance(new Vector3(lattice.Location.x, 0, lattice.Location.y), createdPathObjects[createdPathObjects.Count - 1].transform.position);
+                if (currentDistance > 5 && currentDistance < 10)
                 {
                     createdPathObjects.Add(Object.Instantiate(pathSphere, new Vector3(lattice.Location.x, 0, lattice.Location.y), Quaternion.identity));
+                } else if (currentDistance >= 10)
+                {
+                    int numberAddedArrows = (int) (currentDistance / 10) - 1;
+                    Vector3 directionVector = (new Vector3(lattice.Location.x, 0, lattice.Location.y) - createdPathObjects[createdPathObjects.Count - 1].transform.position).normalized;
+                    for (int i = 1; i <= numberAddedArrows; ++i)
+                    {
+                        Vector3 targetPosition = createdPathObjects[createdPathObjects.Count - 1].transform.position + directionVector * 10;
+                        createdPathObjects.Add(Object.Instantiate(pathSphere, targetPosition, Quaternion.identity));
+                    }
                 }
 
             }
