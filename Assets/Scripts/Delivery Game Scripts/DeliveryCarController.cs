@@ -234,11 +234,21 @@ public class DeliveryCarController : MonoBehaviour
             }
             else
             {
-                if (Vector3.Distance(new Vector3(lattice.Location.x, 0, lattice.Location.y), createdPathObjects[createdPathObjects.Count - 1].transform.position) > 1)
+                if (Vector3.Distance(new Vector3(lattice.Location.x, 0, lattice.Location.y), createdPathObjects[createdPathObjects.Count - 1].transform.position) > 5)
                 {
                     createdPathObjects.Add(Object.Instantiate(pathSphere, new Vector3(lattice.Location.x, 0, lattice.Location.y), Quaternion.identity));
                 }
 
+            }
+        }
+        for (int i = 0; i < createdPathObjects.Count; ++i)
+        {
+            if (i != createdPathObjects.Count - 1)
+            {
+                createdPathObjects[i].transform.LookAt(createdPathObjects[i + 1].transform);
+                createdPathObjects[i].transform.rotation = Quaternion.Euler(0,
+                    createdPathObjects[i].transform.eulerAngles.y + 90,
+                    createdPathObjects[i].transform.eulerAngles.z);
             }
         }
         return createdPathObjects;

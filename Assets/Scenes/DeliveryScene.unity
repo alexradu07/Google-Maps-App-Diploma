@@ -4440,7 +4440,7 @@ MonoBehaviour:
   timerText: {fileID: 605562359}
   minimap: {fileID: 1682602352}
   tukTukStatusDialog: {fileID: 2019788526}
-  pathSphere: {fileID: 4631529839918272501, guid: 9f334eb1066f95848ab238f4b1d5d726,
+  pathSphere: {fileID: 5296772290402426315, guid: 20ec42ccb68171a4e982d9373862c05f,
     type: 3}
   frontWheelTransform: {fileID: 1613801336}
   rearLeftWheelTransform: {fileID: 1613776684}
