@@ -151,14 +151,14 @@ public class DeliveryCarController : MonoBehaviour
         {
             if (angle > -maxAngle)
             {
-                angle -= 2;
+                angle -= 1;
             }
         }
         if (Input.GetKey(KeyCode.D))
         {
             if (angle < maxAngle)
             {
-                angle += 2;
+                angle += 1;
             }
         }
         if (Input.GetKey(KeyCode.W))
@@ -167,10 +167,11 @@ public class DeliveryCarController : MonoBehaviour
         }
         if (Input.GetKey(KeyCode.S))
         {
-            frontWheelCollider.motorTorque = -200;
+            frontWheelCollider.motorTorque = -300;
         }
         if (Input.GetKey(KeyCode.Space))
         {
+            frontWheelCollider.brakeTorque = 300;
             rearLeftWheelCollider.brakeTorque = 500;
             rearRightWheelCollider.brakeTorque = 500;
         }
