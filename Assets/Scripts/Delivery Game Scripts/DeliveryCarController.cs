@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using Google.Maps.Coord;
 using Google.Maps.Unity.Intersections;
-using UnityEditor;
-using System.Timers;
 using System.Diagnostics;
 using UnityEngine.UI;
 

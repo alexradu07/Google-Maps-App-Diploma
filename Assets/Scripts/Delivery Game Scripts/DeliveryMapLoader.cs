@@ -1,13 +1,10 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using Google.Maps.Coord;
 using Google.Maps.Event;
 using Google.Maps;
 using System.Net.Http;
 using UnityEngine.UI;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
 
 [RequireComponent(typeof(MapsService))]
