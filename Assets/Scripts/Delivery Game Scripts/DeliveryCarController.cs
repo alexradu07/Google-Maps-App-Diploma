@@ -169,9 +169,9 @@ public class DeliveryCarController : MonoBehaviour
         }
         if (Input.GetKey(KeyCode.Space))
         {
-            frontWheelCollider.brakeTorque = 300;
-            rearLeftWheelCollider.brakeTorque = 500;
-            rearRightWheelCollider.brakeTorque = 500;
+            frontWheelCollider.brakeTorque = 400;
+            rearLeftWheelCollider.brakeTorque = 600;
+            rearRightWheelCollider.brakeTorque = 600;
         }
 
         if (!Input.GetKey(KeyCode.A) && !Input.GetKey(KeyCode.D))
@@ -276,6 +276,14 @@ public class DeliveryCarController : MonoBehaviour
                 {
                     timerPanel.SetActive(false);
                     System.Random random = new System.Random();
+                    if (mapLoader.objectContainer == null)
+                    {
+                        while (mapLoader.objectContainer == null)
+                        {
+                            ;
+                        }
+                    }
+
                     int orderRestaurantIndex = random.Next(mapLoader.objectContainer.results.Count);
                     Debug.Log("Random number selected : " + orderRestaurantIndex);
                     currentRestaurant = mapLoader.objectContainer.results[orderRestaurantIndex];
