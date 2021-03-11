@@ -147,8 +147,8 @@ public class RoadScript : MonoBehaviour
             // Choose neighbor and update runningDirection
             List<RoadLatticeNode> neighbors = new List<RoadLatticeNode>(startNode.Neighbors);
             float angle;
-            float minAngle = 0;
-            float maxAngle = 0;
+            float minAngle = 180;
+            float maxAngle = -180;
             float closestToZeroAngle = 180;
             if (neighbors.Count == 1)
             {
@@ -209,8 +209,14 @@ public class RoadScript : MonoBehaviour
                     // Left position
                     foreach (RoadLatticeNode neigh in neighbors)
                     {
+                        if (neigh == prevNode)
+                        {
+                            continue;
+                        }
+                        //angle = Vector3.SignedAngle(runningDirection,
+                        //    new Vector3(neigh.Location.x - prevNode.Location.x, 0, neigh.Location.y - prevNode.Location.y), Vector3.up);
                         angle = Vector3.SignedAngle(runningDirection,
-                            new Vector3(neigh.Location.x - prevNode.Location.x, 0, neigh.Location.y - prevNode.Location.y), Vector3.up);
+                            new Vector3(neigh.Location.x - startNode.Location.x, 0, neigh.Location.y - startNode.Location.y), Vector3.up);
                         if (angle < minAngle)
                         {
                             minAngle = angle;
@@ -223,8 +229,14 @@ public class RoadScript : MonoBehaviour
                     // Right position
                     foreach (RoadLatticeNode neigh in neighbors)
                     {
+                        if (neigh == prevNode)
+                        {
+                            continue;
+                        }
+                        //angle = Vector3.SignedAngle(runningDirection,
+                        //    new Vector3(neigh.Location.x - prevNode.Location.x, 0, neigh.Location.y - prevNode.Location.y), Vector3.up);
                         angle = Vector3.SignedAngle(runningDirection,
-                            new Vector3(neigh.Location.x - prevNode.Location.x, 0, neigh.Location.y - prevNode.Location.y), Vector3.up);
+                            new Vector3(neigh.Location.x - startNode.Location.x, 0, neigh.Location.y - startNode.Location.y), Vector3.up);
                         if (angle > maxAngle)
                         {
                             maxAngle = angle;
@@ -473,7 +485,7 @@ public class RoadScript : MonoBehaviour
         // Move to the left
         // player.GetComponent<Rigidbody>().velocity = new Vector3(endNode.Location.x - startNode.Location.x, 0, startNode.Location.y - endNode.Location.y).normalized * movementSpeed;
         // player.transform.position = player.transform.position + new Vector3(endNode.Location.x - startNode.Location.x, 0, startNode.Location.y - endNode.Location.y).normalized;
-        Debug.Log(roadPosition);
+
         if (roadPosition > -1)
         {
             player.transform.position = Vector3.Lerp(player.transform.position, player.transform.position + Vector3.Cross(runningDirection.normalized * lateralMovementAmount,
