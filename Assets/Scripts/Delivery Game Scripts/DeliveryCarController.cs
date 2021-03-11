@@ -7,6 +7,7 @@ using System.Diagnostics;
 using UnityEngine.UI;
 
 using Debug = UnityEngine.Debug;
+using UnityEngine.EventSystems;
 
 public class DeliveryCarController : MonoBehaviour
 {
@@ -27,6 +28,10 @@ public class DeliveryCarController : MonoBehaviour
     public GameObject minimap;
     public GameObject tukTukStatusDialog;
     public GameObject pathSphere;
+    public GameObject frontButton, reverseButton, brakeButton;
+    public GameObject leftButton, rightButton;
+    public bool frontButtonPressed, reverseButtonPressed, brakeButtonPressed;
+    public bool leftButtonPressed, rightButtonPressed;
     public Transform frontWheelTransform, rearLeftWheelTransform, rearRightWheelTransform;
     private float maxAngle;
     private float angle;
@@ -52,6 +57,13 @@ public class DeliveryCarController : MonoBehaviour
         {
             Debug.Log("maploader is null");
         }
+#if UNITY_EDITOR_WIN
+        frontButton.SetActive(false);
+        reverseButton.SetActive(false);
+        leftButton.SetActive(false);
+        rightButton.SetActive(false);
+        brakeButton.SetActive(false);
+#endif
         waitingForOrder = true;
         deliveringOrder = false;
         onWayToRestaurant = false;
@@ -145,6 +157,7 @@ public class DeliveryCarController : MonoBehaviour
         rearLeftWheelCollider.brakeTorque = 0;
         rearRightWheelCollider.brakeTorque = 0;
         frontWheelCollider.brakeTorque = 0;
+#if UNITY_EDITOR_WIN
         if (Input.GetKey(KeyCode.A))
         {
             if (angle > -maxAngle)
@@ -185,6 +198,50 @@ public class DeliveryCarController : MonoBehaviour
                 angle += 2;
             }
         }
+#endif
+#if UNITY_ANDROID
+        if (leftButtonPressed)
+        {
+            if (angle > -maxAngle)
+            {
+                angle -= 1;
+            }
+        }
+        if (rightButtonPressed)
+        {
+            if (angle < maxAngle)
+            {
+                angle += 1;
+            }
+        }
+        if (frontButtonPressed)
+        {
+            frontWheelCollider.motorTorque = 500;
+        }
+        if (reverseButtonPressed)
+        {
+            frontWheelCollider.motorTorque = -300;
+        }
+        if (brakeButtonPressed)
+        {
+            frontWheelCollider.brakeTorque = 400;
+            rearLeftWheelCollider.brakeTorque = 600;
+            rearRightWheelCollider.brakeTorque = 600;
+        }
+
+        if (!leftButtonPressed && !rightButtonPressed)
+        {
+            if (angle > 0)
+            {
+                angle -= 2;
+            }
+            else if (angle < 0)
+            {
+                angle += 2;
+            }
+        }
+#endif
+
         frontWheelCollider.steerAngle = angle;
         UpdateWheelPosition(rearRightWheelCollider, rearRightWheelTransform);
         UpdateWheelPosition(rearLeftWheelCollider, rearLeftWheelTransform);
@@ -225,7 +282,7 @@ public class DeliveryCarController : MonoBehaviour
         marker.transform.position = closestPosition + new Vector3(0, 100.5f, 0);
         List<RoadLatticeNode> pathToDestination;
         pathToDestination = new List<RoadLatticeNode>(RoadLattice.FindPath(sourceNode, destinationNode, 10000, null));
-        List<GameObject> createdPathObjects = new List<GameObject>();    
+        List<GameObject> createdPathObjects = new List<GameObject>();
         foreach (RoadLatticeNode lattice in pathToDestination)
         {
             if (createdPathObjects.Count == 0)
@@ -238,9 +295,10 @@ public class DeliveryCarController : MonoBehaviour
                 if (currentDistance > 5 && currentDistance < 10)
                 {
                     createdPathObjects.Add(Object.Instantiate(pathSphere, new Vector3(lattice.Location.x, 0, lattice.Location.y), Quaternion.identity));
-                } else if (currentDistance >= 10)
+                }
+                else if (currentDistance >= 10)
                 {
-                    int numberAddedArrows = (int) (currentDistance / 10) - 1;
+                    int numberAddedArrows = (int)(currentDistance / 10) - 1;
                     Vector3 directionVector = (new Vector3(lattice.Location.x, 0, lattice.Location.y) - createdPathObjects[createdPathObjects.Count - 1].transform.position).normalized;
                     for (int i = 1; i <= numberAddedArrows; ++i)
                     {
@@ -382,5 +440,54 @@ public class DeliveryCarController : MonoBehaviour
             DeliveryTimerScript timerScript = timerText.GetComponent<DeliveryTimerScript>();
             timerScript.ResetTimer();
         }
+    }
+
+    public void OnFrontButtonPointerDown(BaseEventData eventData)
+    {
+        frontButtonPressed = true;
+    }
+
+    public void OnFrontButtonPointerUp(BaseEventData eventData)
+    {
+        frontButtonPressed = false;
+    }
+
+    public void OnReverseButtonPointerDown(BaseEventData eventData)
+    {
+        reverseButtonPressed = true;
+    }
+
+    public void OnReverseButtonPointerUp(BaseEventData eventData)
+    {
+        reverseButtonPressed = false;
+    }
+
+    public void OnBrakeButtonPointerDown(BaseEventData eventData)
+    {
+        brakeButtonPressed = true;
+    }
+
+    public void OnBrakeButtonPointerUp(BaseEventData eventData)
+    {
+        brakeButtonPressed = false;
+    }
+
+    public void OnLeftButtonPointerDown(BaseEventData eventData)
+    {
+        leftButtonPressed = true;
+    }
+
+    public void OnLeftButtonPointerUp(BaseEventData eventData)
+    {
+        leftButtonPressed = false;
+    }
+    public void OnRightButtonPointerDown(BaseEventData eventData)
+    {
+        rightButtonPressed = true;
+    }
+
+    public void OnRightButtonPointerUp(BaseEventData eventData)
+    {
+        rightButtonPressed = false;
     }
 }
