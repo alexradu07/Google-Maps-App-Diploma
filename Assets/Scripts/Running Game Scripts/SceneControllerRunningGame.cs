@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using UnityEngine.Android;
 
 public class SceneControllerRunningGame : MonoBehaviour
 {
     public GameObject locationError;
+    public GameObject loadingMessage;
 
     // Start is called before the first frame update
     void Start()
@@ -32,24 +34,34 @@ public class SceneControllerRunningGame : MonoBehaviour
         {
             case "Grozavesti":
                 GameObject.Find("GoogleMaps").GetComponent<MapLoaderRunningGame>().LoadMap(44.4433837, 26.0618934);
+                GameObject.Find("Canvas/Panel").SetActive(false);
+                GameObject.Find("Canvas/LocationDropdownSelector").SetActive(false);
+                GameObject.Find("Canvas/LocationButton").SetActive(false);
                 break;
             case "Unirii":
                 GameObject.Find("GoogleMaps").GetComponent<MapLoaderRunningGame>().LoadMap(44.426929, 26.1011807);
+                GameObject.Find("Canvas/Panel").SetActive(false);
+                GameObject.Find("Canvas/LocationDropdownSelector").SetActive(false);
+                GameObject.Find("Canvas/LocationButton").SetActive(false);
                 break;
             case "Brasov":
                 GameObject.Find("GoogleMaps").GetComponent<MapLoaderRunningGame>().LoadMap(45.6431122, 25.5858238);
+                GameObject.Find("Canvas/Panel").SetActive(false);
+                GameObject.Find("Canvas/LocationDropdownSelector").SetActive(false);
+                GameObject.Find("Canvas/LocationButton").SetActive(false);
                 break;
             case "Current location":
+                if (!Permission.HasUserAuthorizedPermission(Permission.CoarseLocation))
+                {
+                    Permission.RequestUserPermission(Permission.CoarseLocation);
+                }
                 StartCoroutine(StartLocation());
-                
                 break;
             default:
                 break;
         }
 
-        GameObject.Find("Canvas/Panel").SetActive(false);
-        GameObject.Find("Canvas/LocationDropdownSelector").SetActive(false);
-        GameObject.Find("Canvas/LocationButton").SetActive(false);
+        
     }
 
     IEnumerator DisplayLocationError()
@@ -59,16 +71,24 @@ public class SceneControllerRunningGame : MonoBehaviour
         locationError.SetActive(false);
     }
 
+    IEnumerator DisplayLoadingMessage()
+    {
+        loadingMessage.SetActive(true);
+        yield return new WaitForSeconds(2);
+        loadingMessage.SetActive(false);
+    }
+
     IEnumerator StartLocation()
     {
-        yield return new WaitForSeconds(5);
+        StartCoroutine(DisplayLoadingMessage());
+        yield return new WaitForSeconds(1);
         if (!Input.location.isEnabledByUser)
         {
             StartCoroutine(DisplayLocationError());
             yield break;
         }
         Input.location.Start();
-        yield return new WaitForSeconds(5);
+        yield return new WaitForSeconds(1);
         while (Input.location.status == LocationServiceStatus.Initializing)
         {
             Debug.Log("Location is initializing");
@@ -79,6 +99,9 @@ public class SceneControllerRunningGame : MonoBehaviour
             yield break;
         }
         GameObject.Find("GoogleMaps").GetComponent<MapLoaderRunningGame>().LoadMap(Input.location.lastData.latitude, Input.location.lastData.longitude);
+        GameObject.Find("Canvas/Panel").SetActive(false);
+        GameObject.Find("Canvas/LocationDropdownSelector").SetActive(false);
+        GameObject.Find("Canvas/LocationButton").SetActive(false);
         Input.location.Stop();
     }
 }
