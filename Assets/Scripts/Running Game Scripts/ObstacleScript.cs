@@ -19,10 +19,20 @@ public class ObstacleScript : MonoBehaviour
         {
             this.GetComponent<MeshRenderer>().enabled = false;
             this.GetComponent<BoxCollider>().enabled = false;
+            MeshRenderer[] meshRendereres = this.GetComponentsInChildren<MeshRenderer>();
+            foreach (MeshRenderer meshRenderer in meshRendereres)
+            {
+                meshRenderer.enabled = false;
+            }
         } else
         {
             this.GetComponent<MeshRenderer>().enabled = true;
             this.GetComponent<BoxCollider>().enabled = true;
+            MeshRenderer[] meshRendereres = this.GetComponentsInChildren<MeshRenderer>();
+            foreach (MeshRenderer meshRenderer in meshRendereres)
+            {
+                meshRenderer.enabled = true;
+            }
         }
     }
 }

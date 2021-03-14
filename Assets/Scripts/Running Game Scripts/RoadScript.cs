@@ -16,7 +16,10 @@ public class RoadScript : MonoBehaviour
     public float cameraLerpPos;
     public float cameraLerpRot;
 
+    private MapsService mapsService;
+
     public GameObject roadNamePanel;
+    public GameObject scorePanel;
     public GameObject miniMap;
     private string roadName;
 
@@ -42,7 +45,7 @@ public class RoadScript : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+
     }
 
     // Update is called once per frame
@@ -58,6 +61,9 @@ public class RoadScript : MonoBehaviour
         {
             MoveRight();
         }
+
+        //Update score
+
     }
 
     void FixedUpdate()
@@ -67,7 +73,11 @@ public class RoadScript : MonoBehaviour
             return;
         }
 
-        MapsService mapsService = GameObject.Find("GoogleMaps").GetComponent<MapLoaderRunningGame>().mapsService;
+        //if (mapsService == null)
+        //{
+        //    mapsService = GameObject.Find("GoogleMaps").GetComponent<MapLoaderRunningGame>().mapsService;
+        //    return;
+        //}
         //GameObject player = GameObject.Find("Player");
         Camera mainCamera = Camera.main;
 
@@ -291,7 +301,7 @@ public class RoadScript : MonoBehaviour
 
     public void GenerateRoad(MapLoadedArgs args)
     {
-        MapsService mapsService = GameObject.Find("GoogleMaps").GetComponent<MapLoaderRunningGame>().mapsService;
+        mapsService = GameObject.Find("GoogleMaps").GetComponent<MapLoaderRunningGame>().mapsService;
         //GameObject player = GameObject.Find("Player");
         Camera mainCamera = Camera.main;
 
@@ -354,6 +364,9 @@ public class RoadScript : MonoBehaviour
 
         // Make minimap visible
         miniMap.SetActive(true);
+
+        // Make score visible
+        scorePanel.SetActive(true);
     }
 
     /*
