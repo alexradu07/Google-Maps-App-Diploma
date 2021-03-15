@@ -8,6 +8,7 @@ using Google.Maps.Event;
 
 public class RoadScript : MonoBehaviour
 {
+    public GameObject player;
     public float movementSpeed;
     public float lateralMovementAmount;
     public List<GameObject> obstacles;
@@ -15,7 +16,10 @@ public class RoadScript : MonoBehaviour
     public float cameraLerpPos;
     public float cameraLerpRot;
 
+    private MapsService mapsService;
+
     public GameObject roadNamePanel;
+    public GameObject scorePanel;
     public GameObject miniMap;
     private string roadName;
 
@@ -41,41 +45,25 @@ public class RoadScript : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+
     }
 
     // Update is called once per frame
     void Update()
     {
-        GameObject player = GameObject.Find("Player");
+        //GameObject player = GameObject.Find("Player");
 
         if (Input.GetKeyDown(KeyCode.LeftArrow))
         {
-            // Move to the left
-            // player.GetComponent<Rigidbody>().velocity = new Vector3(endNode.Location.x - startNode.Location.x, 0, startNode.Location.y - endNode.Location.y).normalized * movementSpeed;
-            // player.transform.position = player.transform.position + new Vector3(endNode.Location.x - startNode.Location.x, 0, startNode.Location.y - endNode.Location.y).normalized;
-            
-            if (roadPosition > -1)
-            {
-                player.transform.position = Vector3.Lerp(player.transform.position, player.transform.position + Vector3.Cross(runningDirection.normalized * lateralMovementAmount,
-                                                    Vector3.up), 1.0f);
-                //StartCoroutine(MovePlayer(player, player.transform.position + Vector3.Cross(runningDirection.normalized * lateralMovementAmount, Vector3.up)));
-                roadPosition--;
-            }
+            MoveLeft();
         }
         else if (Input.GetKeyDown(KeyCode.RightArrow))
         {
-            // Move to the right
-            // player.GetComponent<Rigidbody>().velocity = new Vector3(startNode.Location.x - endNode.Location.x, 0, endNode.Location.y - startNode.Location.y).normalized * movementSpeed;
-            // player.transform.position = player.transform.position + new Vector3(startNode.Location.x - endNode.Location.x, 0, endNode.Location.y - startNode.Location.y).normalized;
-            
-            if (roadPosition < 1)
-            {
-                player.transform.position = Vector3.Lerp(player.transform.position, player.transform.position - Vector3.Cross(runningDirection.normalized * lateralMovementAmount,
-                                                    Vector3.up), 1.0f);
-                roadPosition++;
-            }
+            MoveRight();
         }
+
+        //Update score
+
     }
 
     void FixedUpdate()
@@ -85,8 +73,12 @@ public class RoadScript : MonoBehaviour
             return;
         }
 
-        MapsService mapsService = GameObject.Find("GoogleMaps").GetComponent<MapLoaderRunningGame>().mapsService;
-        GameObject player = GameObject.Find("Player");
+        //if (mapsService == null)
+        //{
+        //    mapsService = GameObject.Find("GoogleMaps").GetComponent<MapLoaderRunningGame>().mapsService;
+        //    return;
+        //}
+        //GameObject player = GameObject.Find("Player");
         Camera mainCamera = Camera.main;
 
         //Debug.Log(edges[0].Segment.GameObjectName());
@@ -165,8 +157,8 @@ public class RoadScript : MonoBehaviour
             // Choose neighbor and update runningDirection
             List<RoadLatticeNode> neighbors = new List<RoadLatticeNode>(startNode.Neighbors);
             float angle;
-            float minAngle = 0;
-            float maxAngle = 0;
+            float minAngle = 180;
+            float maxAngle = -180;
             float closestToZeroAngle = 180;
             if (neighbors.Count == 1)
             {
@@ -227,8 +219,14 @@ public class RoadScript : MonoBehaviour
                     // Left position
                     foreach (RoadLatticeNode neigh in neighbors)
                     {
+                        if (neigh == prevNode)
+                        {
+                            continue;
+                        }
+                        //angle = Vector3.SignedAngle(runningDirection,
+                        //    new Vector3(neigh.Location.x - prevNode.Location.x, 0, neigh.Location.y - prevNode.Location.y), Vector3.up);
                         angle = Vector3.SignedAngle(runningDirection,
-                            new Vector3(neigh.Location.x - prevNode.Location.x, 0, neigh.Location.y - prevNode.Location.y), Vector3.up);
+                            new Vector3(neigh.Location.x - startNode.Location.x, 0, neigh.Location.y - startNode.Location.y), Vector3.up);
                         if (angle < minAngle)
                         {
                             minAngle = angle;
@@ -241,8 +239,14 @@ public class RoadScript : MonoBehaviour
                     // Right position
                     foreach (RoadLatticeNode neigh in neighbors)
                     {
+                        if (neigh == prevNode)
+                        {
+                            continue;
+                        }
+                        //angle = Vector3.SignedAngle(runningDirection,
+                        //    new Vector3(neigh.Location.x - prevNode.Location.x, 0, neigh.Location.y - prevNode.Location.y), Vector3.up);
                         angle = Vector3.SignedAngle(runningDirection,
-                            new Vector3(neigh.Location.x - prevNode.Location.x, 0, neigh.Location.y - prevNode.Location.y), Vector3.up);
+                            new Vector3(neigh.Location.x - startNode.Location.x, 0, neigh.Location.y - startNode.Location.y), Vector3.up);
                         if (angle > maxAngle)
                         {
                             maxAngle = angle;
@@ -297,8 +301,8 @@ public class RoadScript : MonoBehaviour
 
     public void GenerateRoad(MapLoadedArgs args)
     {
-        MapsService mapsService = GameObject.Find("GoogleMaps").GetComponent<MapLoaderRunningGame>().mapsService;
-        GameObject player = GameObject.Find("Player");
+        mapsService = GameObject.Find("GoogleMaps").GetComponent<MapLoaderRunningGame>().mapsService;
+        //GameObject player = GameObject.Find("Player");
         Camera mainCamera = Camera.main;
 
         List<RoadLatticeNode> nodes = new List<RoadLatticeNode>(mapsService.RoadLattice.Nodes);
@@ -360,6 +364,9 @@ public class RoadScript : MonoBehaviour
 
         // Make minimap visible
         miniMap.SetActive(true);
+
+        // Make score visible
+        scorePanel.SetActive(true);
     }
 
     /*
@@ -484,5 +491,34 @@ public class RoadScript : MonoBehaviour
                                                         Vector3.up), 0.1f);
             yield return null;
         }  
+    }
+
+    public void MoveLeft()
+    {
+        // Move to the left
+        // player.GetComponent<Rigidbody>().velocity = new Vector3(endNode.Location.x - startNode.Location.x, 0, startNode.Location.y - endNode.Location.y).normalized * movementSpeed;
+        // player.transform.position = player.transform.position + new Vector3(endNode.Location.x - startNode.Location.x, 0, startNode.Location.y - endNode.Location.y).normalized;
+
+        if (roadPosition > -1)
+        {
+            player.transform.position = Vector3.Lerp(player.transform.position, player.transform.position + Vector3.Cross(runningDirection.normalized * lateralMovementAmount,
+                                                Vector3.up), 1.0f);
+            //StartCoroutine(MovePlayer(player, player.transform.position + Vector3.Cross(runningDirection.normalized * lateralMovementAmount, Vector3.up)));
+            roadPosition--;
+        }
+    }
+
+    public void MoveRight()
+    {
+        // Move to the right
+        // player.GetComponent<Rigidbody>().velocity = new Vector3(startNode.Location.x - endNode.Location.x, 0, endNode.Location.y - startNode.Location.y).normalized * movementSpeed;
+        // player.transform.position = player.transform.position + new Vector3(startNode.Location.x - endNode.Location.x, 0, endNode.Location.y - startNode.Location.y).normalized;
+
+        if (roadPosition < 1)
+        {
+            player.transform.position = Vector3.Lerp(player.transform.position, player.transform.position - Vector3.Cross(runningDirection.normalized * lateralMovementAmount,
+                                                Vector3.up), 1.0f);
+            roadPosition++;
+        }
     }
 }
