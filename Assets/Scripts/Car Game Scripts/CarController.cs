@@ -76,7 +76,7 @@ public class CarController : MonoBehaviour
         {
             changeDown();
         }
-        Debug.Log(needle2.transform.eulerAngles.z);
+        //Debug.Log(needle2.transform.eulerAngles.z);
         //Debug.Log(car_rigid.velocity);
         if (Input.GetKey(KeyCode.A))
         {
@@ -171,7 +171,7 @@ public class CarController : MonoBehaviour
         UpdateWheelPosition(RR, rr_tran);
         UpdateWheelPosition(RL, rl_tran);
         velocity = Mathf.Sqrt(Mathf.Pow(car_rigid.velocity.x, 2) + Mathf.Pow(car_rigid.velocity.z, 2));
-        Debug.Log(currentPower);
+        //Debug.Log(currentPower);
         timeElapsed.text = string.Format("{0:00}:{1:00}", Mathf.FloorToInt(time / 60), Mathf.FloorToInt(time % 60));
     }
 

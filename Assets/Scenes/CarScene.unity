@@ -2309,7 +2309,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1547867845}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e767a0c0858fb8c42bdf8e0a3b794798, type: 3}
+  m_Script: {fileID: 11500000, guid: f2a844d22fd508d49b832480df6f00a0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1001 &1570108052
@@ -3143,9 +3143,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 1738466987}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2d4f674830343104ea1dc42f979311fb, type: 3}
+  m_Script: {fileID: 11500000, guid: d29ace27e996f2f41ad63bdb0b9757ea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  cameraObj: {fileID: 1997443307}
+  groundPlane: {fileID: 190045994}
 --- !u!1 &1806647053
 GameObject:
   m_ObjectHideFlags: 0
