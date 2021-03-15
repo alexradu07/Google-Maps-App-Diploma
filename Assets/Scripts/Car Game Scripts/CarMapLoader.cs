@@ -25,7 +25,7 @@ public class CarMapLoader : MonoBehaviour
     {
         oldPos = cameraObj.transform.position;
         mapsService = GetComponent<MapsService>();
-        startCoroutine();
+        //startCoroutine();
     }
 
     private void startCoroutine()
@@ -44,7 +44,6 @@ public class CarMapLoader : MonoBehaviour
                      .UnloadOutside();
                 canUnload = false;
             }
-            Debug.Log("penis");
         }
         yield return new WaitForSeconds(1);
     }
@@ -55,11 +54,11 @@ public class CarMapLoader : MonoBehaviour
         Vector3 offset = cameraObj.transform.position - oldPos;
         float dist = offset.sqrMagnitude;
         Debug.Log(dist);
-        if (dist > 1000)
+        if (dist > 500)
         {
             mapsService = GetComponent<MapsService>();
-            mapsService.LoadMap(new Bounds(cameraObj.transform.position, new Vector3(50, 0, 50)), DefaultGameObjectOptions);
-            groundPlane.transform.position = new Vector3(cameraObj.transform.position.x, 0, cameraObj.transform.position.z);
+            mapsService.LoadMap(new Bounds(cameraObj.transform.position, new Vector3(500, 0, 500)), DefaultGameObjectOptions);
+            groundPlane.transform.position = new Vector3(cameraObj.transform.position.x, -0.01f, cameraObj.transform.position.z);
             oldPos = cameraObj.transform.position;
             canUnload = true;
         }
