@@ -2395,7 +2395,7 @@ AudioListener:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1629222903}
-  m_Enabled: 1
+  m_Enabled: 0
 --- !u!20 &1629222905
 Camera:
   m_ObjectHideFlags: 0
@@ -3148,6 +3148,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cameraObj: {fileID: 1997443307}
   groundPlane: {fileID: 190045994}
+  cam: {fileID: 1997443310}
+  carCam: {fileID: 1629222905}
 --- !u!1 &1806647053
 GameObject:
   m_ObjectHideFlags: 0

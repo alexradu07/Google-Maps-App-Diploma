@@ -4,6 +4,9 @@ using UnityEngine;
 using Google.Maps.Coord;
 using Google.Maps.Event;
 using Google.Maps;
+using UnityEngine.Events;
+using System;
+using System.Threading;
 //namespace Diploma
 //{
 
@@ -15,62 +18,67 @@ public class CarMapLoader : MonoBehaviour
     //public MapsService MapsService;
     public GameObjectOptions DefaultGameObjectOptions;
     public GameObject groundPlane;
-    private Vector3 oldPos;
-    private bool canLoad = false;
-    private bool canUnload = false;
+    private Vector3 oldPos1;
+    private Vector3 oldPos2;
     private MapsService mapsService;
+    public Camera cam;
+    public Camera carCam;
+
 
     // Start is called before the first frame update
     void Start()
     {
-        oldPos = cameraObj.transform.position;
+        oldPos1 = cameraObj.transform.position;
+        oldPos2 = cameraObj.transform.position;
         mapsService = GetComponent<MapsService>();
-        //startCoroutine();
     }
 
-    private void startCoroutine()
-    {
-        StartCoroutine(unload());
-    }
 
-    private IEnumerator unload()
-    {
-        while (true)
-        {
-            if (canUnload == true)
-            {
-                mapsService.MakeMapLoadRegion()
-                     .AddCircle(Camera.main.transform.position, 1000)
-                     .UnloadOutside();
-                canUnload = false;
-            }
-        }
-        yield return new WaitForSeconds(1);
-    }
 
     // Update is called once per frame
     void Update()
     {
-        Vector3 offset = cameraObj.transform.position - oldPos;
-        float dist = offset.sqrMagnitude;
-        Debug.Log(dist);
-        if (dist > 500)
+        Vector3 offset1 = cameraObj.transform.position - oldPos1;
+        Vector3 offset2 = cameraObj.transform.position - oldPos2;
+        float dist1 = offset1.sqrMagnitude;
+        float dist2 = offset2.sqrMagnitude;
+        //Debug.Log(dist);
+        if (dist1 > 200)
         {
-            mapsService = GetComponent<MapsService>();
-            mapsService.LoadMap(new Bounds(cameraObj.transform.position, new Vector3(500, 0, 500)), DefaultGameObjectOptions);
-            groundPlane.transform.position = new Vector3(cameraObj.transform.position.x, -0.01f, cameraObj.transform.position.z);
-            oldPos = cameraObj.transform.position;
-            canUnload = true;
+            StartCoroutine(loadAsync());
         }
+        if (dist2 > 2000)
+        {
+            StartCoroutine(deleteAsync());
+        }
+    }
+    IEnumerator loadAsync()
+    {
+        mapsService = GetComponent<MapsService>();
+        //mapsService.LoadMap(new Bounds(cameraObj.transform.position, new Vector3(200, 0, 200)), DefaultGameObjectOptions);
+        //mapsService.MakeMapLoadRegion().AddCircle(cam.transform.position, 100).Load(DefaultGameObjectOptions);
+        mapsService.MakeMapLoadRegion().AddViewport(carCam, 200).Load(DefaultGameObjectOptions);
+        groundPlane.transform.position = new Vector3(cameraObj.transform.position.x, -0.01f, cameraObj.transform.position.z);
+        oldPos1 = cameraObj.transform.position;
+        //canUnload = true;
+        Debug.Log("dau load");
+        yield return new WaitForSeconds(1);
+    }
+    IEnumerator deleteAsync()
+    {
+        mapsService.MakeMapLoadRegion()
+                     .AddCircle(cam.transform.position, 300)
+                     .UnloadOutside();
+        Debug.Log("dau unload");
+        oldPos2 = cameraObj.transform.position;
+        yield return new WaitForSeconds(1);
     }
 
     private void AddCollidersToBuildings(MapLoadedArgs args)
     {
         GameObject[] buildingObjects = GameObject.FindObjectsOfType<GameObject>();
-        // Debug.Log(buildingObjects.Length);
         foreach (GameObject obj in buildingObjects)
         {
-            // if (obj.name.StartsWith("ExtrudedStructure "))
             if (obj.transform.parent != null && obj.transform.parent.name == "GoogleMaps")
             {
                 obj.AddComponent<MeshCollider>();
