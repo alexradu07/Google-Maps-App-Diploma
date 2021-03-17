@@ -6,23 +6,48 @@ using System.Net.Http;
 using UnityEngine.UI;
 using Newtonsoft.Json;
 using System;
+using System.Collections;
 
 [RequireComponent(typeof(MapsService))]
 public class DeliveryMapLoader : MonoBehaviour
 {
-    private LatLng latLng = new LatLng(0, 0);
     public MapsService mapsService;
     public PlacesApiQueryResponse objectContainer;
     public GameObjectOptions DefaultGameObjectOptions;
+    public Camera minimapCamera;
+    public Camera defaultCamera;
+    public GameObject cameraObject;
+    public GameObject groundPanel;
+    private Vector3 currentPosition;
+    private Vector3 previousPosition;
+    private LatLng latLng = new LatLng(0, 0);
+    private bool queryNeeded;
 
     // Start is called before the first frame update
     void Start()
     {
+        currentPosition = previousPosition = cameraObject.transform.position;
+        // Get required MapsService component on this GameObject.
+        mapsService = GetComponent<MapsService>();
     }
 
     // Update is called once per frame
     void Update()
     {
+        Vector3 currentOffset = cameraObject.transform.position - currentPosition;
+        Vector3 previousOffset = cameraObject.transform.position - previousPosition;
+        float currentDistance = currentOffset.sqrMagnitude;
+        float previousDistance = previousOffset.sqrMagnitude;
+
+        if (currentDistance > 300)
+        {
+            StartCoroutine(dynamicLoad());
+        }
+
+        if (previousDistance > 3000)
+        {
+            StartCoroutine(dynamicUnload());
+        }
 
     }
 
@@ -38,13 +63,39 @@ public class DeliveryMapLoader : MonoBehaviour
         }
     }
 
+    IEnumerator dynamicLoad()
+    {
+        // if previously not set
+        mapsService = GetComponent<MapsService>();
+
+        mapsService.MakeMapLoadRegion().AddViewport(minimapCamera, 200).Load(DefaultGameObjectOptions);
+
+
+        groundPanel.transform.position = new Vector3(cameraObject.transform.position.x, -0.05f, cameraObject.transform.position.z);
+
+        currentPosition = cameraObject.transform.position;
+        getAsyncRestaurants();
+        Debug.Log("dynamic loading part of scene");
+
+        yield return new WaitForSeconds(1);
+    }
+
+    IEnumerator dynamicUnload()
+    {
+        mapsService.MakeMapLoadRegion().AddCircle(minimapCamera.transform.position, 300).UnloadOutside();
+
+        previousPosition = cameraObject.transform.position;
+        getAsyncRestaurants();
+        Debug.Log("dynamic unloading part of scene");
+
+        yield return new WaitForSeconds(1);
+    }
+
     public void LoadMap(double lat, double lng)
     {
         latLng = new LatLng(lat, lng);
 
         Debug.Log("Start start");
-        // Get required MapsService component on this GameObject.
-        mapsService = GetComponent<MapsService>();
 
         // Set real-world location to load.
         mapsService.InitFloatingOrigin(latLng);
@@ -64,6 +115,7 @@ public class DeliveryMapLoader : MonoBehaviour
         String apiKey = "AIzaSyDjifVlDD3A3XH1Zwj_fTJvKF4HGb5RBUg";
         try
         {
+            Debug.Log("get Restaurants");
             LatLng latLng = new LatLng(0, 0);
             string locationString = GameObject.Find("Canvas/Panel/LocationDropdownSelector/Label").GetComponent<Text>().text;
             switch (locationString)
@@ -92,5 +144,15 @@ public class DeliveryMapLoader : MonoBehaviour
         }
 
 
+    }
+
+    public void setQueryNeeded()
+    {
+        queryNeeded = true;
+    }
+
+    public void setQueryNotNeeded()
+    {
+        queryNeeded = false;
     }
 }

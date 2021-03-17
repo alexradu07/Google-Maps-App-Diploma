@@ -346,6 +346,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mapsService: {fileID: 0}
+  minimapCamera: {fileID: 1226562391}
+  defaultCamera: {fileID: 997026759}
+  cameraObject: {fileID: 1226562388}
+  groundPanel: {fileID: 2096582488}
 --- !u!114 &33235760
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2648,7 +2652,7 @@ AudioListener:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 997026757}
-  m_Enabled: 1
+  m_Enabled: 0
 --- !u!20 &997026759
 Camera:
   m_ObjectHideFlags: 0
@@ -3145,7 +3149,7 @@ AudioListener:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1226562388}
-  m_Enabled: 1
+  m_Enabled: 0
 --- !u!20 &1226562391
 Camera:
   m_ObjectHideFlags: 0
@@ -4926,11 +4930,6 @@ MonoBehaviour:
   brakeButton: {fileID: 1806285825}
   leftButton: {fileID: 2036968185}
   rightButton: {fileID: 275468686}
-  frontButtonPressed: 0
-  reverseButtonPressed: 0
-  brakeButtonPressed: 0
-  leftButtonPressed: 0
-  rightButtonPressed: 0
   frontWheelTransform: {fileID: 1613801336}
   rearLeftWheelTransform: {fileID: 1613776684}
   rearRightWheelTransform: {fileID: 1613863942}

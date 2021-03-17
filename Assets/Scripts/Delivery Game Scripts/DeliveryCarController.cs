@@ -30,9 +30,9 @@ public class DeliveryCarController : MonoBehaviour
     public GameObject pathSphere;
     public GameObject frontButton, reverseButton, brakeButton;
     public GameObject leftButton, rightButton;
-    public bool frontButtonPressed, reverseButtonPressed, brakeButtonPressed;
-    public bool leftButtonPressed, rightButtonPressed;
     public Transform frontWheelTransform, rearLeftWheelTransform, rearRightWheelTransform;
+    private bool frontButtonPressed, reverseButtonPressed, brakeButtonPressed;
+    private bool leftButtonPressed, rightButtonPressed;
     private float maxAngle;
     private float angle;
     private DeliveryMapLoader mapLoader;
@@ -64,6 +64,7 @@ public class DeliveryCarController : MonoBehaviour
         rightButton.SetActive(false);
         brakeButton.SetActive(false);
 #endif
+        mapLoader.setQueryNeeded();
         waitingForOrder = true;
         deliveringOrder = false;
         onWayToRestaurant = false;
@@ -369,6 +370,7 @@ public class DeliveryCarController : MonoBehaviour
         onWayToRestaurant = true;
         waitingForOrder = false;
         marker.SetActive(true);
+        mapLoader.setQueryNotNeeded();
         Vector3 restaurantPosition = mapLoader.mapsService.Coords.FromLatLngToVector3(new LatLng(currentRestaurant.geometry.location.lat, currentRestaurant.geometry.location.lng));
         marker.transform.position = restaurantPosition + new Vector3(0, 100.5f, 0);
         arrow.SetActive(true);
@@ -423,6 +425,7 @@ public class DeliveryCarController : MonoBehaviour
         }
         else if (deliveringOrder)
         {
+            mapLoader.setQueryNeeded();
             deliveringOrder = false;
             waitingForOrder = true;
             orderPickupAck.SetActive(false);
