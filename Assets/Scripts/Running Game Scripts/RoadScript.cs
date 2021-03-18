@@ -20,6 +20,7 @@ public class RoadScript : MonoBehaviour
 
     public GameObject roadNamePanel;
     public GameObject scorePanel;
+    public GameObject timerPanel;
     public GameObject miniMap;
     private string roadName;
 
@@ -365,8 +366,9 @@ public class RoadScript : MonoBehaviour
         // Make minimap visible
         miniMap.SetActive(true);
 
-        // Make score visible
+        // Make score and timer visible
         scorePanel.SetActive(true);
+        timerPanel.SetActive(true);
     }
 
     /*
