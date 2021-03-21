@@ -36,18 +36,33 @@ public class SceneControllerRunningGame : MonoBehaviour
                 GameObject.Find("GoogleMaps").GetComponent<MapLoaderRunningGame>().LoadMap(44.4433837, 26.0618934);
                 GameObject.Find("Canvas/Panel").SetActive(false);
                 GameObject.Find("Canvas/LocationDropdownSelector").SetActive(false);
+                GameObject.Find("Canvas/DifficultyDropdownSelector").SetActive(false);
+                GameObject.Find("Canvas/TimeDropdownSelector").SetActive(false);
+                GameObject.Find("Canvas/LocationText").SetActive(false);
+                GameObject.Find("Canvas/DifficultyText").SetActive(false);
+                GameObject.Find("Canvas/TimeText").SetActive(false);
                 GameObject.Find("Canvas/LocationButton").SetActive(false);
                 break;
             case "Unirii":
                 GameObject.Find("GoogleMaps").GetComponent<MapLoaderRunningGame>().LoadMap(44.426929, 26.1011807);
                 GameObject.Find("Canvas/Panel").SetActive(false);
                 GameObject.Find("Canvas/LocationDropdownSelector").SetActive(false);
+                GameObject.Find("Canvas/DifficultyDropdownSelector").SetActive(false);
+                GameObject.Find("Canvas/TimeDropdownSelector").SetActive(false);
+                GameObject.Find("Canvas/LocationText").SetActive(false);
+                GameObject.Find("Canvas/DifficultyText").SetActive(false);
+                GameObject.Find("Canvas/TimeText").SetActive(false);
                 GameObject.Find("Canvas/LocationButton").SetActive(false);
                 break;
             case "Brasov":
                 GameObject.Find("GoogleMaps").GetComponent<MapLoaderRunningGame>().LoadMap(45.6431122, 25.5858238);
                 GameObject.Find("Canvas/Panel").SetActive(false);
                 GameObject.Find("Canvas/LocationDropdownSelector").SetActive(false);
+                GameObject.Find("Canvas/DifficultyDropdownSelector").SetActive(false);
+                GameObject.Find("Canvas/TimeDropdownSelector").SetActive(false);
+                GameObject.Find("Canvas/LocationText").SetActive(false);
+                GameObject.Find("Canvas/DifficultyText").SetActive(false);
+                GameObject.Find("Canvas/TimeText").SetActive(false);
                 GameObject.Find("Canvas/LocationButton").SetActive(false);
                 break;
             case "Current location":
@@ -60,8 +75,18 @@ public class SceneControllerRunningGame : MonoBehaviour
             default:
                 break;
         }
+    }
 
-        
+    public void SelectDifficulty()
+    {
+        string difficulty = GameObject.Find("Canvas/DifficultyDropdownSelector/Label").GetComponent<Text>().text;
+        GameObject.Find("RoadController").GetComponent<RoadScript>().difficulty = difficulty;
+    }
+
+    public void SelectTime()
+    {
+        string time = GameObject.Find("Canvas/TimeDropdownSelector/Label").GetComponent<Text>().text;
+        GameObject.Find("RoadController").GetComponent<TimerScript>().timeLeft = int.Parse(time);
     }
 
     IEnumerator DisplayLocationError()
@@ -101,6 +126,11 @@ public class SceneControllerRunningGame : MonoBehaviour
         GameObject.Find("GoogleMaps").GetComponent<MapLoaderRunningGame>().LoadMap(Input.location.lastData.latitude, Input.location.lastData.longitude);
         GameObject.Find("Canvas/Panel").SetActive(false);
         GameObject.Find("Canvas/LocationDropdownSelector").SetActive(false);
+        GameObject.Find("Canvas/DifficultyDropdownSelector").SetActive(false);
+        GameObject.Find("Canvas/TimeDropdownSelector").SetActive(false);
+        GameObject.Find("Canvas/LocationText").SetActive(false);
+        GameObject.Find("Canvas/DifficultyText").SetActive(false);
+        GameObject.Find("Canvas/TimeText").SetActive(false);
         GameObject.Find("Canvas/LocationButton").SetActive(false);
         Input.location.Stop();
     }

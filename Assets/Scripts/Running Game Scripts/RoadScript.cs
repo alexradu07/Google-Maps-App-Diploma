@@ -21,6 +21,7 @@ public class RoadScript : MonoBehaviour
     public GameObject roadNamePanel;
     public GameObject scorePanel;
     public GameObject timerPanel;
+    public GameObject startButton;
     public GameObject miniMap;
     private string roadName;
 
@@ -42,11 +43,17 @@ public class RoadScript : MonoBehaviour
      *  1 -> right
      */
     private int roadPosition;
+    private int prevRoadPosition;
+
+    public string difficulty;
+    private bool hasGameStarted;
+    private float movementSpeedIncrease;
+    private Vector3 playerCenterPosition;
 
     // Start is called before the first frame update
     void Start()
     {
-
+        hasGameStarted = false;
     }
 
     // Update is called once per frame
@@ -69,24 +76,31 @@ public class RoadScript : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (startNode == null)
+        if (startNode == null || !hasGameStarted)
         {
             return;
         }
+        if (this.GetComponent<TimerScript>().isGameOver)
+        {
+            // Game over
+            return;
+        }
 
-        //if (mapsService == null)
-        //{
-        //    mapsService = GameObject.Find("GoogleMaps").GetComponent<MapLoaderRunningGame>().mapsService;
-        //    return;
-        //}
-        //GameObject player = GameObject.Find("Player");
         Camera mainCamera = Camera.main;
-
-        //Debug.Log(edges[0].Segment.GameObjectName());
-        //Debug.Log(edges[0].Segment.MapFeatureMetadata.Name);
 
         // player.GetComponent<Rigidbody>().AddForce(new Vector3(endNode.Location.x - startNode.Location.x, 0, endNode.Location.y - startNode.Location.y), ForceMode.Force);
         runningDirection = new Vector3(endNode.Location.x - startNode.Location.x, 0, endNode.Location.y - startNode.Location.y);
+
+        if (movementSpeed < 10)
+        {
+            // Accelerate faster because the speed is low
+            movementSpeed += 0.2f;
+        }
+        else
+        {
+            // Accelerate normally
+            movementSpeed += movementSpeedIncrease;
+        }
 
         player.GetComponent<Rigidbody>().velocity = runningDirection.normalized * movementSpeed;
 
@@ -132,7 +146,7 @@ public class RoadScript : MonoBehaviour
         }
 
         // Calculate player center position
-        Vector3 playerCenterPosition = player.transform.position;
+        playerCenterPosition = player.transform.position;
         if (roadPosition == -1)
         {
             playerCenterPosition = player.transform.position
@@ -343,8 +357,8 @@ public class RoadScript : MonoBehaviour
                                                     mainCamera.transform.eulerAngles.z);
         */
         runningDirection = new Vector3(endNode.Location.x - startNode.Location.x, 0, endNode.Location.y - startNode.Location.y);
-        mainCamera.transform.position = Vector3.Lerp(mainCamera.transform.position, player.transform.position - runningDirection.normalized * 5, cameraLerpPos);
-        //mainCamera.transform.position = player.transform.position - runningDirection.normalized * 5;
+        //mainCamera.transform.position = Vector3.Lerp(mainCamera.transform.position, player.transform.position - runningDirection.normalized * 5, cameraLerpPos);
+        mainCamera.transform.position = player.transform.position - runningDirection.normalized * 5;
         mainCamera.transform.position += new Vector3(0, 1.5f, 0);
         cameraAngle = mainCamera.transform.eulerAngles.y + Vector3.SignedAngle(new Vector3(mainCamera.transform.forward.x, 0, mainCamera.transform.forward.z),
                                                                                     runningDirection.normalized, Vector3.up);
@@ -354,6 +368,9 @@ public class RoadScript : MonoBehaviour
         
         // Update player rotation
         player.transform.LookAt(new Vector3(endNode.Location.x, player.transform.position.y, endNode.Location.y));
+
+        // Set difficulty settings
+        SetDifficultySettings();
 
         // Generate all obstacles
         GenerateAllObstacles(startNode, endNode);
@@ -366,51 +383,11 @@ public class RoadScript : MonoBehaviour
         // Make minimap visible
         miniMap.SetActive(true);
 
-        // Make score and timer visible
+        // Make score, timer and start button visible
         scorePanel.SetActive(true);
         timerPanel.SetActive(true);
+        startButton.SetActive(true);
     }
-
-    /*
-    private void GenerateObstacles()
-    {
-        Vector3 currentObstaclePos = new Vector3(startNode.Location.x, 0.5f, startNode.Location.y);
-        currentObstaclePos += runningDirection.normalized * distanceBetweenObstacles;
-
-        while (true) {
-            // Check if currentObstaclePos passed the endNode, so generating obstacles stops
-            if ((endNode.Location.x > startNode.Location.x && endNode.Location.y > startNode.Location.y
-                && currentObstaclePos.x >= endNode.Location.x && currentObstaclePos.z >= endNode.Location.y)
-                || (endNode.Location.x < startNode.Location.x && endNode.Location.y < startNode.Location.y
-                && currentObstaclePos.x <= endNode.Location.x && currentObstaclePos.z <= endNode.Location.y)
-                || (endNode.Location.x > startNode.Location.x && endNode.Location.y < startNode.Location.y
-                && currentObstaclePos.x >= endNode.Location.x && currentObstaclePos.z <= endNode.Location.y)
-                || (endNode.Location.x < startNode.Location.x && endNode.Location.y > startNode.Location.y
-                && currentObstaclePos.x <= endNode.Location.x && currentObstaclePos.z >= endNode.Location.y))
-            {
-                break;
-            }
-
-            // Generate new obstacle
-            GameObject currentObstacle = Object.Instantiate(obstacle, currentObstaclePos, Quaternion.Euler(0, 0, 0));
-            currentObstacle.transform.LookAt(new Vector3(startNode.Location.x, 0.5f, startNode.Location.y));
-            currentObstaclePos += runningDirection.normalized * distanceBetweenObstacles;
-
-            int laneNr = Random.Range(0, 3);
-            if (laneNr == 0)
-            {
-                // Generate obstacle on left lane
-                currentObstacle.transform.position += Vector3.Cross(runningDirection.normalized * lateralMovementAmount, Vector3.up);
-            } else if (laneNr == 2)
-            {
-                // Right obstacle on right lane
-                currentObstacle.transform.position -= Vector3.Cross(runningDirection.normalized * lateralMovementAmount, Vector3.up);
-            }
-
-
-        }
-    }
-    */
 
     private void GenerateAllObstacles(RoadLatticeNode start, RoadLatticeNode end)
     {
@@ -419,7 +396,7 @@ public class RoadScript : MonoBehaviour
         currentObstaclePos += runningDir.normalized * distanceBetweenObstacles;
 
         visitedNodes.Add(start);
-
+        
         /*
         iterations++;
         if (iterations >= maxIterations)
@@ -456,6 +433,14 @@ public class RoadScript : MonoBehaviour
                 return;
             }
             */
+            
+            if (Vector3.Distance(currentObstaclePos, new Vector3(start.Location.x, 0.5f, start.Location.y)) < 8
+                || Vector3.Distance(currentObstaclePos, new Vector3(end.Location.x, 0.5f, end.Location.y)) < 8)
+            {
+                // Obstacle is too close to road edge
+                currentObstaclePos += runningDir.normalized * distanceBetweenObstacles;
+                continue;
+            }
 
             // Generate new obstacle
             GameObject currentObstacle = Object.Instantiate(obstacles[Random.Range(0, obstacles.Count)], currentObstaclePos, Quaternion.Euler(0, 0, 0));
@@ -500,7 +485,7 @@ public class RoadScript : MonoBehaviour
         // Move to the left
         // player.GetComponent<Rigidbody>().velocity = new Vector3(endNode.Location.x - startNode.Location.x, 0, startNode.Location.y - endNode.Location.y).normalized * movementSpeed;
         // player.transform.position = player.transform.position + new Vector3(endNode.Location.x - startNode.Location.x, 0, startNode.Location.y - endNode.Location.y).normalized;
-
+        prevRoadPosition = roadPosition;
         if (roadPosition > -1)
         {
             player.transform.position = Vector3.Lerp(player.transform.position, player.transform.position + Vector3.Cross(runningDirection.normalized * lateralMovementAmount,
@@ -515,12 +500,60 @@ public class RoadScript : MonoBehaviour
         // Move to the right
         // player.GetComponent<Rigidbody>().velocity = new Vector3(startNode.Location.x - endNode.Location.x, 0, endNode.Location.y - startNode.Location.y).normalized * movementSpeed;
         // player.transform.position = player.transform.position + new Vector3(startNode.Location.x - endNode.Location.x, 0, endNode.Location.y - startNode.Location.y).normalized;
-
+        prevRoadPosition = roadPosition;
         if (roadPosition < 1)
         {
             player.transform.position = Vector3.Lerp(player.transform.position, player.transform.position - Vector3.Cross(runningDirection.normalized * lateralMovementAmount,
                                                 Vector3.up), 1.0f);
             roadPosition++;
         }
+    }
+
+    public void StartGame()
+    {
+        hasGameStarted = true;
+        startButton.SetActive(false);
+    }
+
+    private void SetDifficultySettings()
+    {
+        switch (difficulty)
+        {
+            case "Easy":
+                movementSpeed = 10;
+                distanceBetweenObstacles = 15;
+                movementSpeedIncrease = 0.001f;
+                break;
+            case "Medium":
+                movementSpeed = 10;
+                distanceBetweenObstacles = 10;
+                movementSpeedIncrease = 0.002f;
+                break;
+            case "Hard":
+                movementSpeed = 10;
+                distanceBetweenObstacles = 8;
+                movementSpeedIncrease = 0.003f;
+                break;
+        }
+    }
+
+    public void CarCollision()
+    {
+        movementSpeed = 0;
+
+        if (roadPosition == -1)
+        {
+            player.transform.position = playerCenterPosition;
+            roadPosition++;
+        } else if (roadPosition == 1)
+        {
+            player.transform.position = playerCenterPosition;
+            roadPosition--;
+        } else
+        {
+            player.transform.position = playerCenterPosition + Vector3.Cross(runningDirection.normalized * lateralMovementAmount, Vector3.up);
+            roadPosition--;
+        }
+
     }
 }

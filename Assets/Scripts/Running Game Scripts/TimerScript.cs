@@ -11,19 +11,21 @@ public class TimerScript : MonoBehaviour
     public GameObject gameOverPanel;
     public GameObject scorePanel;
 
-    private bool isGameOver;
+    public bool isGameOver;
+    private bool hasGameStarted;
 
     void Start()
     {
         isGameOver = false;
+        hasGameStarted = false;
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (!timerText.IsActive())
+        if (!timerText.IsActive() || !hasGameStarted)
         {
-            // Timer should start yet
+            // Timer should not start yet
             return;
         }
         if (isGameOver)
@@ -44,5 +46,10 @@ public class TimerScript : MonoBehaviour
             gameOverPanel.GetComponentInChildren<Text>().text = "Game Over\n"
                 + "Total distance: " + scorePanel.GetComponentInChildren<Text>().text;
         }
+    }
+
+    public void StartGame()
+    {
+        hasGameStarted = true;
     }
 }

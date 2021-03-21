@@ -55,8 +55,9 @@ public class ScoreScript : MonoBehaviour
             * System.Math.Sin(deltaLng / 2) * System.Math.Sin(deltaLng / 2);
         c = 2 * System.Math.Atan2(System.Math.Sqrt(a), System.Math.Sqrt(1 - a));
 
-        if (earthRadius * c > 100)
+        if (earthRadius * c > 1)
         {
+            // Movement is too big and should not be registered
             return;
         }
         score += earthRadius * c;
