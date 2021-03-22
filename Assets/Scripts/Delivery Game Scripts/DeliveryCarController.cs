@@ -345,6 +345,10 @@ public class DeliveryCarController : MonoBehaviour
 
                     int orderRestaurantIndex = random.Next(mapLoader.objectContainer.results.Count);
                     Debug.Log("Random number selected : " + orderRestaurantIndex);
+                    if (mapLoader.objectContainer.results.Count == 0)
+                    {
+                        yield break;
+                    }
                     currentRestaurant = mapLoader.objectContainer.results[orderRestaurantIndex];
                     dialogPanel.SetActive(true);
                     Text question = GameObject.Find("Canvas/DialogPanel/QuestionText").GetComponent<Text>();
