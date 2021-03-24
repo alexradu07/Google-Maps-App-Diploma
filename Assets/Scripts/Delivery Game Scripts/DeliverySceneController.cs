@@ -9,6 +9,11 @@ public class DeliverySceneController : MonoBehaviour
 {
     public GameObject locationError;
     public GameObject loadingMessage;
+    public GameObject minimap;
+    public GameObject tukTukStatusDialog;
+    public GameObject backButton;
+    public GameObject leftButtonSelectVehicle;
+    public GameObject rightButtonSelectVehicle;
 
     // Start is called before the first frame update
     void Start()
@@ -41,18 +46,20 @@ public class DeliverySceneController : MonoBehaviour
             case "Brasov":
                 GameObject.Find("GoogleMaps").GetComponent<DeliveryMapLoader>().LoadMap(45.6431122, 25.5858238);
                 break;
-            case "Current Location":
-                if (!Permission.HasUserAuthorizedPermission(Permission.CoarseLocation))
-                {
-                    Permission.RequestUserPermission(Permission.CoarseLocation);
-                }
-                StartCoroutine(GetCurrentLocation());
-                break;
+            //case "Current Location":
+            //    if (!Permission.HasUserAuthorizedPermission(Permission.CoarseLocation))
+            //    {
+            //        Permission.RequestUserPermission(Permission.CoarseLocation);
+            //    }
+            //    StartCoroutine(GetCurrentLocation());
+            //    break;
             default:
                 break;
         }
-
+        Manager.gameStarted = true;
         GameObject.Find("Canvas/Panel").SetActive(false);
+        minimap.SetActive(true);
+        tukTukStatusDialog.SetActive(true);
     }
 
     IEnumerator DisplayLocationError()
@@ -107,5 +114,14 @@ public class DeliverySceneController : MonoBehaviour
         //GameObject.Find("GoogleMaps").GetComponent<DeliveryMapLoader>().LoadMap(45, 25);
         //yield return null;
         Input.location.Stop();
+    }
+
+    public void onSelectVehicleButton()
+    {
+        GameObject.Find("Canvas/Panel").SetActive(false);
+        backButton.SetActive(true);
+        Manager.choosingCar = true;
+        leftButtonSelectVehicle.SetActive(true);
+        rightButtonSelectVehicle.SetActive(true);
     }
 }

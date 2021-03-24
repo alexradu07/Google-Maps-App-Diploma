@@ -52,60 +52,60 @@ public class DeliveryPlayerScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKey(KeyCode.A))
-            rb.AddForce(Vector3.left * 10);
-        if (Input.GetKey(KeyCode.D))
-            rb.AddForce(Vector3.right * 10);
-        if (Input.GetKey(KeyCode.W))
-            rb.AddForce(new Vector3(0, 0, 10));
-        if (Input.GetKey(KeyCode.S))
-            rb.AddForce(new Vector3(0, 0, -10));
+        //if (Input.GetKey(KeyCode.A))
+        //    rb.AddForce(Vector3.left * 10);
+        //if (Input.GetKey(KeyCode.D))
+        //    rb.AddForce(Vector3.right * 10);
+        //if (Input.GetKey(KeyCode.W))
+        //    rb.AddForce(new Vector3(0, 0, 10));
+        //if (Input.GetKey(KeyCode.S))
+        //    rb.AddForce(new Vector3(0, 0, -10));
 
-        playerCamera.transform.position = this.transform.position + new Vector3(cameraX, cameraY, cameraZ);
+        //playerCamera.transform.position = this.transform.position + new Vector3(cameraX, cameraY, cameraZ);
 
-        if (mapLoader.objectContainer == null)
-        {
-            return;
-        }
-        if (onWayToRestaurant)
-        {
-            Vector3 arrowDirection = (marker.transform.position - this.transform.position).normalized;
-            arrow.transform.position = this.transform.position + new Vector3(0, 4, 0);
-            arrow.transform.LookAt(marker.transform);
-            arrow.transform.rotation = Quaternion.Euler(arrow.transform.eulerAngles.x,
-                    arrow.transform.eulerAngles.y - 90,
-                    arrow.transform.eulerAngles.z);
+        //if (mapLoader.objectContainer == null)
+        //{
+        //    return;
+        //}
+        //if (onWayToRestaurant)
+        //{
+        //    Vector3 arrowDirection = (marker.transform.position - this.transform.position).normalized;
+        //    arrow.transform.position = this.transform.position + new Vector3(0, 4, 0);
+        //    arrow.transform.LookAt(marker.transform);
+        //    arrow.transform.rotation = Quaternion.Euler(arrow.transform.eulerAngles.x,
+        //            arrow.transform.eulerAngles.y - 90,
+        //            arrow.transform.eulerAngles.z);
 
-            if (Vector3.Distance(rb.transform.position, marker.transform.position) - 100 < .3f)
-            {
-                orderPickupAck.SetActive(true);
-                Text prompt = GameObject.Find("Canvas/OrderPickUpAck/PromptText").GetComponent<Text>();
-                prompt.text = "You picked up order from " + currentRestaurant.name + ". Now deliver order to destination.";
-            }
-        }
-        if (deliveringOrder)
-        {
-            Vector3 arrowDirection = (marker.transform.position - this.transform.position).normalized;
-            arrow.transform.position = this.transform.position + new Vector3(0, 4, 0);
-            arrow.transform.LookAt(marker.transform);
-            arrow.transform.rotation = Quaternion.Euler(arrow.transform.eulerAngles.x,
-                    arrow.transform.eulerAngles.y - 90,
-                    arrow.transform.eulerAngles.z);
+        //    if (Vector3.Distance(rb.transform.position, marker.transform.position) - 100 < .3f)
+        //    {
+        //        orderPickupAck.SetActive(true);
+        //        Text prompt = GameObject.Find("Canvas/OrderPickUpAck/PromptText").GetComponent<Text>();
+        //        prompt.text = "You picked up order from " + currentRestaurant.name + ". Now deliver order to destination.";
+        //    }
+        //}
+        //if (deliveringOrder)
+        //{
+        //    Vector3 arrowDirection = (marker.transform.position - this.transform.position).normalized;
+        //    arrow.transform.position = this.transform.position + new Vector3(0, 4, 0);
+        //    arrow.transform.LookAt(marker.transform);
+        //    arrow.transform.rotation = Quaternion.Euler(arrow.transform.eulerAngles.x,
+        //            arrow.transform.eulerAngles.y - 90,
+        //            arrow.transform.eulerAngles.z);
             
-            if (Vector3.Distance(rb.transform.position, marker.transform.position) - 100 < .3f)
-            {
-                orderPickupAck.SetActive(true);
-                Text prompt = GameObject.Find("Canvas/OrderPickUpAck/PromptText").GetComponent<Text>();
-                prompt.text = "You have successfully delivered order to destination.";
-            }
-        }
+        //    if (Vector3.Distance(rb.transform.position, marker.transform.position) - 100 < .3f)
+        //    {
+        //        orderPickupAck.SetActive(true);
+        //        Text prompt = GameObject.Find("Canvas/OrderPickUpAck/PromptText").GetComponent<Text>();
+        //        prompt.text = "You have successfully delivered order to destination.";
+        //    }
+        //}
 
-        if (!coroutineStarted)
-        {
-            coroutineStarted = true;
-            watch.Start();
-            StartCoroutine(TimerTicked(watch));
-        }
+        //if (!coroutineStarted)
+        //{
+        //    coroutineStarted = true;
+        //    watch.Start();
+        //    StartCoroutine(TimerTicked(watch));
+        //}
     }
 
     private IEnumerator TimerTicked(Stopwatch wotspatch)

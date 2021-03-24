@@ -8,6 +8,7 @@ public class DeliveryCameraScript : MonoBehaviour
     public Vector3 offset;
     public float followSpeed = 10;
     public float lookSpeed = 10;
+    public int angle = 0;
 
     public void LookAtTarget()
     {
@@ -27,7 +28,15 @@ public class DeliveryCameraScript : MonoBehaviour
 
     private void FixedUpdate()
     {
-        LookAtTarget();
-        MoveToTarget();
+        if (Manager.gameStarted)
+        {
+            LookAtTarget();
+            MoveToTarget();
+        } else if (Manager.choosingCar)
+        {
+            transform.LookAt(objectToFollow);
+            transform.Translate(Vector3.right * Time.deltaTime);
+
+        }
     }
 }

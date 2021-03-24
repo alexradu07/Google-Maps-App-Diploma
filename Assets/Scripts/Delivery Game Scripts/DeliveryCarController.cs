@@ -30,7 +30,12 @@ public class DeliveryCarController : MonoBehaviour
     public GameObject pathSphere;
     public GameObject frontButton, reverseButton, brakeButton;
     public GameObject leftButton, rightButton;
+    public GameObject backButton;
+    public GameObject panel;
     public Transform frontWheelTransform, rearLeftWheelTransform, rearRightWheelTransform;
+    public Text statusText;
+    public GameObject leftButtonSelectVehicle;
+    public GameObject rightButtonSelectVehicle;
     private bool frontButtonPressed, reverseButtonPressed, brakeButtonPressed;
     private bool leftButtonPressed, rightButtonPressed;
     private float maxAngle;
@@ -44,8 +49,8 @@ public class DeliveryCarController : MonoBehaviour
     private GameObject currentDeliverySpot;
     private Stopwatch watch;
     private bool tuktukActive;
-    private Text statusText;
     private List<GameObject> currentActivePath;
+    private bool timerStarted;
 
     // Start is called before the first frame update
     void Start()
@@ -70,14 +75,8 @@ public class DeliveryCarController : MonoBehaviour
         onWayToRestaurant = false;
         arrow.SetActive(false);
         marker.SetActive(false);
-        minimap.SetActive(true);
-        tukTukStatusDialog.SetActive(true);
-        watch = new Stopwatch();
-        watch.Start();
-        coroutineStarted = true;
+        timerStarted = false;
         tuktukActive = true;
-        statusText = GameObject.Find("Canvas/tuktukStatus/statusText").GetComponent<Text>();
-        StartCoroutine(TimerTicked(watch));
     }
 
     public void UpdateWheelPosition(WheelCollider wheelCollider, Transform wheelTransform)
@@ -93,6 +92,18 @@ public class DeliveryCarController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (!Manager.gameStarted)
+        {
+            return;
+        }
+        if (!timerStarted)
+        {
+            watch = new Stopwatch();
+            watch.Start();
+            StartCoroutine(TimerTicked(watch));
+            timerStarted = true;
+            coroutineStarted = true;
+        }
         UpdateCarPosition();
 
         if (mapLoader.objectContainer == null)
@@ -496,5 +507,23 @@ public class DeliveryCarController : MonoBehaviour
     public void OnRightButtonPointerUp(BaseEventData eventData)
     {
         rightButtonPressed = false;
+    }
+
+    public void onBackButton()
+    {
+        panel.SetActive(true);
+        backButton.SetActive(false);
+        leftButtonSelectVehicle.SetActive(false);
+        rightButtonSelectVehicle.SetActive(false);
+    }
+
+    public void onLeftButtonSelectVehicle()
+    {
+
+    }
+
+    public void onRightButtonSelectVehicle()
+    {
+
     }
 }

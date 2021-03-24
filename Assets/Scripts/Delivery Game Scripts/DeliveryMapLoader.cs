@@ -34,19 +34,22 @@ public class DeliveryMapLoader : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Vector3 currentOffset = cameraObject.transform.position - currentPosition;
-        Vector3 previousOffset = cameraObject.transform.position - previousPosition;
-        float currentDistance = currentOffset.sqrMagnitude;
-        float previousDistance = previousOffset.sqrMagnitude;
-
-        if (currentDistance > 300)
+        if (Manager.gameStarted)
         {
-            StartCoroutine(dynamicLoad());
-        }
+            Vector3 currentOffset = cameraObject.transform.position - currentPosition;
+            Vector3 previousOffset = cameraObject.transform.position - previousPosition;
+            float currentDistance = currentOffset.sqrMagnitude;
+            float previousDistance = previousOffset.sqrMagnitude;
 
-        if (previousDistance > 3000)
-        {
-            StartCoroutine(dynamicUnload());
+            if (currentDistance > 300)
+            {
+                StartCoroutine(dynamicLoad());
+            }
+
+            if (previousDistance > 3000)
+            {
+                StartCoroutine(dynamicUnload());
+            }
         }
 
     }
