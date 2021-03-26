@@ -16,10 +16,13 @@ public class DeliveryTimerScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (isDelivering)
+        if (Manager.gameStarted)
         {
-            timer += Time.deltaTime;
-            text_box.text = timer.ToString("0.00");
+            if (isDelivering)
+            {
+                timer += Time.deltaTime;
+                text_box.text = timer.ToString("0.00");
+            }
         }
     }
 

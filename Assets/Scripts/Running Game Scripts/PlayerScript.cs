@@ -19,15 +19,15 @@ public class PlayerScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKey(KeyCode.A))
-            rb.AddForce(Vector3.left * 10);
-        if (Input.GetKey(KeyCode.D))
-            rb.AddForce(Vector3.right * 10);
-        if (Input.GetKey(KeyCode.W))
-            rb.AddForce(new Vector3(0, 0, 10));
-        if (Input.GetKey(KeyCode.S))
-            rb.AddForce(new Vector3(0, 0, -10));
 
-        // mainCamera.transform.position = this.transform.position + new Vector3(cameraX, cameraY, cameraZ);
+    }
+
+    void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.name.Substring(0, 3) == "Car"
+            || collision.gameObject.name.Substring(0, 6) == "Police")
+        {
+            GameObject.Find("RoadController").GetComponent<RoadScript>().CarCollision();
+        }
     }
 }

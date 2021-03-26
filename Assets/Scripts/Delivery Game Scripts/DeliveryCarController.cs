@@ -30,9 +30,14 @@ public class DeliveryCarController : MonoBehaviour
     public GameObject pathSphere;
     public GameObject frontButton, reverseButton, brakeButton;
     public GameObject leftButton, rightButton;
-    public bool frontButtonPressed, reverseButtonPressed, brakeButtonPressed;
-    public bool leftButtonPressed, rightButtonPressed;
+    public GameObject backButton;
+    public GameObject panel;
     public Transform frontWheelTransform, rearLeftWheelTransform, rearRightWheelTransform;
+    public Text statusText;
+    public GameObject leftButtonSelectVehicle;
+    public GameObject rightButtonSelectVehicle;
+    private bool frontButtonPressed, reverseButtonPressed, brakeButtonPressed;
+    private bool leftButtonPressed, rightButtonPressed;
     private float maxAngle;
     private float angle;
     private DeliveryMapLoader mapLoader;
@@ -44,8 +49,8 @@ public class DeliveryCarController : MonoBehaviour
     private GameObject currentDeliverySpot;
     private Stopwatch watch;
     private bool tuktukActive;
-    private Text statusText;
     private List<GameObject> currentActivePath;
+    private bool timerStarted;
 
     // Start is called before the first frame update
     void Start()
@@ -64,19 +69,14 @@ public class DeliveryCarController : MonoBehaviour
         rightButton.SetActive(false);
         brakeButton.SetActive(false);
 #endif
+        mapLoader.setQueryNeeded();
         waitingForOrder = true;
         deliveringOrder = false;
         onWayToRestaurant = false;
         arrow.SetActive(false);
         marker.SetActive(false);
-        minimap.SetActive(true);
-        tukTukStatusDialog.SetActive(true);
-        watch = new Stopwatch();
-        watch.Start();
-        coroutineStarted = true;
+        timerStarted = false;
         tuktukActive = true;
-        statusText = GameObject.Find("Canvas/tuktukStatus/statusText").GetComponent<Text>();
-        StartCoroutine(TimerTicked(watch));
     }
 
     public void UpdateWheelPosition(WheelCollider wheelCollider, Transform wheelTransform)
@@ -92,6 +92,18 @@ public class DeliveryCarController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (!Manager.gameStarted)
+        {
+            return;
+        }
+        if (!timerStarted)
+        {
+            watch = new Stopwatch();
+            watch.Start();
+            StartCoroutine(TimerTicked(watch));
+            timerStarted = true;
+            coroutineStarted = true;
+        }
         UpdateCarPosition();
 
         if (mapLoader.objectContainer == null)
@@ -344,6 +356,10 @@ public class DeliveryCarController : MonoBehaviour
 
                     int orderRestaurantIndex = random.Next(mapLoader.objectContainer.results.Count);
                     Debug.Log("Random number selected : " + orderRestaurantIndex);
+                    if (mapLoader.objectContainer.results.Count == 0)
+                    {
+                        yield break;
+                    }
                     currentRestaurant = mapLoader.objectContainer.results[orderRestaurantIndex];
                     dialogPanel.SetActive(true);
                     Text question = GameObject.Find("Canvas/DialogPanel/QuestionText").GetComponent<Text>();
@@ -369,6 +385,7 @@ public class DeliveryCarController : MonoBehaviour
         onWayToRestaurant = true;
         waitingForOrder = false;
         marker.SetActive(true);
+        mapLoader.setQueryNotNeeded();
         Vector3 restaurantPosition = mapLoader.mapsService.Coords.FromLatLngToVector3(new LatLng(currentRestaurant.geometry.location.lat, currentRestaurant.geometry.location.lng));
         marker.transform.position = restaurantPosition + new Vector3(0, 100.5f, 0);
         arrow.SetActive(true);
@@ -423,6 +440,7 @@ public class DeliveryCarController : MonoBehaviour
         }
         else if (deliveringOrder)
         {
+            mapLoader.setQueryNeeded();
             deliveringOrder = false;
             waitingForOrder = true;
             orderPickupAck.SetActive(false);
@@ -489,5 +507,23 @@ public class DeliveryCarController : MonoBehaviour
     public void OnRightButtonPointerUp(BaseEventData eventData)
     {
         rightButtonPressed = false;
+    }
+
+    public void onBackButton()
+    {
+        panel.SetActive(true);
+        backButton.SetActive(false);
+        leftButtonSelectVehicle.SetActive(false);
+        rightButtonSelectVehicle.SetActive(false);
+    }
+
+    public void onLeftButtonSelectVehicle()
+    {
+
+    }
+
+    public void onRightButtonSelectVehicle()
+    {
+
     }
 }
