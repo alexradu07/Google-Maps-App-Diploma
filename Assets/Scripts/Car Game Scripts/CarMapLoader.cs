@@ -62,7 +62,7 @@ public class CarMapLoader : MonoBehaviour
         oldPos1 = cameraObj.transform.position;
         //canUnload = true;
         Debug.Log("dau load");
-        yield return new WaitForSeconds(1);
+        yield return null;
     }
     IEnumerator deleteAsync()
     {
@@ -71,7 +71,7 @@ public class CarMapLoader : MonoBehaviour
                      .UnloadOutside();
         Debug.Log("dau unload");
         oldPos2 = cameraObj.transform.position;
-        yield return new WaitForSeconds(1);
+        yield return null;
     }
 
     private void AddCollidersToBuildings(MapLoadedArgs args)

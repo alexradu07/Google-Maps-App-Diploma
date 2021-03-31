@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class CarController : MonoBehaviour
@@ -30,6 +31,8 @@ public class CarController : MonoBehaviour
     private bool firstWPressed = false;
     private float airResistance = 0;
     private float tempVelocity = 0;
+    private bool accel = false;
+    private bool brake = false;
    
     // Start is called before the first frame update
     public void UpdateWheelPosition(WheelCollider col, Transform tran)
@@ -97,14 +100,16 @@ public class CarController : MonoBehaviour
             RR.brakeTorque = 0;
             RL.brakeTorque = 0;
         }
-        if (!Input.GetKey(KeyCode.S))
+        //if (!Input.GetKey(KeyCode.S))
+        if (!brake)
         {
             FR.brakeTorque = 0;
             FL.brakeTorque = 0;
             RR.brakeTorque = 0;
             RL.brakeTorque = 0;
         }
-        if (Input.GetKey(KeyCode.W))
+        //if (Input.GetKey(KeyCode.W))
+        if (accel)
         {
             if (!firstWPressed)
             {
@@ -125,12 +130,14 @@ public class CarController : MonoBehaviour
                 Debug.Log("braking while reversing");
             }*/
         }
-        if (!Input.GetKey(KeyCode.W))
+        //if (!Input.GetKey(KeyCode.W))
+        if (!accel)
         {
             FR.motorTorque = 0;
             FL.motorTorque = 0;
         }
-        if (Input.GetKey(KeyCode.S))
+        //if (Input.GetKey(KeyCode.S))
+        if (brake)
         {
             //Debug.Log("braking");
             FR.motorTorque = -1000;
@@ -158,8 +165,17 @@ public class CarController : MonoBehaviour
                 angle += 2;
             }
         }
-        FR.steerAngle = angle;
-        FL.steerAngle = angle;
+        Vector3 x = Input.gyro.rotationRate;
+
+        //FR.steerAngle = angle;
+        //FL.steerAngle = angle;
+        FR.steerAngle = Input.acceleration.x * 20;
+        FL.steerAngle = Input.acceleration.x * 20;
+        if (FR.steerAngle > 30)
+        {
+            FR.steerAngle = 30;
+            FL.steerAngle = 30;
+        }
         //fr_tran.rotation = Quaternion.Euler(fr_tran.eulerAngles.x, car_tran.eulerAngles.y + angle, car_tran.eulerAngles.z);
         //fl_tran.rotation = Quaternion.Euler(fl_tran.eulerAngles.x, car_tran.eulerAngles.y + angle, car_tran.eulerAngles.z);
         //rr_tran.rotation = Quaternion.Euler(Mathf.Abs(car_rigid.velocity.z) + Mathf.Abs(car_rigid.velocity.x) + fr_tran.eulerAngles.x, car_tran.eulerAngles.y, 0);
@@ -173,6 +189,27 @@ public class CarController : MonoBehaviour
         velocity = Mathf.Sqrt(Mathf.Pow(car_rigid.velocity.x, 2) + Mathf.Pow(car_rigid.velocity.z, 2));
         //Debug.Log(currentPower);
         timeElapsed.text = string.Format("{0:00}:{1:00}", Mathf.FloorToInt(time / 60), Mathf.FloorToInt(time % 60));
+    }
+
+    public void onAccelPress(BaseEventData eventData)
+    {
+        accel = true;
+    }
+
+    public void onAccelRelease(BaseEventData eventData)
+    {
+        accel = false;
+        //Debug.Log("accelreleased");
+    }
+
+    public void onBrakePress(BaseEventData eventData)
+    {
+        brake = true;
+    }
+
+    public void onBrakeRelease(BaseEventData eventData)
+    {
+        brake = false;
     }
 
     void changeUp()
