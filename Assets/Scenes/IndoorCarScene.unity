@@ -3344,6 +3344,7 @@ MonoBehaviour:
   prefab: {fileID: 8220096483068888611, guid: a4d3006d7697f834a8b1579b5fa56b17, type: 3}
   arrow: {fileID: 21469961}
   checkpoints: []
+  cam: {fileID: 1629222905}
   currentIndex: 0
 --- !u!4 &1806647055
 Transform:

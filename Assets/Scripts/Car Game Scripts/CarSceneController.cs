@@ -28,7 +28,7 @@ public class CarSceneController : MonoBehaviour
         switch (locationString)
         {
             case "Grozavesti":
-                GameObject.Find("GoogleMaps").GetComponent<CarMapLoader>().LoadMap(44.4433837, 26.0618934);
+                GameObject.Find("GoogleMaps").GetComponent<CarMapLoader>().LoadMap(44.4392997, 26.0588512);
                 break;
             case "Unirii":
                 GameObject.Find("GoogleMaps").GetComponent<CarMapLoader>().LoadMap(44.426929, 26.1011807);

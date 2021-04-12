@@ -43,7 +43,7 @@ public class CarMapLoader : MonoBehaviour
         float dist1 = offset1.sqrMagnitude;
         float dist2 = offset2.sqrMagnitude;
         //Debug.Log(dist);
-        if (dist1 > 200)
+        if (dist1 > 2000)
         {
             StartCoroutine(loadAsync());
         }
@@ -67,7 +67,7 @@ public class CarMapLoader : MonoBehaviour
     IEnumerator deleteAsync()
     {
         mapsService.MakeMapLoadRegion()
-                     .AddCircle(cam.transform.position, 300)
+                     .AddCircle(cam.transform.position, 200)
                      .UnloadOutside();
         Debug.Log("dau unload");
         oldPos2 = cameraObj.transform.position;
@@ -95,14 +95,18 @@ public class CarMapLoader : MonoBehaviour
         MapsService mapsService = GetComponent<MapsService>();
 
         // Set real-world location to load.
-        mapsService.InitFloatingOrigin(latLng);
+        mapsService.InitFloatingOrigin(new LatLng(44.4501185, 26.0581425));
 
         // Register a listener to be notified when the map is loaded.
         // mapsService.Events.MapEvents.Loaded.AddListener(OnLoaded);
 
         // Load map with default options.
         DefaultGameObjectOptions = DefaultStyles.getDefaultStyles();
+        mapsService.LoadMap(new Bounds(Vector3.zero, new Vector3(20, 0, 20)), DefaultGameObjectOptions);
+
+        mapsService.MoveFloatingOrigin(new LatLng(lat, lng), null);
         mapsService.LoadMap(new Bounds(Vector3.zero, new Vector3(500, 0, 500)), DefaultGameObjectOptions);
+
 
         mapsService.Events.MapEvents.Loaded.AddListener(AddCollidersToBuildings);
 
