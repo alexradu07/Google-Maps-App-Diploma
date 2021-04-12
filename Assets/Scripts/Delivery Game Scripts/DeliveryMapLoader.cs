@@ -18,10 +18,13 @@ public class DeliveryMapLoader : MonoBehaviour
     public Camera defaultCamera;
     public GameObject cameraObject;
     public GameObject groundPanel;
+    public GameObject dropdownLabel;
+    public GameObject vehicle;
     private Vector3 currentPosition;
     private Vector3 previousPosition;
     private LatLng latLng = new LatLng(0, 0);
     private bool queryNeeded;
+    private bool firstQuery;
 
     // Start is called before the first frame update
     void Start()
@@ -29,11 +32,17 @@ public class DeliveryMapLoader : MonoBehaviour
         currentPosition = previousPosition = cameraObject.transform.position;
         // Get required MapsService component on this GameObject.
         mapsService = GetComponent<MapsService>();
+        firstQuery = true;
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (queryNeeded)
+        {
+            getAsyncRestaurants();
+            queryNeeded = false;
+        }
         if (Manager.gameStarted)
         {
             Vector3 currentOffset = cameraObject.transform.position - currentPosition;
@@ -120,30 +129,47 @@ public class DeliveryMapLoader : MonoBehaviour
         {
             Debug.Log("get Restaurants");
             LatLng latLng = new LatLng(0, 0);
-            string locationString = GameObject.Find("Canvas/Panel/LocationDropdownSelector/Label").GetComponent<Text>().text;
-            switch (locationString)
+            if (firstQuery)
             {
-                case "Grozavesti":
-                    latLng = new LatLng(44.4433837, 26.0618934);
-                    break;
-                case "Unirii":
-                    latLng = new LatLng(44.426929, 26.1011807);
-                    break;
-                case "Brasov":
-                    latLng = new LatLng(45.6431122, 25.5858238);
-                    break;
-                default:
-                    break;
+                string locationString = dropdownLabel.GetComponent<Text>().text;
+                switch (locationString)
+                {
+                    case "Grozavesti":
+                        latLng = new LatLng(44.4433837, 26.0618934);
+                        break;
+                    case "Unirii":
+                        latLng = new LatLng(44.426929, 26.1011807);
+                        break;
+                    case "Brasov":
+                        latLng = new LatLng(45.6431122, 25.5858238);
+                        break;
+                    case "Current Location":
+                        latLng = new LatLng(Manager.dynamicLatitude, Manager.dynamicLongitude);
+                        break;
+                    default:
+                        break;
+                }
+                firstQuery = false;
+            } else
+            {
+                latLng = mapsService.Coords.FromVector3ToLatLng(vehicle.transform.position);
+                Debug.Log("query from current position : " + latLng.ToString());
             }
             using (var client = new HttpClient())
             {
                 var response = await client.GetStringAsync(String.Format("https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=" + latLng.Lat + "," + latLng.Lng + "&radius=500&fields=name&types=restaurant&key=" + apiKey));
                 objectContainer = JsonConvert.DeserializeObject<PlacesApiQueryResponse>(response);
+                Debug.Log("Object container size : " + objectContainer.results.Count);
+                foreach (var restaurant in objectContainer.results)
+                {
+                    Debug.Log("restaurant : " + restaurant.name);
+                }
             }
         }
         catch (Exception ex)
         {
             Console.Write(ex.ToString());
+            Debug.Log("Prind exceptie : " + ex.ToString());
         }
 
 

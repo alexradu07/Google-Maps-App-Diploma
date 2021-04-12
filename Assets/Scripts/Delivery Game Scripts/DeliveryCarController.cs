@@ -8,6 +8,7 @@ using UnityEngine.UI;
 
 using Debug = UnityEngine.Debug;
 using UnityEngine.EventSystems;
+using System.Runtime.CompilerServices;
 
 public class DeliveryCarController : MonoBehaviour
 {
@@ -21,6 +22,7 @@ public class DeliveryCarController : MonoBehaviour
     public GameObject tuktuk;
     public GameObject marker;
     public GameObject dialogPanel;
+    public GameObject dialogExitPanel;
     public GameObject orderPickupAck;
     public GameObject arrow;
     public GameObject timerPanel;
@@ -63,24 +65,24 @@ public class DeliveryCarController : MonoBehaviour
             Debug.Log("maploader is null");
         }
 #if UNITY_EDITOR_WIN
-        frontButton.SetActive(false);
-        reverseButton.SetActive(false);
-        leftButton.SetActive(false);
-        rightButton.SetActive(false);
-        brakeButton.SetActive(false);
+        //frontButton.SetActive(false);
+        //reverseButton.SetActive(false);
+        //leftButton.SetActive(false);
+        //rightButton.SetActive(false);
+        //brakeButton.SetActive(false);
 #endif
-        mapLoader.setQueryNeeded();
-        waitingForOrder = true;
         deliveringOrder = false;
         onWayToRestaurant = false;
         arrow.SetActive(false);
         marker.SetActive(false);
         timerStarted = false;
-        tuktukActive = true;
+        coroutineStarted = false;
+        watch = new Stopwatch();
     }
 
     public void UpdateWheelPosition(WheelCollider wheelCollider, Transform wheelTransform)
     {
+        //Debug.Log(GetCurrentMethod());
         Vector3 position = wheelTransform.position;
         Quaternion rotation = wheelTransform.rotation;
         wheelCollider.GetWorldPose(out position, out rotation);
@@ -92,22 +94,34 @@ public class DeliveryCarController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        //Debug.Log(GetCurrentMethod());
         if (!Manager.gameStarted)
         {
+            Debug.Log("Game not started for vehicle");
             return;
         }
         if (!timerStarted)
         {
-            watch = new Stopwatch();
-            watch.Start();
-            StartCoroutine(TimerTicked(watch));
+            Debug.Log("Intra fix o data pe aici");
+            waitingForOrder = true;
+            tuktukActive = true;
+            //watch.Start();
+            //StartCoroutine(TimerTicked(watch));
+            //coroutineStarted = true;
             timerStarted = true;
-            coroutineStarted = true;
+            backButton.SetActive(true);
+            frontButton.SetActive(true);
+            reverseButton.SetActive(true);
+            leftButton.SetActive(true);
+            rightButton.SetActive(true);
+            brakeButton.SetActive(true);
+            mapLoader.setQueryNeeded();
         }
         UpdateCarPosition();
 
         if (mapLoader.objectContainer == null)
         {
+            Debug.Log("Object container is null");
             return;
         }
 
@@ -123,6 +137,7 @@ public class DeliveryCarController : MonoBehaviour
 
         if (onWayToRestaurant)
         {
+            Debug.Log("On way to restaurant");
             Vector3 arrowDirection = (marker.transform.position - this.transform.position).normalized;
             arrow.transform.position = this.transform.position + new Vector3(0, 4, 0);
             arrow.transform.LookAt(marker.transform);
@@ -138,6 +153,7 @@ public class DeliveryCarController : MonoBehaviour
         }
         if (deliveringOrder)
         {
+            Debug.Log("Deliering order");
             Vector3 arrowDirection = (marker.transform.position - this.transform.position).normalized;
             arrow.transform.position = this.transform.position + new Vector3(0, 4, 0);
             arrow.transform.LookAt(marker.transform);
@@ -154,9 +170,9 @@ public class DeliveryCarController : MonoBehaviour
                 timerScript.StopTimer();
             }
         }
-
         if (!coroutineStarted)
         {
+            Debug.Log("Starting coroutine one per 10 secs");
             coroutineStarted = true;
             watch.Start();
             StartCoroutine(TimerTicked(watch));
@@ -165,53 +181,54 @@ public class DeliveryCarController : MonoBehaviour
 
     void UpdateCarPosition()
     {
+        //Debug.Log(GetCurrentMethod());
         frontWheelCollider.motorTorque = 0;
         rearLeftWheelCollider.brakeTorque = 0;
         rearRightWheelCollider.brakeTorque = 0;
         frontWheelCollider.brakeTorque = 0;
-#if UNITY_EDITOR_WIN
-        if (Input.GetKey(KeyCode.A))
-        {
-            if (angle > -maxAngle)
-            {
-                angle -= 1;
-            }
-        }
-        if (Input.GetKey(KeyCode.D))
-        {
-            if (angle < maxAngle)
-            {
-                angle += 1;
-            }
-        }
-        if (Input.GetKey(KeyCode.W))
-        {
-            frontWheelCollider.motorTorque = 500;
-        }
-        if (Input.GetKey(KeyCode.S))
-        {
-            frontWheelCollider.motorTorque = -300;
-        }
-        if (Input.GetKey(KeyCode.Space))
-        {
-            frontWheelCollider.brakeTorque = 400;
-            rearLeftWheelCollider.brakeTorque = 600;
-            rearRightWheelCollider.brakeTorque = 600;
-        }
+//#if UNITY_EDITOR_WIN
+//        if (Input.GetKey(KeyCode.A))
+//        {
+//            if (angle > -maxAngle)
+//            {
+//                angle -= 1;
+//            }
+//        }
+//        if (Input.GetKey(KeyCode.D))
+//        {
+//            if (angle < maxAngle)
+//            {
+//                angle += 1;
+//            }
+//        }
+//        if (Input.GetKey(KeyCode.W))
+//        {
+//            frontWheelCollider.motorTorque = 500;
+//        }
+//        if (Input.GetKey(KeyCode.S))
+//        {
+//            frontWheelCollider.motorTorque = -300;
+//        }
+//        if (Input.GetKey(KeyCode.Space))
+//        {
+//            frontWheelCollider.brakeTorque = 400;
+//            rearLeftWheelCollider.brakeTorque = 600;
+//            rearRightWheelCollider.brakeTorque = 600;
+//        }
 
-        if (!Input.GetKey(KeyCode.A) && !Input.GetKey(KeyCode.D))
-        {
-            if (angle > 0)
-            {
-                angle -= 2;
-            }
-            else if (angle < 0)
-            {
-                angle += 2;
-            }
-        }
-#endif
-#if UNITY_ANDROID
+//        if (!Input.GetKey(KeyCode.A) && !Input.GetKey(KeyCode.D))
+//        {
+//            if (angle > 0)
+//            {
+//                angle -= 2;
+//            }
+//            else if (angle < 0)
+//            {
+//                angle += 2;
+//            }
+//        }
+//#endif
+//#if UNITY_ANDROID
         if (leftButtonPressed)
         {
             if (angle > -maxAngle)
@@ -252,7 +269,7 @@ public class DeliveryCarController : MonoBehaviour
                 angle += 2;
             }
         }
-#endif
+//#endif
 
         frontWheelCollider.steerAngle = angle;
         UpdateWheelPosition(rearRightWheelCollider, rearRightWheelTransform);
@@ -262,6 +279,7 @@ public class DeliveryCarController : MonoBehaviour
 
     List<GameObject> GeneratePath(Vector3 destinationPosition)
     {
+        //Debug.Log(GetCurrentMethod());
         List<RoadLatticeNode> allLattices;
         allLattices = new List<RoadLatticeNode>(mapLoader.mapsService.RoadLattice.Nodes);
         Vector3 currentPosition = tuktuk.transform.position;
@@ -336,11 +354,13 @@ public class DeliveryCarController : MonoBehaviour
 
     private IEnumerator TimerTicked(Stopwatch wotspatch)
     {
-        while (wotspatch.Elapsed.TotalSeconds < 5)
+        while (wotspatch.Elapsed.TotalSeconds < 10)
+        {
             yield return null;
+        }
         if (tuktukActive)
         {
-            if (waitingForOrder)
+            if (waitingForOrder && Manager.gameStarted)
             {
                 if (!dialogPanel.activeSelf)
                 {
@@ -350,6 +370,7 @@ public class DeliveryCarController : MonoBehaviour
                     {
                         while (mapLoader.objectContainer == null)
                         {
+                            Debug.Log("Aici crapa de fapt !!! ");
                             ;
                         }
                     }
@@ -511,10 +532,47 @@ public class DeliveryCarController : MonoBehaviour
 
     public void onBackButton()
     {
-        panel.SetActive(true);
-        backButton.SetActive(false);
-        leftButtonSelectVehicle.SetActive(false);
-        rightButtonSelectVehicle.SetActive(false);
+        if (!Manager.gameStarted)
+        {
+            panel.SetActive(true);
+            backButton.SetActive(false);
+            leftButtonSelectVehicle.SetActive(false);
+            rightButtonSelectVehicle.SetActive(false);
+        } else
+        {
+            toggleStatus();
+            if (dialogExitPanel.activeSelf)
+            {
+                if (deliveringOrder)
+                {
+                    timerPanel.SetActive(true);
+                    arrow.SetActive(true);
+                }
+                dialogExitPanel.SetActive(false);
+            } else
+            {
+                arrow.SetActive(false);
+                dialogExitPanel.SetActive(true);
+                Text question = GameObject.Find("Canvas/ExitPanel/QuestionText").GetComponent<Text>();
+                question.text = "Do you really want to exit ?";
+            }
+        }
+    }
+
+    public void onExitGame()
+    {
+
+    }
+
+    public void onCancelExitGame()
+    {
+        dialogExitPanel.SetActive(false);
+        toggleStatus();
+        if (deliveringOrder)
+        {
+            timerPanel.SetActive(true);
+            arrow.SetActive(true);
+        }
     }
 
     public void onLeftButtonSelectVehicle()
@@ -525,5 +583,14 @@ public class DeliveryCarController : MonoBehaviour
     public void onRightButtonSelectVehicle()
     {
 
+    }
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    public string GetCurrentMethod()
+    {
+        var st = new StackTrace();
+        var sf = st.GetFrame(1);
+
+        return sf.GetMethod().Name;
     }
 }
