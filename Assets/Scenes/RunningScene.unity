@@ -3882,6 +3882,9 @@ MonoBehaviour:
   distanceBetweenObstacles: 10
   cameraLerpPos: 0.1
   cameraLerpRot: 0.05
+  powerupsRate: 50
+  speedPowerup: {fileID: 6183155802885758921, guid: 6f32c16ec4d8c4d4c990089652f7b572,
+    type: 3}
   roadNamePanel: {fileID: 1377260132}
   scorePanel: {fileID: 1560586530}
   timerPanel: {fileID: 827652712}

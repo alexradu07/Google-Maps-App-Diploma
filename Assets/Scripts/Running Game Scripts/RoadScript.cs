@@ -16,6 +16,9 @@ public class RoadScript : MonoBehaviour
     public float cameraLerpPos;
     public float cameraLerpRot;
 
+    public int powerupsRate;
+    public GameObject speedPowerup;
+
     private MapsService mapsService;
 
     public GameObject roadNamePanel;
@@ -28,10 +31,12 @@ public class RoadScript : MonoBehaviour
     private RoadLatticeNode startNode;
     private RoadLatticeNode endNode;
     private RoadLatticeNode prevNode;
+    private RoadLatticeNode nextNode;
     //private float slope;
 
     private List<RoadLatticeNode> visitedNodes = new List<RoadLatticeNode>();
     private Vector3 runningDirection;
+    private Vector3 nextRunningDirection;
     private float cameraAngle;
     //public int iterations = 0;
     //public int maxIterations;
@@ -59,6 +64,15 @@ public class RoadScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (startNode == null || !hasGameStarted)
+        {
+            return;
+        }
+        if (this.GetComponent<TimerScript>().isGameOver)
+        {
+            // Game over
+            return;
+        }
         //GameObject player = GameObject.Find("Player");
 
         if (Input.GetKeyDown(KeyCode.LeftArrow))
@@ -70,44 +84,11 @@ public class RoadScript : MonoBehaviour
             MoveRight();
         }
 
-        //Update score
-
-    }
-
-    void FixedUpdate()
-    {
-        if (startNode == null || !hasGameStarted)
-        {
-            return;
-        }
-        if (this.GetComponent<TimerScript>().isGameOver)
-        {
-            // Game over
-            return;
-        }
-
         Camera mainCamera = Camera.main;
-
-        // player.GetComponent<Rigidbody>().AddForce(new Vector3(endNode.Location.x - startNode.Location.x, 0, endNode.Location.y - startNode.Location.y), ForceMode.Force);
-        runningDirection = new Vector3(endNode.Location.x - startNode.Location.x, 0, endNode.Location.y - startNode.Location.y);
-
-        if (movementSpeed < 10)
-        {
-            // Accelerate faster because the speed is low
-            movementSpeed += 0.2f;
-        }
-        else
-        {
-            // Accelerate normally
-            movementSpeed += movementSpeedIncrease;
-        }
-
-        player.GetComponent<Rigidbody>().velocity = runningDirection.normalized * movementSpeed;
-
         if ((endNode.Location.x < startNode.Location.x && endNode.Location.y > startNode.Location.y)
             || (endNode.Location.x < startNode.Location.x && endNode.Location.y < startNode.Location.y))
         {
-            player.GetComponent<Rigidbody>().velocity = runningDirection.normalized * movementSpeed;
+            //player.GetComponent<Rigidbody>().velocity = runningDirection.normalized * movementSpeed;
 
             /*
             mainCamera.transform.position = Vector3.Lerp(mainCamera.transform.position, new Vector3(player.transform.position.x + 5 * Mathf.Cos(Mathf.Atan(slope)),
@@ -125,7 +106,8 @@ public class RoadScript : MonoBehaviour
             mainCamera.transform.rotation = Quaternion.Lerp(mainCamera.transform.rotation, Quaternion.Euler(new Vector3(mainCamera.transform.eulerAngles.x,
                                                         cameraAngle,
                                                         mainCamera.transform.eulerAngles.z)), cameraLerpRot);
-        } else
+        }
+        else
         {
             /*
             mainCamera.transform.position = Vector3.Lerp(mainCamera.transform.position, new Vector3(player.transform.position.x - 5 * Mathf.Cos(Mathf.Atan(slope)),
@@ -144,20 +126,21 @@ public class RoadScript : MonoBehaviour
                                                         cameraAngle,
                                                         mainCamera.transform.eulerAngles.z)), cameraLerpRot);
         }
-
         // Calculate player center position
         playerCenterPosition = player.transform.position;
         if (roadPosition == -1)
         {
             playerCenterPosition = player.transform.position
                     - Vector3.Cross(runningDirection.normalized * lateralMovementAmount, Vector3.up);
-        } else if (roadPosition == 1) {
+        }
+        else if (roadPosition == 1)
+        {
             playerCenterPosition = player.transform.position
                     + Vector3.Cross(runningDirection.normalized * lateralMovementAmount, Vector3.up);
         }
-
         // Check if player passed the endNode, so a new segment is used
-        if ((endNode.Location.x >= startNode.Location.x && endNode.Location.y >= startNode.Location.y
+        nextNode = FindNextNode();
+        /*if ((endNode.Location.x >= startNode.Location.x && endNode.Location.y >= startNode.Location.y
             && playerCenterPosition.x >= endNode.Location.x && playerCenterPosition.z >= endNode.Location.y)
             || (endNode.Location.x <= startNode.Location.x && endNode.Location.y <= startNode.Location.y
             && playerCenterPosition.x <= endNode.Location.x && playerCenterPosition.z <= endNode.Location.y)
@@ -165,112 +148,115 @@ public class RoadScript : MonoBehaviour
             && playerCenterPosition.x >= endNode.Location.x && playerCenterPosition.z <= endNode.Location.y)
             || (endNode.Location.x <= startNode.Location.x && endNode.Location.y >= startNode.Location.y
             && playerCenterPosition.x <= endNode.Location.x && playerCenterPosition.z >= endNode.Location.y))
+        {*/
+        if (DidPassEndnode())
         {
             prevNode = startNode;
             startNode = endNode;
-
+            endNode = nextNode;
             // Choose neighbor and update runningDirection
-            List<RoadLatticeNode> neighbors = new List<RoadLatticeNode>(startNode.Neighbors);
-            float angle;
-            float minAngle = 180;
-            float maxAngle = -180;
-            float closestToZeroAngle = 180;
-            if (neighbors.Count == 1)
-            {
-                // Dead end road
-                endNode = prevNode;
-            }
-            else if (neighbors.Count == 2)
-            {
-                // Straight road
-                foreach (RoadLatticeNode neigh in neighbors)
-                {
-                    if (neigh != prevNode)
-                    {
-                        endNode = neigh;
-                    }
-                }
-            }
-            else
-            {
-                // Intersection
-                if (roadPosition == 0)
-                {
-                    // Center position
-                    /*
-                    if (neighbors.Count == 3)
-                    {
-                        foreach (RoadLatticeNode neigh in neighbors)
-                        {
-                            angle = Vector3.SignedAngle(runningDirection, new Vector3(neigh.Location.x, 0, neigh.Location.y) - player.transform.position, Vector3.up);
-                            if (angle < minAngle)
-                            {
-                                minAngle = angle;
-                                endNode = neigh;
-                            }
-                        }
-                    }
-                    */
-                    //else if (neighbors.Count >= 3)
-                    //{
-                    foreach (RoadLatticeNode neigh in neighbors)
-                    {
-                        if (neigh == prevNode)
-                        {
-                            continue;
-                        }
-                        angle = Vector3.SignedAngle(runningDirection,
-                            new Vector3(neigh.Location.x - startNode.Location.x, 0, neigh.Location.y - startNode.Location.y), Vector3.up);
-                        if (Mathf.Abs(angle) <= closestToZeroAngle)
-                        {
-                            closestToZeroAngle = Mathf.Abs(angle);
-                            endNode = neigh;
-                        }
-                    }
-                    //}
-                }
-                else if (roadPosition == -1)
-                {
-                    // Left position
-                    foreach (RoadLatticeNode neigh in neighbors)
-                    {
-                        if (neigh == prevNode)
-                        {
-                            continue;
-                        }
-                        //angle = Vector3.SignedAngle(runningDirection,
-                        //    new Vector3(neigh.Location.x - prevNode.Location.x, 0, neigh.Location.y - prevNode.Location.y), Vector3.up);
-                        angle = Vector3.SignedAngle(runningDirection,
-                            new Vector3(neigh.Location.x - startNode.Location.x, 0, neigh.Location.y - startNode.Location.y), Vector3.up);
-                        if (angle < minAngle)
-                        {
-                            minAngle = angle;
-                            endNode = neigh;
-                        }
-                    }
-                }
-                else if (roadPosition == 1)
-                {
-                    // Right position
-                    foreach (RoadLatticeNode neigh in neighbors)
-                    {
-                        if (neigh == prevNode)
-                        {
-                            continue;
-                        }
-                        //angle = Vector3.SignedAngle(runningDirection,
-                        //    new Vector3(neigh.Location.x - prevNode.Location.x, 0, neigh.Location.y - prevNode.Location.y), Vector3.up);
-                        angle = Vector3.SignedAngle(runningDirection,
-                            new Vector3(neigh.Location.x - startNode.Location.x, 0, neigh.Location.y - startNode.Location.y), Vector3.up);
-                        if (angle > maxAngle)
-                        {
-                            maxAngle = angle;
-                            endNode = neigh;
-                        }
-                    }
-                }
-            }
+            //List<RoadLatticeNode> neighbors = new List<RoadLatticeNode>(startNode.Neighbors);
+            //float angle;
+            //float minAngle = 180;
+            //float maxAngle = -180;
+            //float closestToZeroAngle = 180;
+            //if (neighbors.Count == 1)
+            //{
+            //    // Dead end road
+            //    endNode = prevNode;
+            //}
+            //else if (neighbors.Count == 2)
+            //{
+            //    // Straight road
+            //    foreach (RoadLatticeNode neigh in neighbors)
+            //    {
+            //        if (neigh != prevNode)
+            //        {
+            //            endNode = neigh;
+            //        }
+            //    }
+            //}
+            //else
+            //{
+            //    // Intersection
+            //    if (roadPosition == 0)
+            //    {
+            //        // Center position
+            //        /*
+            //        if (neighbors.Count == 3)
+            //        {
+            //            foreach (RoadLatticeNode neigh in neighbors)
+            //            {
+            //                angle = Vector3.SignedAngle(runningDirection, new Vector3(neigh.Location.x, 0, neigh.Location.y) - player.transform.position, Vector3.up);
+            //                if (angle < minAngle)
+            //                {
+            //                    minAngle = angle;
+            //                    endNode = neigh;
+            //                }
+            //            }
+            //        }
+            //        */
+            //        //else if (neighbors.Count >= 3)
+            //        //{
+            //        foreach (RoadLatticeNode neigh in neighbors)
+            //        {
+            //            if (neigh == prevNode)
+            //            {
+            //                continue;
+            //            }
+            //            angle = Vector3.SignedAngle(runningDirection,
+            //                new Vector3(neigh.Location.x - startNode.Location.x, 0, neigh.Location.y - startNode.Location.y), Vector3.up);
+            //            if (Mathf.Abs(angle) <= closestToZeroAngle)
+            //            {
+            //                closestToZeroAngle = Mathf.Abs(angle);
+            //                endNode = neigh;
+            //            }
+            //        }
+            //        //}
+            //    }
+            //    else if (roadPosition == -1)
+            //    {
+            //        // Left position
+            //        foreach (RoadLatticeNode neigh in neighbors)
+            //        {
+            //            if (neigh == prevNode)
+            //            {
+            //                continue;
+            //            }
+            //            //angle = Vector3.SignedAngle(runningDirection,
+            //            //    new Vector3(neigh.Location.x - prevNode.Location.x, 0, neigh.Location.y - prevNode.Location.y), Vector3.up);
+            //            angle = Vector3.SignedAngle(runningDirection,
+            //                new Vector3(neigh.Location.x - startNode.Location.x, 0, neigh.Location.y - startNode.Location.y), Vector3.up);
+            //            if (angle < minAngle)
+            //            {
+            //                minAngle = angle;
+            //                endNode = neigh;
+            //            }
+            //        }
+            //    }
+            //    else if (roadPosition == 1)
+            //    {
+            //        // Right position
+            //        foreach (RoadLatticeNode neigh in neighbors)
+            //        {
+            //            if (neigh == prevNode)
+            //            {
+            //                continue;
+            //            }
+            //            //angle = Vector3.SignedAngle(runningDirection,
+            //            //    new Vector3(neigh.Location.x - prevNode.Location.x, 0, neigh.Location.y - prevNode.Location.y), Vector3.up);
+            //            angle = Vector3.SignedAngle(runningDirection,
+            //                new Vector3(neigh.Location.x - startNode.Location.x, 0, neigh.Location.y - startNode.Location.y), Vector3.up);
+            //            if (angle > maxAngle)
+            //            {
+            //                maxAngle = angle;
+            //                endNode = neigh;
+            //            }
+            //        }
+            //    }
+            //}
             runningDirection = new Vector3(endNode.Location.x - startNode.Location.x, 0, endNode.Location.y - startNode.Location.y);
+            //runningDirection = new Vector3(endNode.Location.x - player.transform.position.x, 0, endNode.Location.y - player.transform.position.z);
             cameraAngle = mainCamera.transform.eulerAngles.y + Vector3.SignedAngle(new Vector3(mainCamera.transform.forward.x, 0, mainCamera.transform.forward.z),
                                                                                     runningDirection.normalized, Vector3.up);
 
@@ -312,6 +298,41 @@ public class RoadScript : MonoBehaviour
             roadName = startNode.EdgeTo(endNode).Segment.MapFeatureMetadata.Name;
             roadNamePanel.GetComponentInChildren<Text>().text = roadName;
         }
+    }
+
+    void FixedUpdate()
+    {
+        if (startNode == null || !hasGameStarted)
+        {
+            return;
+        }
+        if (this.GetComponent<TimerScript>().isGameOver)
+        {
+            // Game over
+            return;
+        }
+
+        Camera mainCamera = Camera.main;
+
+        // player.GetComponent<Rigidbody>().AddForce(new Vector3(endNode.Location.x - startNode.Location.x, 0, endNode.Location.y - startNode.Location.y), ForceMode.Force);
+        runningDirection = new Vector3(endNode.Location.x - startNode.Location.x, 0, endNode.Location.y - startNode.Location.y);
+
+        if (movementSpeed < 10)
+        {
+            // Accelerate faster because the speed is low
+            movementSpeed += 0.2f;
+        }
+        else
+        {
+            // Accelerate normally
+            movementSpeed += movementSpeedIncrease;
+        }
+
+        player.GetComponent<Rigidbody>().velocity = runningDirection.normalized * movementSpeed;
+
+        
+        // ALL THE LOGIC COPIED FROM BELOW TO UPDATE FUNCTION
+        
     }
 
     public void GenerateRoad(MapLoadedArgs args)
@@ -442,6 +463,12 @@ public class RoadScript : MonoBehaviour
                 continue;
             }
 
+            // Maybe generate powerup
+            if (Random.Range(0, 100/powerupsRate) == 0)
+            {
+                Object.Instantiate(speedPowerup, currentObstaclePos + runningDir.normalized * distanceBetweenObstacles / 2, Quaternion.Euler(0, 0, 0));
+            }
+
             // Generate new obstacle
             GameObject currentObstacle = Object.Instantiate(obstacles[Random.Range(0, obstacles.Count)], currentObstaclePos, Quaternion.Euler(0, 0, 0));
             currentObstacle.transform.LookAt(new Vector3(start.Location.x, 0.5f, start.Location.y));
@@ -555,5 +582,153 @@ public class RoadScript : MonoBehaviour
             roadPosition--;
         }
 
+    }
+
+    private bool DidPassEndnode()
+    {
+        nextRunningDirection = new Vector3(nextNode.Location.x - endNode.Location.x, 0, nextNode.Location.y - endNode.Location.y);
+        Vector3 endNodePos = new Vector3(endNode.Location.x, 0, endNode.Location.y);
+        Vector3 endNodeCenterPos = new Vector3(endNode.Location.x, 0, endNode.Location.y);
+        float angle = Vector3.SignedAngle(runningDirection, nextRunningDirection, Vector3.up);
+        float angle1 = 180 - angle;
+        float angle2 = Mathf.Abs(90 - angle);
+        //Debug.Log(angle);
+        if (angle2 == 90)
+        {
+            angle2 = 89;
+        } /*else if (angle2 == -90)
+        {
+            angle2 = -89;
+        }*/
+        angle2 = Mathf.Deg2Rad * angle2;
+        //Debug.Log("RUN " + runningDirection);
+        //Debug.Log("NEXT " + nextRunningDirection);
+        if (runningDirection == nextRunningDirection
+            || runningDirection == -nextRunningDirection)
+        {
+            // Straight or dead end road
+            endNodePos -= roadPosition * Vector3.Cross(runningDirection.normalized * lateralMovementAmount, Vector3.up);
+        }
+        else if (roadPosition == -1)
+        {
+            // Left position
+            endNodePos += runningDirection.normalized * (lateralMovementAmount / (float)System.Math.Cos((double)angle2));
+            endNodePos -= nextRunningDirection.normalized * (lateralMovementAmount / (float)System.Math.Cos((double)angle2));
+        }
+        else if (roadPosition == 1)
+        {
+            // Right position
+            endNodePos -= runningDirection.normalized * (lateralMovementAmount / (float)System.Math.Cos((double)angle2));
+            endNodePos += nextRunningDirection.normalized * (lateralMovementAmount / (float)System.Math.Cos((double)angle2));
+        }
+        //Debug.Log(endNodeCenterPos + " " + endNodePos);
+        // -V- FOR DEBUG PURPOSES -V- 
+        //Object.Instantiate(speedPowerup, endNodePos, Quaternion.Euler(0, 0, 0));
+        if ((endNodeCenterPos.x >= startNode.Location.x && endNodeCenterPos.z >= startNode.Location.y
+            && player.transform.position.x >= endNodePos.x && player.transform.position.z >= endNodePos.z)
+            || (endNodeCenterPos.x <= startNode.Location.x && endNodeCenterPos.z <= startNode.Location.y
+            && player.transform.position.x <= endNodePos.x && player.transform.position.z <= endNodePos.z)
+            || (endNodeCenterPos.x >= startNode.Location.x && endNodeCenterPos.z <= startNode.Location.y
+            && player.transform.position.x >= endNodePos.x && player.transform.position.z <= endNodePos.z)
+            || (endNodeCenterPos.x <= startNode.Location.x && endNodeCenterPos.z >= startNode.Location.y
+            && player.transform.position.x <= endNodePos.x && player.transform.position.z >= endNodePos.z))
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    private RoadLatticeNode FindNextNode()
+    {
+        RoadLatticeNode nextNode = null;
+
+        // Choose neighbor
+        List<RoadLatticeNode> neighbors = new List<RoadLatticeNode>(endNode.Neighbors);
+        float angle;
+        float minAngle = 180;
+        float maxAngle = -180;
+        float closestToZeroAngle = 180;
+        if (neighbors.Count == 1)
+        {
+            // Dead end road
+            nextNode = startNode;
+        }
+        else if (neighbors.Count == 2)
+        {
+            // Straight road
+            foreach (RoadLatticeNode neigh in neighbors)
+            {
+                if (neigh != startNode)
+                {
+                    nextNode = neigh;
+                }
+            }
+        }
+        else
+        {
+            // Intersection
+            if (roadPosition == 0)
+            {
+                // Center position
+                foreach (RoadLatticeNode neigh in neighbors)
+                {
+                    if (neigh == startNode)
+                    {
+                        continue;
+                    }
+                    angle = Vector3.SignedAngle(runningDirection,
+                        new Vector3(neigh.Location.x - endNode.Location.x, 0, neigh.Location.y - endNode.Location.y), Vector3.up);
+                    if (Mathf.Abs(angle) <= closestToZeroAngle)
+                    {
+                        closestToZeroAngle = Mathf.Abs(angle);
+                        nextNode = neigh;
+                    }
+                }
+                //}
+            }
+            else if (roadPosition == -1)
+            {
+                // Left position
+                foreach (RoadLatticeNode neigh in neighbors)
+                {
+                    if (neigh == startNode)
+                    {
+                        continue;
+                    }
+                    //angle = Vector3.SignedAngle(runningDirection,
+                    //    new Vector3(neigh.Location.x - prevNode.Location.x, 0, neigh.Location.y - prevNode.Location.y), Vector3.up);
+                    angle = Vector3.SignedAngle(runningDirection,
+                        new Vector3(neigh.Location.x - endNode.Location.x, 0, neigh.Location.y - endNode.Location.y), Vector3.up);
+                    if (angle < minAngle)
+                    {
+                        minAngle = angle;
+                        nextNode = neigh;
+                    }
+                }
+            }
+            else if (roadPosition == 1)
+            {
+                // Right position
+                foreach (RoadLatticeNode neigh in neighbors)
+                {
+                    if (neigh == startNode)
+                    {
+                        continue;
+                    }
+                    //angle = Vector3.SignedAngle(runningDirection,
+                    //    new Vector3(neigh.Location.x - prevNode.Location.x, 0, neigh.Location.y - prevNode.Location.y), Vector3.up);
+                    angle = Vector3.SignedAngle(runningDirection,
+                        new Vector3(neigh.Location.x - endNode.Location.x, 0, neigh.Location.y - endNode.Location.y), Vector3.up);
+                    if (angle > maxAngle)
+                    {
+                        maxAngle = angle;
+                        nextNode = neigh;
+                    }
+                }
+            }
+        }
+
+        return nextNode;
     }
 }

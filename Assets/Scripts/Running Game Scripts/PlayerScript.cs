@@ -24,10 +24,16 @@ public class PlayerScript : MonoBehaviour
 
     void OnCollisionEnter(Collision collision)
     {
+        //Debug.Log(collision.gameObject.name);
         if (collision.gameObject.name.Substring(0, 3) == "Car"
             || collision.gameObject.name.Substring(0, 6) == "Police")
         {
             GameObject.Find("RoadController").GetComponent<RoadScript>().CarCollision();
+        } else if (collision.gameObject.name.Length >= 12
+            && collision.gameObject.name.Substring(0, 12) == "SpeedPowerup")
+        {
+            GameObject.Find("RoadController").GetComponent<RoadScript>().movementSpeed += 5;
+            collision.gameObject.SetActive(false);
         }
     }
 }
