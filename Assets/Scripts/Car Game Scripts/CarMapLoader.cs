@@ -43,11 +43,16 @@ public class CarMapLoader : MonoBehaviour
         float dist1 = offset1.sqrMagnitude;
         float dist2 = offset2.sqrMagnitude;
         //Debug.Log(dist);
-        if (dist1 > 2000)
+        if (NavigationScript.needToUnload == true)
+        {
+            StartCoroutine(deleteAsync());
+            NavigationScript.needToUnload = false;
+        }
+        if (dist1 > 3000)
         {
             StartCoroutine(loadAsync());
         }
-        if (dist2 > 2000)
+        if (dist2 > 10000)
         {
             StartCoroutine(deleteAsync());
         }
@@ -57,7 +62,7 @@ public class CarMapLoader : MonoBehaviour
         mapsService = GetComponent<MapsService>();
         //mapsService.LoadMap(new Bounds(cameraObj.transform.position, new Vector3(200, 0, 200)), DefaultGameObjectOptions);
         //mapsService.MakeMapLoadRegion().AddCircle(cam.transform.position, 100).Load(DefaultGameObjectOptions);
-        mapsService.MakeMapLoadRegion().AddViewport(carCam, 200).Load(DefaultGameObjectOptions);
+        mapsService.MakeMapLoadRegion().AddCircle(cam.transform.position, 400).Load(DefaultGameObjectOptions);
         groundPlane.transform.position = new Vector3(cameraObj.transform.position.x, -0.01f, cameraObj.transform.position.z);
         oldPos1 = cameraObj.transform.position;
         //canUnload = true;
@@ -67,7 +72,7 @@ public class CarMapLoader : MonoBehaviour
     IEnumerator deleteAsync()
     {
         mapsService.MakeMapLoadRegion()
-                     .AddCircle(cam.transform.position, 200)
+                     .AddCircle(cam.transform.position, 400)
                      .UnloadOutside();
         Debug.Log("dau unload");
         oldPos2 = cameraObj.transform.position;
@@ -86,7 +91,7 @@ public class CarMapLoader : MonoBehaviour
         }
     }
 
-    public void LoadMap(double lat, double lng)
+    public void LoadMap(double lat, double lng, double lat1, double lng1)
     {
         latLng = new LatLng(lat, lng);
 
@@ -95,17 +100,17 @@ public class CarMapLoader : MonoBehaviour
         MapsService mapsService = GetComponent<MapsService>();
 
         // Set real-world location to load.
-        mapsService.InitFloatingOrigin(new LatLng(44.4501185, 26.0581425));
+        mapsService.InitFloatingOrigin(new LatLng(lat1, lng1));
 
         // Register a listener to be notified when the map is loaded.
         // mapsService.Events.MapEvents.Loaded.AddListener(OnLoaded);
 
         // Load map with default options.
         DefaultGameObjectOptions = DefaultStyles.getDefaultStyles();
-        mapsService.LoadMap(new Bounds(Vector3.zero, new Vector3(20, 0, 20)), DefaultGameObjectOptions);
+        mapsService.LoadMap(new Bounds(Vector3.zero, new Vector3(300, 0, 300)), DefaultGameObjectOptions);
 
         mapsService.MoveFloatingOrigin(new LatLng(lat, lng), null);
-        mapsService.LoadMap(new Bounds(Vector3.zero, new Vector3(500, 0, 500)), DefaultGameObjectOptions);
+        mapsService.LoadMap(new Bounds(Vector3.zero, new Vector3(300, 0, 300)), DefaultGameObjectOptions);
 
 
         mapsService.Events.MapEvents.Loaded.AddListener(AddCollidersToBuildings);

@@ -35,128 +35,201 @@ public class NavigationScript : MonoBehaviour
     public MapsService mapsService;
     public GameObject prefab;
     public GameObject arrow;
+    static public bool needToUnload = false;
     public List<GameObject> checkpoints = new List<GameObject>();
     public Camera cam;
     public int currentIndex = 0;
+    private GameObjectOptions DefaultGameObjectOptions;
     private bool checkpointsReady = false;
     private bool checkpointsPlaced = false;
     private Vector3 finalCheckPos;
     private bool firstPass = false;
-    private void Initialise(MapLoadedArgs args)
+    private bool containsDest = false;
+    private RoadLatticeNode finalDest = null;
+    private RoadLatticeNode wanted = null;
+    private ulong finalUid = 0;
+    private bool lastPlaced = false;
+
+    IEnumerator pathfinder()
     {
-        if (!checkpointsPlaced)
+        for (int i = lattices.Count - 1; i >= 0; i--)
         {
-            lattices = new List<RoadLatticeNode>(mapsService.RoadLattice.Nodes);
-            Transform carPos = carObj.transform;
-            float min = 1000;
-            float max = 0;
-            float max2 = 0;
-            Object checkpoint = null;
-            RoadLatticeNode temp = null;
-            if (firstPass == false)
+            try
             {
-                foreach (RoadLatticeNode i in lattices)
+                track = RoadLattice.FindPath(lattices[i], wanted, 10000, null);
+                if (track.Count > 2)
                 {
-                    if (Vector3.Distance(new Vector3(i.Location.x, 0, i.Location.y), carPos.position) > max2)
-                    {
-                        temp = i;
-                        max2 = Vector3.Distance(new Vector3(i.Location.x, 0, i.Location.y), carPos.position);
-                    }
-                }
-                //lattices.Sort()
-                //remove outliers
-                finalCheckPos = new Vector3(temp.Location.x, 0, temp.Location.y);
-                checkpoint = Object.Instantiate(prefab, new Vector3(temp.Location.x, 0, temp.Location.y), Quaternion.identity);
-            }
-            Comparer comp = new Comparer(carPos.position);
-            lattices.Sort(comp);
-            for (int i = 0; i < lattices.Count - 1; i++)
-            {
-                float dist1 = Vector3.Distance(new Vector3(lattices[i].Location.x, 0, lattices[i].Location.y), carPos.position);
-                float dist2 = Vector3.Distance(new Vector3(lattices[i + 1].Location.x, 0, lattices[i + 1].Location.y), carPos.position);
-                if (dist1 - dist2 > 100f)
-                {
-                    lattices.RemoveRange(0, i + 1);
                     break;
                 }
-            }
-            float minDiff = 100000;
-            RoadLatticeNode wanted = null;
-            for (int i = 0; i < 200; i++)
-            {
-                float distCarToLattice = Vector3.Distance(new Vector3(lattices[i].Location.x, 0, lattices[i].Location.y), carPos.position);
-                float distLatticeToFinal = Vector3.Distance(new Vector3(lattices[i].Location.x, 0, lattices[i].Location.y), finalCheckPos);
-                float distanceCarToFinal = Vector3.Distance(carPos.position, finalCheckPos);
-
-                if (distCarToLattice + distLatticeToFinal - distanceCarToFinal < minDiff)
-                {
-                    minDiff = distCarToLattice + distLatticeToFinal - distanceCarToFinal;
-                    wanted = lattices[i];
-                }
-            }
-            min = 10000;
-            GameObject farthest = (GameObject)Object.Instantiate(prefab, new Vector3(wanted.Location.x, 0, wanted.Location.y), Quaternion.identity);
-            /*foreach (RoadLatticeNode i in lattices)
-            {
-                Vector2 nodeLoc = i.Location;
-                Vector3 nodeLoc3 = new Vector3(nodeLoc.x, 0, nodeLoc.y);
-                float dist = Vector3.Distance(nodeLoc3, carPos.position);
-                if (dist < min)
-                {
-                    min = dist;
-                    startNavi = i;
-                }
-            }*/
-            for (int i = lattices.Count - 1; i >= 0; i--)
-            {
-                try {
-                    track = RoadLattice.FindPath(lattices[i], wanted, 10000, null);
-                    if (track.Count > 2)
-                    {
-                        break;
-                    } else
-                    {
-                        continue;
-                    }
-                } catch
+                else
                 {
                     continue;
                 }
             }
-            Debug.Log(track.Count);
-
-            /*
-            int x = Random.Range(0, suitableTargets.Count - 1);
-            try
-            {
-                track = new List<RoadLatticeNode>(RoadLattice.FindPath(startNavi, suitableTargets[x], 10000, null));
-            }
             catch
             {
-                x = Random.Range(0, suitableTargets.Count - 1);
-                track = new List<RoadLatticeNode>(RoadLattice.FindPath(startNavi, suitableTargets[x], 10000, null));
+                continue;
             }
-            */
-            Vector3 initCoord = carPos.position;
-            
-            foreach (RoadLatticeNode i in track)
+        }
+        yield return null;
+    }
+
+    private void Initialise(MapLoadedArgs args)
+    {
+        Debug.Log(containsDest);
+        if (!lastPlaced)
+        {
+            if (!checkpointsPlaced)
             {
-                if (Vector3.Distance(initCoord, new Vector3(i.Location.x, 0, i.Location.y)) > 20)
+                lattices = new List<RoadLatticeNode>(mapsService.RoadLattice.Nodes);
+                if (firstPass && !containsDest)
                 {
-                    initCoord = new Vector3(i.Location.x, 0, i.Location.y);
-                    checkpoints.Add(Object.Instantiate(prefab, new Vector3(i.Location.x, 0, i.Location.y), Quaternion.identity));
+                    foreach (RoadLatticeNode i in lattices)
+                    {
+                        if (i.LocationUID == finalUid)
+                        {
+                            containsDest = true;
+                        }
+                    }
                 }
-                if (checkpoints.Count == 1)
+                Transform carPos = carObj.transform;
+                float min = 1000;
+                float max = 0;
+                float max2 = 0;
+                Object checkpoint = null;
+                GameObject farthest = null;
+                if (!containsDest)
                 {
-                    carObj.transform.LookAt(checkpoints[0].transform.position);
+                    if (firstPass == false)
+                    {
+                        foreach (RoadLatticeNode i in lattices)
+                        {
+                            if (Vector3.Distance(new Vector3(i.Location.x, 0, i.Location.y), carPos.position) > max2)
+                            {
+                                finalDest = i;
+                                max2 = Vector3.Distance(new Vector3(i.Location.x, 0, i.Location.y), carPos.position);
+                            }
+                        }
+                        //lattices.Sort()
+                        //remove outliers
+                        finalCheckPos = new Vector3(finalDest.Location.x, 0, finalDest.Location.y);
+                        finalUid = finalDest.LocationUID;
+                        Debug.Log("finalUID" + finalUid);
+                        //checkpoint = Object.Instantiate(prefab, new Vector3(finalDest.Location.x, 0, finalDest.Location.y), Quaternion.identity);
+                    }
+                    /*mapsService.MakeMapLoadRegion()
+                     .AddCircle(cam.transform.position, 700)
+                     .UnloadOutside();*/
+                    needToUnload = true;
+                    Comparer comp = new Comparer(carPos.position);
+                    lattices.Sort(comp);
+                    /*for (int i = 0; i < lattices.Count; i++)
+                    {
+                        float dist = Vector3.Distance(new Vector3(lattices[i].Location.x, 0, lattices[i].Location.y), carPos.position);
+                        Debug.Log(dist);
+                    }*/
+                    for (int i = 0; i < lattices.Count - 1; i++)
+                    {
+                        float dist1 = Vector3.Distance(new Vector3(lattices[i].Location.x, 0, lattices[i].Location.y), carPos.position);
+                        float dist2 = Vector3.Distance(new Vector3(lattices[i + 1].Location.x, 0, lattices[i + 1].Location.y), carPos.position);
+                        if (dist1 - dist2 > 100f)
+                        {
+                            lattices.RemoveRange(0, i + 1);
+                            break;
+                        }
+                    }
+                    float minDiff = 100000;
+                    for (int i = 0; i < lattices.Count * 3 / 4; i++)
+                    {
+                        float distCarToLattice = Vector3.Distance(new Vector3(lattices[i].Location.x, 0, lattices[i].Location.y), carPos.position);
+                        float distLatticeToFinal = Vector3.Distance(new Vector3(lattices[i].Location.x, 0, lattices[i].Location.y), finalCheckPos);
+                        float distanceCarToFinal = Vector3.Distance(carPos.position, finalCheckPos);
+
+                        if (distCarToLattice + distLatticeToFinal - distanceCarToFinal < minDiff)
+                        {
+                            minDiff = distCarToLattice + distLatticeToFinal - distanceCarToFinal;
+                            wanted = lattices[i];
+                        }
+                    }
+                    min = 10000;
+                    farthest = (GameObject)Object.Instantiate(prefab, new Vector3(wanted.Location.x, 0, wanted.Location.y), Quaternion.identity);
+                    /*foreach (RoadLatticeNode i in lattices)
+                    {
+                        Vector2 nodeLoc = i.Location;
+                        Vector3 nodeLoc3 = new Vector3(nodeLoc.x, 0, nodeLoc.y);
+                        float dist = Vector3.Distance(nodeLoc3, carPos.position);
+                        if (dist < min)
+                        {
+                            min = dist;
+                            startNavi = i;
+                        }
+                    }*/
+                    if (!firstPass)
+                    {
+                        StartCoroutine(pathfinder());
+                    }
+                    else
+                    {
+                        lattices = new List<RoadLatticeNode>(mapsService.RoadLattice.Nodes);
+                        Comparer comp2 = new Comparer(checkpoints[checkpoints.Count - 1].transform.position);
+                        lattices.Sort(comp2);
+                        StartCoroutine(pathfinder());
+                    }
                 }
-                //Object.Instantiate(prefab, new Vector3(i.Location.x, 0, i.Location.y), Quaternion.identity);
+                else
+                {
+                    if (!lastPlaced)
+                    {
+                        lattices = new List<RoadLatticeNode>(mapsService.RoadLattice.Nodes);
+                        Comparer comp = new Comparer(new Vector3(wanted.Location.x, 0, wanted.Location.y));
+                        lattices.Sort(comp);
+                        StartCoroutine(pathfinder());
+                        lastPlaced = true;
+                        foreach (GameObject i in checkpoints)
+                        {
+                            i.SetActive(false);
+                        }
+                        checkpoints.Clear();
+                    }
+                }
+                Debug.Log(track.Count);
+
+                /*
+                int x = Random.Range(0, suitableTargets.Count - 1);
+                try
+                {
+                    track = new List<RoadLatticeNode>(RoadLattice.FindPath(startNavi, suitableTargets[x], 10000, null));
+                }
+                catch
+                {
+                    x = Random.Range(0, suitableTargets.Count - 1);
+                    track = new List<RoadLatticeNode>(RoadLattice.FindPath(startNavi, suitableTargets[x], 10000, null));
+                }
+                */
+                Vector3 initCoord = carPos.position;
+
+                foreach (RoadLatticeNode i in track)
+                {
+                    if (Vector3.Distance(initCoord, new Vector3(i.Location.x, 0, i.Location.y)) > 100)
+                    {
+                        initCoord = new Vector3(i.Location.x, 0, i.Location.y);
+                        checkpoints.Add(Object.Instantiate(prefab, new Vector3(i.Location.x, 0, i.Location.y), Quaternion.identity));
+                    }
+                    if (checkpoints.Count == 1 && !firstPass)
+                    {
+                        carObj.transform.LookAt(checkpoints[0].transform.position);
+                    }
+                    //Object.Instantiate(prefab, new Vector3(i.Location.x, 0, i.Location.y), Quaternion.identity);
+                }
+                if (!containsDest)
+                {
+                    checkpoints.Add(farthest);
+                }
+                checkpointsReady = true;
+                //Object.Instantiate(prefab, new Vector3(startNavi.Location.x, 0, startNavi.Location.y), Quaternion.identity);
+                checkpointsPlaced = true;
+                firstPass = true;
             }
-            checkpoints.Add(farthest);
-            checkpointsReady = true;
-            //Object.Instantiate(prefab, new Vector3(startNavi.Location.x, 0, startNavi.Location.y), Quaternion.identity);
-            checkpointsPlaced = true;
-            firstPass = true;
         }
     }
 
@@ -169,25 +242,36 @@ public class NavigationScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (checkpoints.Count > 0 && currentIndex < checkpoints.Count)
+        //if (checkpoints.Count > 0 && currentIndex < checkpoints.Count)
+        if (checkpoints.Count > 0)
         {
-            Vector3 dirToLookAt = checkpoints[currentIndex].transform.position;
+            Vector3 dirToLookAt = checkpoints[0].transform.position;
             dirToLookAt.y += 2;
             arrow.transform.LookAt(dirToLookAt);
             arrow.transform.Rotate(new Vector3(0, -90, 0));
-            if (Vector3.Distance(checkpoints[currentIndex].transform.position, carObj.transform.position) < 3)
+            /*if (Vector3.Distance(checkpoints[currentIndex].transform.position, carObj.transform.position) < 3)
             {
                 checkpoints[currentIndex].SetActive(false);
                 currentIndex++;
+            }*/
+            if (Vector3.Distance(checkpoints[currentIndex].transform.position, carObj.transform.position) < 3)
+            {
+                checkpoints[0].SetActive(false);
+                checkpoints.RemoveAt(0);
             }
         }
-        if (currentIndex == checkpoints.Count && checkpointsReady == true)
+        //if (currentIndex == checkpoints.Count && checkpointsReady == true)
+        if (checkpoints.Count < 5 && !containsDest)
+        {
+            checkpointsPlaced = false;
+        }
+        if (checkpoints.Count == 0 && checkpointsReady == true)
         {
             CarController.gameEnded = true;
             checkpoints.Clear();
             checkpointsPlaced = false;
             currentIndex = 0;
-            //arrow.SetActive(false);
+            arrow.SetActive(false);
         }
 
     }
