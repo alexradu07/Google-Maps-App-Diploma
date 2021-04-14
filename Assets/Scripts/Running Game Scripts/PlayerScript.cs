@@ -32,6 +32,7 @@ public class PlayerScript : MonoBehaviour
         } else if (collision.gameObject.name.Length >= 12
             && collision.gameObject.name.Substring(0, 12) == "SpeedPowerup")
         {
+            this.GetComponent<ParticleSystem>().Play();
             GameObject.Find("RoadController").GetComponent<RoadScript>().movementSpeed += 5;
             collision.gameObject.SetActive(false);
         }
