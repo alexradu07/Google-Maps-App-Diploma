@@ -42,7 +42,7 @@ public class DeliveryCarController : MonoBehaviour
     private bool leftButtonPressed, rightButtonPressed;
     private float maxAngle;
     private float angle;
-    private DeliveryMapLoader mapLoader;
+    private DeliveryOutdoorMapLoader mapLoader;
     private bool waitingForOrder;
     private bool deliveringOrder;
     private bool onWayToRestaurant;
@@ -59,7 +59,7 @@ public class DeliveryCarController : MonoBehaviour
     {
         maxAngle = 30;
         angle = 0;
-        mapLoader = GameObject.Find("GoogleMaps").GetComponent<DeliveryMapLoader>();
+        mapLoader = GameObject.Find("GoogleMaps").GetComponent<DeliveryOutdoorMapLoader>();
         if (mapLoader == null)
         {
             Debug.Log("maploader is null");
