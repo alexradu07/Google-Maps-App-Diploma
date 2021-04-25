@@ -10,7 +10,7 @@ using Debug = UnityEngine.Debug;
 using UnityEngine.EventSystems;
 using System.Runtime.CompilerServices;
 
-public class DeliveryCarController : MonoBehaviour
+public class DeliveryOutdoorCarController : MonoBehaviour
 {
     public Rigidbody rb;
     public GameObject frontWheel;
@@ -30,19 +30,15 @@ public class DeliveryCarController : MonoBehaviour
     public GameObject minimap;
     public GameObject tukTukStatusDialog;
     public GameObject pathSphere;
-    public GameObject frontButton, reverseButton, brakeButton;
-    public GameObject leftButton, rightButton;
     public GameObject backButton;
     public GameObject panel;
     public Transform frontWheelTransform, rearLeftWheelTransform, rearRightWheelTransform;
     public Text statusText;
     public GameObject leftButtonSelectVehicle;
     public GameObject rightButtonSelectVehicle;
-    private bool frontButtonPressed, reverseButtonPressed, brakeButtonPressed;
-    private bool leftButtonPressed, rightButtonPressed;
     private float maxAngle;
     private float angle;
-    private DeliveryMapLoader mapLoader;
+    private DeliveryOutdoorMapLoader mapLoader;
     private bool waitingForOrder;
     private bool deliveringOrder;
     private bool onWayToRestaurant;
@@ -59,7 +55,7 @@ public class DeliveryCarController : MonoBehaviour
     {
         maxAngle = 30;
         angle = 0;
-        mapLoader = GameObject.Find("GoogleMaps").GetComponent<DeliveryMapLoader>();
+        mapLoader = GameObject.Find("GoogleMaps").GetComponent<DeliveryOutdoorMapLoader>();
         if (mapLoader == null)
         {
             Debug.Log("maploader is null");
@@ -110,11 +106,6 @@ public class DeliveryCarController : MonoBehaviour
             //coroutineStarted = true;
             timerStarted = true;
             backButton.SetActive(true);
-            frontButton.SetActive(true);
-            reverseButton.SetActive(true);
-            leftButton.SetActive(true);
-            rightButton.SetActive(true);
-            brakeButton.SetActive(true);
             mapLoader.setQueryNeeded();
         }
         UpdateCarPosition();
@@ -186,90 +177,6 @@ public class DeliveryCarController : MonoBehaviour
         rearLeftWheelCollider.brakeTorque = 0;
         rearRightWheelCollider.brakeTorque = 0;
         frontWheelCollider.brakeTorque = 0;
-//#if UNITY_EDITOR_WIN
-//        if (Input.GetKey(KeyCode.A))
-//        {
-//            if (angle > -maxAngle)
-//            {
-//                angle -= 1;
-//            }
-//        }
-//        if (Input.GetKey(KeyCode.D))
-//        {
-//            if (angle < maxAngle)
-//            {
-//                angle += 1;
-//            }
-//        }
-//        if (Input.GetKey(KeyCode.W))
-//        {
-//            frontWheelCollider.motorTorque = 500;
-//        }
-//        if (Input.GetKey(KeyCode.S))
-//        {
-//            frontWheelCollider.motorTorque = -300;
-//        }
-//        if (Input.GetKey(KeyCode.Space))
-//        {
-//            frontWheelCollider.brakeTorque = 400;
-//            rearLeftWheelCollider.brakeTorque = 600;
-//            rearRightWheelCollider.brakeTorque = 600;
-//        }
-
-//        if (!Input.GetKey(KeyCode.A) && !Input.GetKey(KeyCode.D))
-//        {
-//            if (angle > 0)
-//            {
-//                angle -= 2;
-//            }
-//            else if (angle < 0)
-//            {
-//                angle += 2;
-//            }
-//        }
-//#endif
-//#if UNITY_ANDROID
-        if (leftButtonPressed)
-        {
-            if (angle > -maxAngle)
-            {
-                angle -= 1;
-            }
-        }
-        if (rightButtonPressed)
-        {
-            if (angle < maxAngle)
-            {
-                angle += 1;
-            }
-        }
-        if (frontButtonPressed)
-        {
-            frontWheelCollider.motorTorque = 500;
-        }
-        if (reverseButtonPressed)
-        {
-            frontWheelCollider.motorTorque = -300;
-        }
-        if (brakeButtonPressed)
-        {
-            frontWheelCollider.brakeTorque = 400;
-            rearLeftWheelCollider.brakeTorque = 600;
-            rearRightWheelCollider.brakeTorque = 600;
-        }
-
-        if (!leftButtonPressed && !rightButtonPressed)
-        {
-            if (angle > 0)
-            {
-                angle -= 2;
-            }
-            else if (angle < 0)
-            {
-                angle += 2;
-            }
-        }
-//#endif
 
         frontWheelCollider.steerAngle = angle;
         UpdateWheelPosition(rearRightWheelCollider, rearRightWheelTransform);
@@ -481,55 +388,6 @@ public class DeliveryCarController : MonoBehaviour
         }
     }
 
-    public void OnFrontButtonPointerDown(BaseEventData eventData)
-    {
-        frontButtonPressed = true;
-    }
-
-    public void OnFrontButtonPointerUp(BaseEventData eventData)
-    {
-        frontButtonPressed = false;
-    }
-
-    public void OnReverseButtonPointerDown(BaseEventData eventData)
-    {
-        reverseButtonPressed = true;
-    }
-
-    public void OnReverseButtonPointerUp(BaseEventData eventData)
-    {
-        reverseButtonPressed = false;
-    }
-
-    public void OnBrakeButtonPointerDown(BaseEventData eventData)
-    {
-        brakeButtonPressed = true;
-    }
-
-    public void OnBrakeButtonPointerUp(BaseEventData eventData)
-    {
-        brakeButtonPressed = false;
-    }
-
-    public void OnLeftButtonPointerDown(BaseEventData eventData)
-    {
-        leftButtonPressed = true;
-    }
-
-    public void OnLeftButtonPointerUp(BaseEventData eventData)
-    {
-        leftButtonPressed = false;
-    }
-    public void OnRightButtonPointerDown(BaseEventData eventData)
-    {
-        rightButtonPressed = true;
-    }
-
-    public void OnRightButtonPointerUp(BaseEventData eventData)
-    {
-        rightButtonPressed = false;
-    }
-
     public void onBackButton()
     {
         if (!Manager.gameStarted)
@@ -538,7 +396,8 @@ public class DeliveryCarController : MonoBehaviour
             backButton.SetActive(false);
             leftButtonSelectVehicle.SetActive(false);
             rightButtonSelectVehicle.SetActive(false);
-        } else
+        }
+        else
         {
             toggleStatus();
             if (dialogExitPanel.activeSelf)
@@ -549,7 +408,8 @@ public class DeliveryCarController : MonoBehaviour
                     arrow.SetActive(true);
                 }
                 dialogExitPanel.SetActive(false);
-            } else
+            }
+            else
             {
                 arrow.SetActive(false);
                 dialogExitPanel.SetActive(true);
