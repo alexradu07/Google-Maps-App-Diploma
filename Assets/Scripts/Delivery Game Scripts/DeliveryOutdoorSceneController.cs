@@ -19,6 +19,7 @@ public class DeliveryOutdoorSceneController : MonoBehaviour
     public GameObject backButton;
     public GameObject leftButtonSelectVehicle;
     public GameObject rightButtonSelectVehicle;
+    private bool locationServiceStarted = false;
 
     // Start is called before the first frame update
     void Start()
@@ -29,7 +30,10 @@ public class DeliveryOutdoorSceneController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
+        if (locationServiceStarted)
+        {
+            UpdateLocationData();
+        }
     }
 
     public void LoadScene(string sceneName)
@@ -77,7 +81,7 @@ public class DeliveryOutdoorSceneController : MonoBehaviour
             StartCoroutine(DisplayLocationError());
             yield break;
         }
-        Input.location.Start();
+        Input.location.Start(5, 5);
         yield return new WaitForSeconds(1);
         while (Input.location.status == LocationServiceStatus.Initializing)
         {
@@ -97,8 +101,8 @@ public class DeliveryOutdoorSceneController : MonoBehaviour
             GameObject.Find("GoogleMaps").GetComponent<DeliveryOutdoorMapLoader>().LoadMap(Input.location.lastData.latitude, Input.location.lastData.longitude);
             Manager.locationQueryComplete = true;
         }
+        locationServiceStarted = true;
 
-        Input.location.Stop();
         Manager.gameStarted = true;
     }
 
@@ -110,6 +114,21 @@ public class DeliveryOutdoorSceneController : MonoBehaviour
         Manager.choosingCar = true;
         leftButtonSelectVehicle.SetActive(true);
         rightButtonSelectVehicle.SetActive(true);
+    }
+
+    public void UpdateLocationData()
+    {
+        LocationInfo current = Input.location.lastData;
+
+        Manager.dynamicLatitude = current.latitude;
+        Manager.dynamicLongitude = current.longitude;
+        Debug.Log("latitude\t: " + Manager.dynamicLatitude);
+        Debug.Log("longitude\t: " + Manager.dynamicLongitude);
+    }
+
+    public void OnDestroy()
+    {
+        Input.location.Stop();
     }
 
     [MethodImpl(MethodImplOptions.NoInlining)]

@@ -177,7 +177,6 @@ public class DeliveryOutdoorCarController : MonoBehaviour
         rearLeftWheelCollider.brakeTorque = 0;
         rearRightWheelCollider.brakeTorque = 0;
         frontWheelCollider.brakeTorque = 0;
-
         frontWheelCollider.steerAngle = angle;
         UpdateWheelPosition(rearRightWheelCollider, rearRightWheelTransform);
         UpdateWheelPosition(rearLeftWheelCollider, rearLeftWheelTransform);
