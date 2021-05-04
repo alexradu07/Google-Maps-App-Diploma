@@ -12,7 +12,7 @@ EditorBuildSettings:
     path: Assets/Scenes/IndoorCarScene.unity
     guid: 7d695575895f7174a93315b2308779b8
   - enabled: 1
-    path: Assets/Scenes/DeliveryScene.unity
+    path: Assets/Scenes/IndoorDeliveryScene.unity
     guid: 9c60506008ff5a24983793baf43b98c9
   - enabled: 1
     path: Assets/Scenes/RunningScene.unity
@@ -20,6 +20,12 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/IoO CarGame.unity
     guid: c4efceffd9670ef4398a1ebe20056dec
+  - enabled: 1
+    path: Assets/Scenes/IOModeDeliveryManager.unity
+    guid: 540df1763e8c24645977053a4bbb01fd
+  - enabled: 1
+    path: Assets/Scenes/OutdoorDeliveryScene.unity
+    guid: 541212282af4c9c4ca825d35adfbf189
   - enabled: 1
     path: Assets/Scenes/OutdoorCarScene.unity
     guid: 8c391f317845bad4f868af1098c3ebfe

@@ -1,7 +1,15 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
+using System.Net.Http;
+using System.Text;
+using Google.Maps;
+using Google.Protobuf.WellKnownTypes;
+using Newtonsoft.Json.Linq;
 using UnityEngine;
+using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -13,11 +21,11 @@ public class CarSceneController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        //GameObject.Find("Canvas/Speedo/needle").SetActive(false);
-        //GameObject.Find("Canvas/Speedo/speedo").SetActive(false);
-        //GameObject.Find("Canvas/Speedo/needle2").SetActive(false);
-        //GameObject.Find("Canvas/Speedo/revs").SetActive(false);
-        //GameObject.Find("Canvas/MiniMap/Image").SetActive(false);
+        GameObject.Find("Canvas/Speedo/needle").SetActive(false);
+        GameObject.Find("Canvas/Speedo/speedo").SetActive(false);
+        GameObject.Find("Canvas/Speedo/needle2").SetActive(false);
+        GameObject.Find("Canvas/Speedo/revs").SetActive(false);
+        GameObject.Find("Canvas/MiniMap/Image").SetActive(false);
     }
 
     // Update is called once per frame
@@ -57,7 +65,6 @@ public class CarSceneController : MonoBehaviour
         /*var cerere = new HttpClient();
         string response = cerere.GetStringAsync("https://api.mapbox.com/geocoding/v5/mapbox.places/" + req + ".json?access_token=pk.eyJ1IjoibWl0emEwMDEwIiwiYSI6ImNrbmg2ZWE5ejJoeHUycGxjeTB6cXFkZWgifQ.bVjRsva6Fcuil-vUwsm9Ag");
         Debug.Log(response);*/
-        Debug.Log(response);
         int index = response.IndexOf("center");
         index += 9;
         string firstCoord = "";
@@ -74,7 +81,8 @@ public class CarSceneController : MonoBehaviour
             if (!finishedFirst)
             {
                 firstCoord += response[index];
-            } else
+            }
+            else
             {
                 secondCoord += response[index];
             }
