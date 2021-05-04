@@ -79,7 +79,7 @@ public static class DefaultStyles
         ExtrudedStructureStyle extrudedStructureStyle =
             new ExtrudedStructureStyle
                 .Builder
-            { WallMaterial = wallMaterial, RoofMaterial = roofMaterial }
+            { WallMaterial = wallMaterial, RoofMaterial = roofMaterial  }
                 .Build();
 
         // Create style for buildings with detailed vertex/triangle data (such as the Statue of

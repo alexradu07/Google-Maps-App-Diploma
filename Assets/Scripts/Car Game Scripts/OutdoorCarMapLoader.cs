@@ -1,17 +1,13 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using Google.Maps.Coord;
 using Google.Maps.Event;
 using Google.Maps;
-using UnityEngine.Events;
-using System;
-using System.Threading;
 //namespace Diploma
 //{
 
 [RequireComponent(typeof(MapsService))]
-public class CarMapLoader : MonoBehaviour
+public class OutdoorCarMapLoader : MonoBehaviour
 {
     private LatLng latLng = new LatLng(0, 0);
     public GameObject cameraObj;
@@ -43,10 +39,10 @@ public class CarMapLoader : MonoBehaviour
         float dist1 = offset1.sqrMagnitude;
         float dist2 = offset2.sqrMagnitude;
         //Debug.Log(dist);
-        if (NavigationScript.needToUnload == true)
+        if (OutdoorNavigationScript.needToUnload == true)
         {
             StartCoroutine(deleteAsync());
-            NavigationScript.needToUnload = false;
+            OutdoorNavigationScript.needToUnload = false;
         }
         if (dist1 > 8000)
         {

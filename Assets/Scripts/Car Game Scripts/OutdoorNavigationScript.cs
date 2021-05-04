@@ -4,37 +4,38 @@ using UnityEngine;
 using Google.Maps.Event;
 using Google.Maps;
 using Google.Maps.Unity.Intersections;
-public class Comparer : IComparer<RoadLatticeNode>
+
+public class CarComparer : IComparer<RoadLatticeNode>
 {
     Vector3 pos;
-    public Comparer(Vector3 pos)
+    public CarComparer(Vector3 pos)
     {
         this.pos = pos;
     }
     public int Compare(RoadLatticeNode x, RoadLatticeNode y)
     {
-        float dist1 = Vector3.Distance(new Vector3(x.Location.x,0,x.Location.y), pos);
+        float dist1 = Vector3.Distance(new Vector3(x.Location.x, 0, x.Location.y), pos);
         float dist2 = Vector3.Distance(new Vector3(y.Location.x, 0, y.Location.y), pos);
         return (int)(dist2 - dist1);
     }
 }
 
-public class NavigationScript : MonoBehaviour
+public class OutdoorNavigationScript : MonoBehaviour
 {
     // Start is called before the first frame update
-    public RoadLatticeNode startNavi;
-    public RoadLatticeNode endNavi;
-    public List<RoadLatticeNode> track;
-    public List<RoadLatticeNode> lattices;
-    public List<RoadLatticeNode> suitableTargets = new List<RoadLatticeNode>();
+    private RoadLatticeNode startNavi;
+    private RoadLatticeNode endNavi;
+    private List<RoadLatticeNode> track;
+    private List<RoadLatticeNode> lattices;
+    private List<RoadLatticeNode> suitableTargets = new List<RoadLatticeNode>();
     public GameObject carObj;
     public MapsService mapsService;
     public GameObject prefab;
     public GameObject arrow;
     static public bool needToUnload = false;
-    public List<GameObject> checkpoints = new List<GameObject>();
+    private List<GameObject> checkpoints = new List<GameObject>();
     public Camera cam;
-    public int currentIndex = 0;
+    private int currentIndex = 0;
     private GameObjectOptions DefaultGameObjectOptions;
     private bool checkpointsReady = false;
     private bool checkpointsPlaced = false;
@@ -118,7 +119,7 @@ public class NavigationScript : MonoBehaviour
                      .AddCircle(cam.transform.position, 700)
                      .UnloadOutside();*/
                     needToUnload = true;
-                    Comparer comp = new Comparer(carPos.position);
+                    CarComparer comp = new CarComparer(carPos.position);
                     lattices.Sort(comp);
                     /*for (int i = 0; i < lattices.Count; i++)
                     {
@@ -168,7 +169,7 @@ public class NavigationScript : MonoBehaviour
                     else
                     {
                         lattices = new List<RoadLatticeNode>(mapsService.RoadLattice.Nodes);
-                        Comparer comp2 = new Comparer(checkpoints[checkpoints.Count - 1].transform.position);
+                        CarComparer comp2 = new CarComparer(checkpoints[checkpoints.Count - 1].transform.position);
                         lattices.Sort(comp2);
                         StartCoroutine(pathfinder());
                     }
@@ -178,7 +179,7 @@ public class NavigationScript : MonoBehaviour
                     if (!lastPlaced)
                     {
                         lattices = new List<RoadLatticeNode>(mapsService.RoadLattice.Nodes);
-                        Comparer comp = new Comparer(new Vector3(wanted.Location.x, 0, wanted.Location.y));
+                        CarComparer comp = new CarComparer(new Vector3(wanted.Location.x, 0, wanted.Location.y));
                         lattices.Sort(comp);
                         StartCoroutine(pathfinder());
                         lastPlaced = true;
@@ -205,7 +206,7 @@ public class NavigationScript : MonoBehaviour
                 */
                 Vector3 initCoord = carPos.position;
 
-                for (int i = 0; i < track.Count;i++)
+                for (int i = 0; i < track.Count; i++)
                 {
                     bool needToContinue = true;
                     if (track[i].NeighborCount == 1)
@@ -214,7 +215,7 @@ public class NavigationScript : MonoBehaviour
                     }
                     for (int j = 0; j < checkpoints.Count; j++)
                     {
-                        if (Vector3.Distance(checkpoints[j].transform.position,new Vector3(track[i].Location.x, 0, track[i].Location.y)) < 50)
+                        if (Vector3.Distance(checkpoints[j].transform.position, new Vector3(track[i].Location.x, 0, track[i].Location.y)) < 50)
                         {
                             needToContinue = false;
                             break;
@@ -272,15 +273,11 @@ public class NavigationScript : MonoBehaviour
         //if (checkpoints.Count > 0 && currentIndex < checkpoints.Count)
         if (checkpoints.Count > 0)
         {
+            Debug.Log(checkpoints.Count);
             Vector3 dirToLookAt = checkpoints[0].transform.position;
             dirToLookAt.y += 2;
             arrow.transform.LookAt(dirToLookAt);
             arrow.transform.Rotate(new Vector3(0, -90, 0));
-            /*if (Vector3.Distance(checkpoints[currentIndex].transform.position, carObj.transform.position) < 3)
-            {
-                checkpoints[currentIndex].SetActive(false);
-                currentIndex++;
-            }*/
             if (Vector3.Distance(checkpoints[currentIndex].transform.position, carObj.transform.position) < 3)
             {
                 checkpoints[0].SetActive(false);
@@ -294,7 +291,7 @@ public class NavigationScript : MonoBehaviour
         }
         if (checkpoints.Count == 0 && checkpointsReady == true)
         {
-            CarController.gameEnded = true;
+            OutdoorCarController.gameEnded = true;
             checkpoints.Clear();
             checkpointsPlaced = false;
             currentIndex = 0;
