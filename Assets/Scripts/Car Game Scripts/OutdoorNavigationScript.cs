@@ -273,7 +273,6 @@ public class OutdoorNavigationScript : MonoBehaviour
         //if (checkpoints.Count > 0 && currentIndex < checkpoints.Count)
         if (checkpoints.Count > 0)
         {
-            Debug.Log(checkpoints.Count);
             Vector3 dirToLookAt = checkpoints[0].transform.position;
             dirToLookAt.y += 2;
             arrow.transform.LookAt(dirToLookAt);
@@ -296,6 +295,7 @@ public class OutdoorNavigationScript : MonoBehaviour
             checkpointsPlaced = false;
             currentIndex = 0;
             arrow.SetActive(false);
+            Input.location.Stop();
         }
 
     }

@@ -16,9 +16,10 @@ public class OutdoorCarMapLoader : MonoBehaviour
     public GameObject groundPlane;
     private Vector3 oldPos1;
     private Vector3 oldPos2;
-    private MapsService mapsService;
+    public static MapsService mapsService;
     public Camera cam;
     public Camera carCam;
+    public static bool initSet = false;
 
 
     // Start is called before the first frame update
@@ -111,7 +112,7 @@ public class OutdoorCarMapLoader : MonoBehaviour
 
         mapsService.MoveFloatingOrigin(new LatLng(lat, lng), null);
         mapsService.LoadMap(new Bounds(Vector3.zero, new Vector3(300, 0, 300)), DefaultGameObjectOptions);
-
+        initSet = true;
 
         mapsService.Events.MapEvents.Loaded.AddListener(AddCollidersToBuildings);
 

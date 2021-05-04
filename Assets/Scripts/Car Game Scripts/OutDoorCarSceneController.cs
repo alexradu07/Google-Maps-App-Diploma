@@ -3,6 +3,7 @@ using System.Collections;
 using System.IO;
 using System.Net;
 using UnityEngine;
+using UnityEngine.Android;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -13,6 +14,8 @@ public class OutDoorCarSceneController : MonoBehaviour
     public static bool canTakeControl = false;
     public GameObject locationError;
     public GameObject loadingMessage;
+    private String firstCoord;
+    private String secondCoord;
     // Start is called before the first frame update
     void Start()
     {
@@ -38,9 +41,7 @@ public class OutDoorCarSceneController : MonoBehaviour
     {
 
         string address = GameObject.Find("Canvas/InputField/Text").GetComponent<Text>().text;
-        string locationString = GameObject.Find("Canvas/LocationDropdownSelector/Label").GetComponent<Text>().text;
         GameObject.Find("Canvas/Panel").SetActive(false);
-        GameObject.Find("Canvas/LocationDropdownSelector").SetActive(false);
         GameObject.Find("Canvas/LocationButton").SetActive(false);
         GameObject.Find("Canvas/Speedo/needle").SetActive(true);
         GameObject.Find("Canvas/Speedo/speedo").SetActive(true);
@@ -63,8 +64,8 @@ public class OutDoorCarSceneController : MonoBehaviour
         Debug.Log(response);
         int index = response.IndexOf("center");
         index += 9;
-        string firstCoord = "";
-        string secondCoord = "";
+        firstCoord = "";
+        secondCoord = "";
         bool finishedFirst = false;
         while (response[index].CompareTo(']') != 0)
         {
@@ -86,7 +87,12 @@ public class OutDoorCarSceneController : MonoBehaviour
         }
         firstCoord = firstCoord.Replace('.', ',');
         secondCoord = secondCoord.Replace('.', ',');
-        switch (locationString)
+        if (!Permission.HasUserAuthorizedPermission(Permission.CoarseLocation))
+        {
+            Permission.RequestUserPermission(Permission.CoarseLocation);
+        }
+        StartCoroutine(GetCurrentLocation());
+        /*switch (locationString)
         {
             case "Grozavesti":
                 GameObject.Find("GoogleMaps").GetComponent<OutdoorCarMapLoader>().LoadMap(44.4526337, 26.0518842, Convert.ToDouble(secondCoord), Convert.ToDouble(firstCoord));
@@ -99,7 +105,7 @@ public class OutDoorCarSceneController : MonoBehaviour
                 break;
             default:
                 break;
-        }
+        }*/
     }
     IEnumerator DisplayLocationError()
     {
@@ -144,11 +150,11 @@ public class OutDoorCarSceneController : MonoBehaviour
             Debug.Log("Longitude\t: " + Input.location.lastData.longitude);
             Manager.dynamicLatitude = Input.location.lastData.latitude;
             Manager.dynamicLongitude = Input.location.lastData.longitude;
-            GameObject.Find("GoogleMaps").GetComponent<DeliveryMapLoader>().LoadMap(Input.location.lastData.latitude, Input.location.lastData.longitude);
+            GameObject.Find("GoogleMaps").GetComponent<OutdoorCarMapLoader>().LoadMap(Input.location.lastData.latitude, Input.location.lastData.longitude, Convert.ToDouble(secondCoord), Convert.ToDouble(firstCoord));
             Manager.locationQueryComplete = true;
         }
 
-        Input.location.Stop();
+        //Input.location.Stop();
         Manager.gameStarted = true;
     }
 }
