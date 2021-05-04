@@ -20,4 +20,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/IoO CarGame.unity
     guid: c4efceffd9670ef4398a1ebe20056dec
+  - enabled: 1
+    path: Assets/Scenes/OutdoorCarScene.unity
+    guid: 8c391f317845bad4f868af1098c3ebfe
   m_configObjects: {}
