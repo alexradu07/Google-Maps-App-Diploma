@@ -14,6 +14,7 @@ public class DeliveryOutdoorCarController : MonoBehaviour
 {
     private Vector3 previousGPSLocation = new Vector3(0, 0, 0);
     private Vector3 currentGPSLocation = new Vector3(0, 0, 0);
+    private Vector3 currentInterpolationLocation = new Vector3(0, 0, 0);
     private bool firstGPSUpdateRecevied = false;
     public Rigidbody rb;
     public GameObject frontWheel;
@@ -176,36 +177,49 @@ public class DeliveryOutdoorCarController : MonoBehaviour
     void UpdateCarPosition()
     {
         //Debug.Log(GetCurrentMethod());
-        frontWheelCollider.motorTorque = 0;
-        rearLeftWheelCollider.brakeTorque = 0;
-        rearRightWheelCollider.brakeTorque = 0;
-        frontWheelCollider.brakeTorque = 0;
-        frontWheelCollider.steerAngle = angle;
         if (Manager.locationQueryComplete)
         {
             Vector3 currentGPSLocationLocal = mapLoader.mapsService.Coords.FromLatLngToVector3(new LatLng(Manager.dynamicLatitude, Manager.dynamicLongitude));
             if (firstGPSUpdateRecevied)
             {
-                currentGPSLocation = currentGPSLocationLocal;
-                tuktuk.transform.position = currentGPSLocation;
+                if (currentGPSLocationLocal.Equals(currentGPSLocation))
+                {
+                    currentInterpolationLocation = Vector3.Lerp(currentInterpolationLocation, currentGPSLocation, .01f);
+                }
+                else
+                {
+                    previousGPSLocation = currentGPSLocation;
+                    currentGPSLocation = currentGPSLocationLocal;
+                    currentInterpolationLocation = previousGPSLocation;
+                }
+                tuktuk.transform.position = currentInterpolationLocation;
                 //Vector3 directionVector = (currentGPSLocation - previousGPSLocation).normalized;
                 //Quaternion lookRotation = Quaternion.LookRotation(directionVector);
-                Quaternion lookRotation = Quaternion.FromToRotation(previousGPSLocation, currentGPSLocation);
-                tuktuk.transform.rotation = lookRotation;
-                previousGPSLocation = currentGPSLocation;
+                //Quaternion lookRotation = Quaternion.FromToRotation(previousGPSLocation, currentGPSLocation);
+                //tuktuk.transform.rotation = lookRotation;
+                //previousGPSLocation = currentGPSLocation;
 
-            } else
+            }
+            else
             {
                 firstGPSUpdateRecevied = true;
+                currentInterpolationLocation = currentGPSLocationLocal;
                 previousGPSLocation = currentGPSLocationLocal;
                 currentGPSLocation = currentGPSLocationLocal;
             }
             // Vector3.Lerp(tuktuk.transform.position, currentGPSLocation, 1);
         }
+
+        //frontWheelCollider.motorTorque = 0;
+        //rearLeftWheelCollider.brakeTorque = 0;
+        //rearRightWheelCollider.brakeTorque = 0;
+        //frontWheelCollider.brakeTorque = 0;
+        //frontWheelCollider.steerAngle = angle;
         //UpdateWheelPosition(rearRightWheelCollider, rearRightWheelTransform);
         //UpdateWheelPosition(rearLeftWheelCollider, rearLeftWheelTransform);
         //UpdateWheelPosition(frontWheelCollider, frontWheelTransform);
     }
+
 
     List<GameObject> GeneratePath(Vector3 destinationPosition)
     {
