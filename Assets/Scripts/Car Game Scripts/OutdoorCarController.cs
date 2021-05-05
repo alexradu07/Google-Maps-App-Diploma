@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Google.Maps;
+using Google.Maps.Unity.Intersections;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -9,6 +10,7 @@ public class OutdoorCarController : MonoBehaviour
     public WheelCollider FR, FL, RR, RL;
     public Transform fr_tran, fl_tran, rr_tran, rl_tran;
     public Transform car_tran;
+    private List<RoadLatticeNode> lattices;
     public Rigidbody car_rigid;
     public float maxAngle = 30;
     public float angle = 0;
@@ -32,8 +34,11 @@ public class OutdoorCarController : MonoBehaviour
     private bool firstWPressed = false;
     private float airResistance = 0;
     private float tempVelocity = 0;
+    private bool gotFirstLocation = false;
     private bool accel = false;
     private bool brake = false;
+    private Vector3 firstLoc = new Vector3(0, 0, 0);
+    private Vector3 secondLoc = new Vector3(0, 0, 0);
 
     // Start is called before the first frame update
     public void UpdateWheelPosition(WheelCollider col, Transform tran)
@@ -62,11 +67,35 @@ public class OutdoorCarController : MonoBehaviour
         {
             time += Time.deltaTime;
             elapsedSinceLastUpdate += Time.deltaTime;
-            if (elapsedSinceLastUpdate > 1 && Input.location.status != LocationServiceStatus.Failed && OutdoorCarMapLoader.initSet)
+            if (elapsedSinceLastUpdate > 0.5f && Input.location.status != LocationServiceStatus.Failed && OutdoorCarMapLoader.initSet)
             {
                 LocationInfo current = Input.location.lastData;
                 MapsService mapsService = OutdoorCarMapLoader.mapsService;
                 car_tran.position = mapsService.Coords.FromLatLngToVector3(new Google.Maps.Coord.LatLng(current.latitude, current.longitude));
+                if (gotFirstLocation)
+                {
+                    lattices = new List<RoadLatticeNode>(mapsService.RoadLattice.Nodes);
+                    secondLoc = mapsService.Coords.FromLatLngToVector3(new Google.Maps.Coord.LatLng(current.latitude, current.longitude));
+                    float closest = 1000;
+                    Vector3 pos = new Vector3(0, 0, 0);
+                    foreach (RoadLatticeNode i in lattices)
+                    {
+                        float dist = Vector3.Distance(secondLoc, new Vector3(i.Location.x, 0, i.Location.y));
+                        if (dist < closest)
+                        {
+                            closest = dist;
+                            pos = new Vector3(i.Location.x, 0, i.Location.y);
+                        }
+                    }
+                    car_tran.rotation = Quaternion.FromToRotation(firstLoc, secondLoc);
+                    car_tran.position = pos;
+                    firstLoc = secondLoc;
+                } else
+                {
+                    gotFirstLocation = true;
+                    firstLoc = mapsService.Coords.FromLatLngToVector3(new Google.Maps.Coord.LatLng(current.latitude, current.longitude));
+                }
+                elapsedSinceLastUpdate = 0;
             }
             timeElapsed.text = string.Format("{0:00}:{1:00}", Mathf.FloorToInt(time / 60), Mathf.FloorToInt(time % 60));
         }

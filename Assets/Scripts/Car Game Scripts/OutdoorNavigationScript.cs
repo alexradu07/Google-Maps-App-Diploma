@@ -277,7 +277,7 @@ public class OutdoorNavigationScript : MonoBehaviour
             dirToLookAt.y += 2;
             arrow.transform.LookAt(dirToLookAt);
             arrow.transform.Rotate(new Vector3(0, -90, 0));
-            if (Vector3.Distance(checkpoints[currentIndex].transform.position, carObj.transform.position) < 3)
+            if (Vector3.Distance(checkpoints[currentIndex].transform.position, carObj.transform.position) < 100)
             {
                 checkpoints[0].SetActive(false);
                 checkpoints.RemoveAt(0);

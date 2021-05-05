@@ -2,8 +2,11 @@
 using System.Collections;
 using System.IO;
 using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Android;
+using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -16,6 +19,8 @@ public class OutDoorCarSceneController : MonoBehaviour
     public GameObject loadingMessage;
     private String firstCoord;
     private String secondCoord;
+    private String response = "";
+    private string req;
     // Start is called before the first frame update
     void Start()
     {
@@ -37,7 +42,16 @@ public class OutDoorCarSceneController : MonoBehaviour
         SceneManager.LoadScene(sceneName);
     }
 
-    public void SelectLocation()
+    public async Task Func()
+    {
+        using (var client = new HttpClient())
+        {
+            var response = await client.GetStringAsync(String.Format("https://api.mapbox.com/geocoding/v5/mapbox.places/" + req + ".json?access_token=pk.eyJ1IjoibWl0emEwMDEwIiwiYSI6ImNrbmg2ZWE5ejJoeHUycGxjeTB6cXFkZWgifQ.bVjRsva6Fcuil-vUwsm9Ag"));
+            this.response = response;
+        }
+    }
+
+    public async void SelectLocation()
     {
 
         string address = GameObject.Find("Canvas/InputField/Text").GetComponent<Text>().text;
@@ -51,16 +65,14 @@ public class OutDoorCarSceneController : MonoBehaviour
         GameObject.Find("Canvas/InputField/Text").SetActive(false);
         GameObject.Find("Canvas/InputField").SetActive(false);
         canTakeControl = true;
-        string req = address.Replace(' ', '+');
+        req = address.Replace(' ', '+');
         //Debug.Log(GameObject.Find("GoogleMaps").GetComponent<MapsService>().ApiKey);
         //List<IMultipartFormSection> data = new List<IMultipartFormSection>();
         //data.Add(new MultipartFormDataSection(req));
-        HttpWebRequest request = (HttpWebRequest)WebRequest.Create("https://api.mapbox.com/geocoding/v5/mapbox.places/" + req + ".json?access_token=pk.eyJ1IjoibWl0emEwMDEwIiwiYSI6ImNrbmg2ZWE5ejJoeHUycGxjeTB6cXFkZWgifQ.bVjRsva6Fcuil-vUwsm9Ag");
+        /*HttpWebRequest request = (HttpWebRequest)WebRequest.Create("https://api.mapbox.com/geocoding/v5/mapbox.places/" + req + ".json?access_token=pk.eyJ1IjoibWl0emEwMDEwIiwiYSI6ImNrbmg2ZWE5ejJoeHUycGxjeTB6cXFkZWgifQ.bVjRsva6Fcuil-vUwsm9Ag");
         var resp = (HttpWebResponse)request.GetResponse();
-        string response = new StreamReader(resp.GetResponseStream()).ReadToEnd();
-        /*var cerere = new HttpClient();
-        string response = cerere.GetStringAsync("https://api.mapbox.com/geocoding/v5/mapbox.places/" + req + ".json?access_token=pk.eyJ1IjoibWl0emEwMDEwIiwiYSI6ImNrbmg2ZWE5ejJoeHUycGxjeTB6cXFkZWgifQ.bVjRsva6Fcuil-vUwsm9Ag");
-        Debug.Log(response);*/
+        string response = new StreamReader(resp.GetResponseStream()).ReadToEnd();*/
+        await Func();
         Debug.Log(response);
         int index = response.IndexOf("center");
         index += 9;
