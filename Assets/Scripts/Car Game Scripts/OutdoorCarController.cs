@@ -39,6 +39,8 @@ public class OutdoorCarController : MonoBehaviour
     private bool brake = false;
     private Vector3 firstLoc = new Vector3(0, 0, 0);
     private Vector3 secondLoc = new Vector3(0, 0, 0);
+    private Vector3 tempLoc = new Vector3(0, 0, 0);
+    private Vector3 pos = new Vector3(0, 0, 0);
 
     // Start is called before the first frame update
     public void UpdateWheelPosition(WheelCollider col, Transform tran)
@@ -67,17 +69,18 @@ public class OutdoorCarController : MonoBehaviour
         {
             time += Time.deltaTime;
             elapsedSinceLastUpdate += Time.deltaTime;
-            if (elapsedSinceLastUpdate > 0.5f && Input.location.status != LocationServiceStatus.Failed && OutdoorCarMapLoader.initSet)
+            if (Input.location.status != LocationServiceStatus.Failed && OutdoorCarMapLoader.initSet)
             {
                 LocationInfo current = Input.location.lastData;
                 MapsService mapsService = OutdoorCarMapLoader.mapsService;
-                car_tran.position = mapsService.Coords.FromLatLngToVector3(new Google.Maps.Coord.LatLng(current.latitude, current.longitude));
+                //car_tran.position = mapsService.Coords.FromLatLngToVector3(new Google.Maps.Coord.LatLng(current.latitude, current.longitude));
+                car_tran.position = Vector3.Lerp(tempLoc, pos, 0.1f);
                 if (gotFirstLocation)
                 {
+                    tempLoc = firstLoc;
                     lattices = new List<RoadLatticeNode>(mapsService.RoadLattice.Nodes);
                     secondLoc = mapsService.Coords.FromLatLngToVector3(new Google.Maps.Coord.LatLng(current.latitude, current.longitude));
                     float closest = 1000;
-                    Vector3 pos = new Vector3(0, 0, 0);
                     foreach (RoadLatticeNode i in lattices)
                     {
                         float dist = Vector3.Distance(secondLoc, new Vector3(i.Location.x, 0, i.Location.y));
@@ -87,9 +90,15 @@ public class OutdoorCarController : MonoBehaviour
                             pos = new Vector3(i.Location.x, 0, i.Location.y);
                         }
                     }
-                    car_tran.rotation = Quaternion.FromToRotation(firstLoc, secondLoc);
-                    car_tran.position = pos;
-                    firstLoc = secondLoc;
+                    //car_tran.rotation = Quaternion.FromToRotation(firstLoc, pos);
+                    //car_tran.position = pos;
+
+                    Vector3 directionVector = (pos - firstLoc).normalized;
+                    Quaternion lookRotation = Quaternion.LookRotation(directionVector);
+                    //Quaternion lookRotation = Quaternion.FromToRotation(previousGPSLocation, currentGPSLocation);
+                    car_tran.rotation = lookRotation;
+
+                    firstLoc = pos;
                 } else
                 {
                     gotFirstLocation = true;

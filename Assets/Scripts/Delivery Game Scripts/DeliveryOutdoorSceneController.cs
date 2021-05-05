@@ -31,12 +31,12 @@ public class DeliveryOutdoorSceneController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (locationServiceStarted && deltaTime > 1)
+        if (locationServiceStarted) // && deltaTime > 1)
         {
             UpdateLocationData();
-            deltaTime = .0f;
+            //deltaTime = .0f;
         }
-        deltaTime += Time.deltaTime;
+        //deltaTime += Time.deltaTime;
     }
 
     public void LoadScene(string sceneName)

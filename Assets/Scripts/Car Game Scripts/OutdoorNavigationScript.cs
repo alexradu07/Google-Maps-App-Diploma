@@ -39,7 +39,7 @@ public class OutdoorNavigationScript : MonoBehaviour
     private GameObjectOptions DefaultGameObjectOptions;
     private bool checkpointsReady = false;
     private bool checkpointsPlaced = false;
-    private Vector3 finalCheckPos;
+    private Vector3 finalCheckPos = new Vector3(0, 0, 0);
     private bool firstPass = false;
     private bool containsDest = false;
     private RoadLatticeNode finalDest = null;
@@ -100,6 +100,10 @@ public class OutdoorNavigationScript : MonoBehaviour
                 {
                     if (firstPass == false)
                     {
+                        if (lattices.Count == 0)
+                        {
+                            return;
+                        }
                         foreach (RoadLatticeNode i in lattices)
                         {
                             if (Vector3.Distance(new Vector3(i.Location.x, 0, i.Location.y), carPos.position) > max2)

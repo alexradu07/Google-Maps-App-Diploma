@@ -97,8 +97,8 @@ public class OutDoorCarSceneController : MonoBehaviour
             }
             index++;
         }
-        firstCoord = firstCoord.Replace('.', ',');
-        secondCoord = secondCoord.Replace('.', ',');
+        Debug.Log("afisez firstcoord" + firstCoord);
+        Debug.Log("afisez secondcoord" + secondCoord);
         if (!Permission.HasUserAuthorizedPermission(Permission.CoarseLocation))
         {
             Permission.RequestUserPermission(Permission.CoarseLocation);
@@ -162,6 +162,10 @@ public class OutDoorCarSceneController : MonoBehaviour
             Debug.Log("Longitude\t: " + Input.location.lastData.longitude);
             Manager.dynamicLatitude = Input.location.lastData.latitude;
             Manager.dynamicLongitude = Input.location.lastData.longitude;
+            //firstCoord = firstCoord.Replace('.', ',');
+            //secondCoord = secondCoord.Replace('.', ',');
+            Debug.Log(Convert.ToDouble(firstCoord));
+            Debug.Log(Convert.ToDouble(secondCoord));
             GameObject.Find("GoogleMaps").GetComponent<OutdoorCarMapLoader>().LoadMap(Input.location.lastData.latitude, Input.location.lastData.longitude, Convert.ToDouble(secondCoord), Convert.ToDouble(firstCoord));
             Manager.locationQueryComplete = true;
         }

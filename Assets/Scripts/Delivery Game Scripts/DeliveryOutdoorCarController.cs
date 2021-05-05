@@ -184,21 +184,26 @@ public class DeliveryOutdoorCarController : MonoBehaviour
             {
                 if (currentGPSLocationLocal.Equals(currentGPSLocation))
                 {
-                    currentInterpolationLocation = Vector3.Lerp(currentInterpolationLocation, currentGPSLocation, .01f);
+                    currentInterpolationLocation = Vector3.Lerp(currentInterpolationLocation, currentGPSLocation, .1f);
+                    Debug.Log("No more updated GPS position");
+                    Debug.Log("Interpolated location :" + currentInterpolationLocation);
                 }
                 else
                 {
                     previousGPSLocation = currentGPSLocation;
                     currentGPSLocation = currentGPSLocationLocal;
                     currentInterpolationLocation = previousGPSLocation;
+
+                    Debug.Log("Received updated GPS location : " + currentGPSLocationLocal);
+
+                    Vector3 directionVector = (currentGPSLocation - previousGPSLocation).normalized;
+                    Quaternion lookRotation = Quaternion.LookRotation(directionVector);
+                    //Quaternion lookRotation = Quaternion.FromToRotation(previousGPSLocation, currentGPSLocation);
+                    tuktuk.transform.rotation = lookRotation;
+                    //previousGPSLocation = currentGPSLocation;
                 }
                 tuktuk.transform.position = currentInterpolationLocation;
-                //Vector3 directionVector = (currentGPSLocation - previousGPSLocation).normalized;
-                //Quaternion lookRotation = Quaternion.LookRotation(directionVector);
-                //Quaternion lookRotation = Quaternion.FromToRotation(previousGPSLocation, currentGPSLocation);
-                //tuktuk.transform.rotation = lookRotation;
-                //previousGPSLocation = currentGPSLocation;
-
+               
             }
             else
             {
