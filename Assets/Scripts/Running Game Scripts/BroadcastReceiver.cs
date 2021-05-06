@@ -27,14 +27,21 @@ public class BroadcastReceiver : MonoBehaviour
     {
         debugForPluginText.text = "NULL BEFORE UPDATE";
         // We get the text property of our receiver
-        javaMessage = jc.GetStatic<string>("text");
-        
+        //javaMessage = jc.GetStatic<string>("text");
+
+        double latitude = jc.GetStatic<double>("latitude");
+        double longitude = jc.GetStatic<double>("longitude"); ;
+        /*
         if (javaMessage == null)
         {
             debugForPluginText.text = "NULL";
         } else
         {
-            debugForPluginText.text = javaMessage;
+            debugForPluginText.text = latitude + " " + longitude;
+        }*/
+        if (latitude != 0 && longitude != 0)
+        {
+            debugForPluginText.text = latitude + " " + longitude;
         }
     }
 
