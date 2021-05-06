@@ -1,17 +1,13 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using Google.Maps.Coord;
 using Google.Maps.Event;
 using Google.Maps;
-using UnityEngine.Events;
-using System;
-using System.Threading;
 //namespace Diploma
 //{
 
 [RequireComponent(typeof(MapsService))]
-public class CarMapLoader : MonoBehaviour
+public class OutdoorCarMapLoader : MonoBehaviour
 {
     private LatLng latLng = new LatLng(0, 0);
     public GameObject cameraObj;
@@ -20,9 +16,10 @@ public class CarMapLoader : MonoBehaviour
     public GameObject groundPlane;
     private Vector3 oldPos1;
     private Vector3 oldPos2;
-    private MapsService mapsService;
+    public static MapsService mapsService;
     public Camera cam;
     public Camera carCam;
+    public static bool initSet = false;
 
 
     // Start is called before the first frame update
@@ -43,10 +40,10 @@ public class CarMapLoader : MonoBehaviour
         float dist1 = offset1.sqrMagnitude;
         float dist2 = offset2.sqrMagnitude;
         //Debug.Log(dist);
-        if (NavigationScript.needToUnload == true)
+        if (OutdoorNavigationScript.needToUnload == true)
         {
             StartCoroutine(deleteAsync());
-            NavigationScript.needToUnload = false;
+            OutdoorNavigationScript.needToUnload = false;
         }
         if (dist1 > 8000)
         {
@@ -98,7 +95,10 @@ public class CarMapLoader : MonoBehaviour
     public void LoadMap(double lat, double lng, double lat1, double lng1)
     {
         latLng = new LatLng(lat, lng);
-
+        Debug.Log(lat);
+        Debug.Log(lat1);
+        Debug.Log(lng);
+        Debug.Log(lng1);
         Debug.Log("Start start");
         // Get required MapsService component on this GameObject.
         MapsService mapsService = GetComponent<MapsService>();
@@ -115,7 +115,7 @@ public class CarMapLoader : MonoBehaviour
 
         mapsService.MoveFloatingOrigin(new LatLng(lat, lng), null);
         mapsService.LoadMap(new Bounds(Vector3.zero, new Vector3(300, 0, 300)), DefaultGameObjectOptions);
-
+        initSet = true;
 
         mapsService.Events.MapEvents.Loaded.AddListener(AddCollidersToBuildings);
 

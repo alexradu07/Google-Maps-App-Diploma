@@ -20,6 +20,7 @@ public class DeliveryOutdoorSceneController : MonoBehaviour
     public GameObject leftButtonSelectVehicle;
     public GameObject rightButtonSelectVehicle;
     private bool locationServiceStarted = false;
+    private float deltaTime = .0f;
 
     // Start is called before the first frame update
     void Start()
@@ -30,10 +31,12 @@ public class DeliveryOutdoorSceneController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (locationServiceStarted)
+        if (locationServiceStarted) // && deltaTime > 1)
         {
             UpdateLocationData();
+            //deltaTime = .0f;
         }
+        //deltaTime += Time.deltaTime;
     }
 
     public void LoadScene(string sceneName)
@@ -98,7 +101,8 @@ public class DeliveryOutdoorSceneController : MonoBehaviour
             Debug.Log("Longitude\t: " + Input.location.lastData.longitude);
             Manager.dynamicLatitude = Input.location.lastData.latitude;
             Manager.dynamicLongitude = Input.location.lastData.longitude;
-            GameObject.Find("GoogleMaps").GetComponent<DeliveryOutdoorMapLoader>().LoadMap(Input.location.lastData.latitude, Input.location.lastData.longitude);
+            Debug.Log("Face loadMap de la locatia : " + Manager.dynamicLatitude  + " " + Manager.dynamicLongitude);
+            GameObject.Find("GoogleMaps").GetComponent<DeliveryOutdoorMapLoader>().LoadMap(Manager.dynamicLatitude, Manager.dynamicLongitude);
             Manager.locationQueryComplete = true;
         }
         locationServiceStarted = true;

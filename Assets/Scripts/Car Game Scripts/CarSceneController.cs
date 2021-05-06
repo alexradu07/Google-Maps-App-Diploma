@@ -81,7 +81,8 @@ public class CarSceneController : MonoBehaviour
             if (!finishedFirst)
             {
                 firstCoord += response[index];
-            } else
+            }
+            else
             {
                 secondCoord += response[index];
             }
