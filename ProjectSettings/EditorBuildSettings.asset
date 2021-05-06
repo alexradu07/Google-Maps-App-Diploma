@@ -15,8 +15,14 @@ EditorBuildSettings:
     path: Assets/Scenes/IndoorDeliveryScene.unity
     guid: 9c60506008ff5a24983793baf43b98c9
   - enabled: 1
+    path: Assets/Scenes/IORunningScene.unity
+    guid: 532ab69e6e866a744874268b77df510e
+  - enabled: 1
     path: Assets/Scenes/RunningScene.unity
     guid: bbcf47dddc9bbe147b97010fa4a68c4b
+  - enabled: 1
+    path: Assets/Scenes/OutdoorRunningScene.unity
+    guid: c86b17f03d9e68e4cbc11ad54bbe9210
   - enabled: 1
     path: Assets/Scenes/IoO CarGame.unity
     guid: c4efceffd9670ef4398a1ebe20056dec
