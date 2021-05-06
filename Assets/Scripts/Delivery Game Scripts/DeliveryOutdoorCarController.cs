@@ -193,14 +193,12 @@ public class DeliveryOutdoorCarController : MonoBehaviour
                     previousGPSLocation = currentGPSLocation;
                     currentGPSLocation = currentGPSLocationLocal;
                     currentInterpolationLocation = previousGPSLocation;
-
+                    //currentInterpolationLocation = Vector3.Lerp(currentInterpolationLocation, previousGPSLocation, .1f); try this out
                     Debug.Log("Received updated GPS location : " + currentGPSLocationLocal);
 
                     Vector3 directionVector = (currentGPSLocation - previousGPSLocation).normalized;
                     Quaternion lookRotation = Quaternion.LookRotation(directionVector);
-                    //Quaternion lookRotation = Quaternion.FromToRotation(previousGPSLocation, currentGPSLocation);
                     tuktuk.transform.rotation = lookRotation;
-                    //previousGPSLocation = currentGPSLocation;
                 }
                 tuktuk.transform.position = currentInterpolationLocation;
                
@@ -212,17 +210,8 @@ public class DeliveryOutdoorCarController : MonoBehaviour
                 previousGPSLocation = currentGPSLocationLocal;
                 currentGPSLocation = currentGPSLocationLocal;
             }
-            // Vector3.Lerp(tuktuk.transform.position, currentGPSLocation, 1);
         }
 
-        //frontWheelCollider.motorTorque = 0;
-        //rearLeftWheelCollider.brakeTorque = 0;
-        //rearRightWheelCollider.brakeTorque = 0;
-        //frontWheelCollider.brakeTorque = 0;
-        //frontWheelCollider.steerAngle = angle;
-        //UpdateWheelPosition(rearRightWheelCollider, rearRightWheelTransform);
-        //UpdateWheelPosition(rearLeftWheelCollider, rearLeftWheelTransform);
-        //UpdateWheelPosition(frontWheelCollider, frontWheelTransform);
     }
 
 
