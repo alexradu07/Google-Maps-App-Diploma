@@ -18,7 +18,10 @@ public class DeliverySceneController : MonoBehaviour
     public GameObject backButton;
     public GameObject leftButtonSelectVehicle;
     public GameObject rightButtonSelectVehicle;
-
+    public GameObject tuktuk;
+    public GameObject dodge;
+    public GameObject cameraObject;
+    
     // Start is called before the first frame update
     void Start()
     {
@@ -118,6 +121,39 @@ public class DeliverySceneController : MonoBehaviour
 
         Input.location.Stop();
         Manager.gameStarted = true;
+    }
+
+    public void onLeftButtonSelectVehicle()
+    {
+        if (dodge.activeSelf)
+        {
+            dodge.SetActive(false);
+            tuktuk.SetActive(true);
+            cameraObject.GetComponent<DeliveryCameraScript>().setObjectToFollow(tuktuk.transform);
+        } else
+        {
+            dodge.SetActive(true);
+            tuktuk.SetActive(false);
+            cameraObject.GetComponent<DeliveryCameraScript>().setObjectToFollow(dodge.transform);
+        }
+
+    }
+
+    public void onRightButtonSelectVehicle()
+    {
+        if (dodge.activeSelf)
+        {
+            dodge.SetActive(false);
+            tuktuk.SetActive(true);
+            cameraObject.GetComponent<DeliveryCameraScript>().setObjectToFollow(tuktuk.transform);
+        }
+        else
+        {
+            dodge.SetActive(true);
+            tuktuk.SetActive(false);
+            cameraObject.GetComponent<DeliveryCameraScript>().setObjectToFollow(dodge.transform);
+        }
+
     }
 
     public void onSelectVehicleButton()
