@@ -10,19 +10,22 @@ using Debug = UnityEngine.Debug;
 using UnityEngine.EventSystems;
 using System.Runtime.CompilerServices;
 
-public class DeliveryOutdoorCarController : MonoBehaviour
+public class DeliveryOutdoorDodgeController : MonoBehaviour
 {
     private Vector3 previousGPSLocation = new Vector3(0, 0, 0);
     private Vector3 currentGPSLocation = new Vector3(0, 0, 0);
     private Vector3 currentInterpolationLocation = new Vector3(0, 0, 0);
     private bool firstGPSUpdateRecevied = false;
     public Rigidbody rb;
-    public GameObject frontWheel;
+    public GameObject frontRightWheel;
+    public GameObject frontLeftWheel;
     public GameObject rearLeftWheel;
     public GameObject rearRightWheel;
-    public WheelCollider frontWheelCollider;
+    public WheelCollider frontRightWheelCollider;
+    public WheelCollider frontLeftWheelCollider;
     public WheelCollider rearLeftWheelCollider;
     public WheelCollider rearRightWheelCollider;
+    public GameObject dodge;
     public GameObject tuktuk;
     public GameObject marker;
     public GameObject dialogPanel;
@@ -32,16 +35,14 @@ public class DeliveryOutdoorCarController : MonoBehaviour
     public GameObject timerPanel;
     public GameObject timerText;
     public GameObject minimap;
-    public GameObject tukTukStatusDialog;
+    public GameObject dodgeStatusDialog;
     public GameObject pathSphere;
     public GameObject backButton;
     public GameObject panel;
-    public Transform frontWheelTransform, rearLeftWheelTransform, rearRightWheelTransform;
+    public Transform frontLeftWheelTransform, frontRightWheelTransform, rearLeftWheelTransform, rearRightWheelTransform;
     public Text statusText;
     public GameObject leftButtonSelectVehicle;
     public GameObject rightButtonSelectVehicle;
-    private float maxAngle;
-    private float angle;
     private DeliveryOutdoorMapLoader mapLoader;
     private bool waitingForOrder;
     private bool deliveringOrder;
@@ -50,15 +51,13 @@ public class DeliveryOutdoorCarController : MonoBehaviour
     private Result currentRestaurant;
     private GameObject currentDeliverySpot;
     private Stopwatch watch;
-    private bool tuktukActive;
+    private bool dodgeActive;
     private List<GameObject> currentActivePath;
     private bool timerStarted;
 
     // Start is called before the first frame update
     void Start()
     {
-        maxAngle = 30;
-        angle = 0;
         mapLoader = GameObject.Find("GoogleMaps").GetComponent<DeliveryOutdoorMapLoader>();
         if (mapLoader == null)
         {
@@ -94,21 +93,21 @@ public class DeliveryOutdoorCarController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!tuktuk.activeSelf)
+        if (!dodge.activeSelf)
         {
             return;
         }
         //Debug.Log(GetCurrentMethod());
         if (!Manager.gameStarted)
         {
-            Debug.Log("Game not started for vehicle");
+            //Debug.Log("Game not started for vehicle");
             return;
         }
         if (!timerStarted)
         {
             Debug.Log("Intra fix o data pe aici");
             waitingForOrder = true;
-            tuktukActive = true;
+            dodgeActive = true;
             //watch.Start();
             //StartCoroutine(TimerTicked(watch));
             //coroutineStarted = true;
@@ -124,12 +123,14 @@ public class DeliveryOutdoorCarController : MonoBehaviour
             return;
         }
 
-        if (tuktukActive)
+        if (dodgeActive)
         {
+            //Debug.Log("intra pe dodgeactive");
             statusText.text = "Status : Active";
         }
         else
         {
+            //Debug.Log("intra pe !dodgeactive");
             statusText.text = "Status : Inactive";
             return;
         }
@@ -146,7 +147,7 @@ public class DeliveryOutdoorCarController : MonoBehaviour
             if (Vector3.Distance(rb.transform.position, marker.transform.position) - 100 < .7f)
             {
                 orderPickupAck.SetActive(true);
-                Text prompt = GameObject.Find("Canvas/OrderPickUpAck/PromptText").GetComponent<Text>();
+                Text prompt = GameObject.Find("Canvas/OrderPickUpAckDodge/PromptText").GetComponent<Text>();
                 prompt.text = "You picked up order from " + currentRestaurant.name + ". Now deliver order to destination.";
             }
         }
@@ -163,7 +164,7 @@ public class DeliveryOutdoorCarController : MonoBehaviour
             if (Vector3.Distance(rb.transform.position, marker.transform.position) - 100 < .7f)
             {
                 orderPickupAck.SetActive(true);
-                Text prompt = GameObject.Find("Canvas/OrderPickUpAck/PromptText").GetComponent<Text>();
+                Text prompt = GameObject.Find("Canvas/OrderPickUpAckDodge/PromptText").GetComponent<Text>();
                 prompt.text = "You have successfully delivered order to destination.";
                 DeliveryTimerScript timerScript = timerText.GetComponent<DeliveryTimerScript>();
                 timerScript.StopTimer();
@@ -180,7 +181,6 @@ public class DeliveryOutdoorCarController : MonoBehaviour
 
     void UpdateCarPosition()
     {
-        //Debug.Log(GetCurrentMethod());
         if (Manager.locationQueryComplete)
         {
             Vector3 currentGPSLocationLocal = mapLoader.mapsService.Coords.FromLatLngToVector3(new LatLng(Manager.dynamicLatitude, Manager.dynamicLongitude));
@@ -205,7 +205,7 @@ public class DeliveryOutdoorCarController : MonoBehaviour
                     tuktuk.transform.rotation = lookRotation;
                 }
                 tuktuk.transform.position = currentInterpolationLocation;
-               
+
             }
             else
             {
@@ -215,16 +215,14 @@ public class DeliveryOutdoorCarController : MonoBehaviour
                 currentGPSLocation = currentGPSLocationLocal;
             }
         }
-
     }
-
 
     List<GameObject> GeneratePath(Vector3 destinationPosition)
     {
         //Debug.Log(GetCurrentMethod());
         List<RoadLatticeNode> allLattices;
         allLattices = new List<RoadLatticeNode>(mapLoader.mapsService.RoadLattice.Nodes);
-        Vector3 currentPosition = tuktuk.transform.position;
+        Vector3 currentPosition = dodge.transform.position;
         float minDistance = 1000;
         Vector3 closestPosition = new Vector3(1000, 1000, 1000);
         float minDistanceUser = 1000;
@@ -300,7 +298,7 @@ public class DeliveryOutdoorCarController : MonoBehaviour
         {
             yield return null;
         }
-        if (tuktukActive && tuktuk.activeSelf)
+        if (dodgeActive && dodge.activeSelf)
         {
             if (waitingForOrder && Manager.gameStarted)
             {
@@ -325,7 +323,7 @@ public class DeliveryOutdoorCarController : MonoBehaviour
                     }
                     currentRestaurant = mapLoader.objectContainer.results[orderRestaurantIndex];
                     dialogPanel.SetActive(true);
-                    Text question = GameObject.Find("Canvas/DialogPanel/QuestionText").GetComponent<Text>();
+                    Text question = GameObject.Find("Canvas/DialogPanelDodge/QuestionText").GetComponent<Text>();
                     question.text = "New order from " + currentRestaurant.name + ". Do you want to deliver the order?";
 
                 }
@@ -414,8 +412,9 @@ public class DeliveryOutdoorCarController : MonoBehaviour
 
     public void toggleStatus()
     {
-        tuktukActive = !tuktukActive;
-        if (!tuktukActive)
+        Debug.Log("toggling status in dodge controller");
+        dodgeActive = !dodgeActive;
+        if (!dodgeActive)
         {
             timerPanel.SetActive(false);
             DeliveryTimerScript timerScript = timerText.GetComponent<DeliveryTimerScript>();
@@ -468,16 +467,6 @@ public class DeliveryOutdoorCarController : MonoBehaviour
             timerPanel.SetActive(true);
             arrow.SetActive(true);
         }
-    }
-
-    public void onLeftButtonSelectVehicle()
-    {
-
-    }
-
-    public void onRightButtonSelectVehicle()
-    {
-
     }
 
     [MethodImpl(MethodImplOptions.NoInlining)]

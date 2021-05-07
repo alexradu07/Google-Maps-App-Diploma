@@ -39,4 +39,9 @@ public class DeliveryCameraScript : MonoBehaviour
 
         }
     }
+
+    public void setObjectToFollow(Transform newObjectToFollow)
+    {
+        objectToFollow = newObjectToFollow;
+    }
 }
