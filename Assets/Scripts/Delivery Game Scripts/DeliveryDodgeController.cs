@@ -333,7 +333,7 @@ public class DeliveryDodgeController : MonoBehaviour
         {
             yield return null;
         }
-        if (dodgeActive)
+        if (dodgeActive && dodge.activeSelf)
         {
             if (waitingForOrder && Manager.gameStarted)
             {
