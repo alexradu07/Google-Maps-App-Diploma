@@ -85,7 +85,7 @@ public class CarController : MonoBehaviour
             }
             //Debug.Log(needle2.transform.eulerAngles.z);
             //Debug.Log(car_rigid.velocity);
-#if UNITY_EDITOR_WIN
+/*#if UNITY_EDITOR_WIN
             if (Input.GetKey(KeyCode.A))
             {
                 if (angle > -maxAngle)
@@ -128,12 +128,6 @@ public class CarController : MonoBehaviour
                     FL.motorTorque = 0;
                 }
                 //Debug.Log("accel");
-                /*if (tempVelocity < velocity && angle == 0)
-                {
-                    RR.brakeTorque = 1000;
-                    RL.brakeTorque = 1000;
-                    Debug.Log("braking while reversing");
-                }*/
             }
             if (!Input.GetKey(KeyCode.W))
             //if (!accel)
@@ -180,8 +174,7 @@ public class CarController : MonoBehaviour
             {
                 FR.steerAngle = 30;
                 FL.steerAngle = 30;
-            }
-#elif UNITY_ANDROID
+            }*/
         if (!brake)
         {
             FR.brakeTorque = 0;
@@ -235,7 +228,6 @@ public class CarController : MonoBehaviour
             FR.steerAngle = 30;
             FL.steerAngle = 30;
         }
-#endif
             //fr_tran.rotation = Quaternion.Euler(fr_tran.eulerAngles.x, car_tran.eulerAngles.y + angle, car_tran.eulerAngles.z);
             //fl_tran.rotation = Quaternion.Euler(fl_tran.eulerAngles.x, car_tran.eulerAngles.y + angle, car_tran.eulerAngles.z);
             //rr_tran.rotation = Quaternion.Euler(Mathf.Abs(car_rigid.velocity.z) + Mathf.Abs(car_rigid.velocity.x) + fr_tran.eulerAngles.x, car_tran.eulerAngles.y, 0);
