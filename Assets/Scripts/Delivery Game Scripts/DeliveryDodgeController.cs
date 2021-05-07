@@ -97,10 +97,14 @@ public class DeliveryDodgeController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (!dodge.activeSelf)
+        {
+            return;
+        }
         //Debug.Log(GetCurrentMethod());
         if (!Manager.gameStarted)
         {
-            Debug.Log("Game not started for vehicle");
+            //Debug.Log("Game not started for vehicle");
             return;
         }
         if (!timerStarted)
@@ -130,12 +134,12 @@ public class DeliveryDodgeController : MonoBehaviour
 
         if (dodgeActive)
         {
-            Debug.Log("intra pe dodgeactive");
+            //Debug.Log("intra pe dodgeactive");
             statusText.text = "Status : Active";
         }
         else
         {
-            Debug.Log("intra pe !dodgeactive");
+            //Debug.Log("intra pe !dodgeactive");
             statusText.text = "Status : Inactive";
             return;
         }
@@ -152,7 +156,7 @@ public class DeliveryDodgeController : MonoBehaviour
             if (Vector3.Distance(rb.transform.position, marker.transform.position) - 100 < .7f)
             {
                 orderPickupAck.SetActive(true);
-                Text prompt = GameObject.Find("Canvas/OrderPickUpAck/PromptText").GetComponent<Text>();
+                Text prompt = GameObject.Find("Canvas/OrderPickUpAckDodge/PromptText").GetComponent<Text>();
                 prompt.text = "You picked up order from " + currentRestaurant.name + ". Now deliver order to destination.";
             }
         }
@@ -169,7 +173,7 @@ public class DeliveryDodgeController : MonoBehaviour
             if (Vector3.Distance(rb.transform.position, marker.transform.position) - 100 < .7f)
             {
                 orderPickupAck.SetActive(true);
-                Text prompt = GameObject.Find("Canvas/OrderPickUpAck/PromptText").GetComponent<Text>();
+                Text prompt = GameObject.Find("Canvas/OrderPickUpAckDodge/PromptText").GetComponent<Text>();
                 prompt.text = "You have successfully delivered order to destination.";
                 DeliveryTimerScript timerScript = timerText.GetComponent<DeliveryTimerScript>();
                 timerScript.StopTimer();
@@ -193,49 +197,6 @@ public class DeliveryDodgeController : MonoBehaviour
         rearRightWheelCollider.brakeTorque = 0;
         frontLeftWheelCollider.brakeTorque = 0;
         frontRightWheelCollider.brakeTorque = 0;
-        //#if UNITY_EDITOR_WIN
-        //        if (Input.GetKey(KeyCode.A))
-        //        {
-        //            if (angle > -maxAngle)
-        //            {
-        //                angle -= 1;
-        //            }
-        //        }
-        //        if (Input.GetKey(KeyCode.D))
-        //        {
-        //            if (angle < maxAngle)
-        //            {
-        //                angle += 1;
-        //            }
-        //        }
-        //        if (Input.GetKey(KeyCode.W))
-        //        {
-        //            frontWheelCollider.motorTorque = 500;
-        //        }
-        //        if (Input.GetKey(KeyCode.S))
-        //        {
-        //            frontWheelCollider.motorTorque = -300;
-        //        }
-        //        if (Input.GetKey(KeyCode.Space))
-        //        {
-        //            frontWheelCollider.brakeTorque = 400;
-        //            rearLeftWheelCollider.brakeTorque = 600;
-        //            rearRightWheelCollider.brakeTorque = 600;
-        //        }
-
-        //        if (!Input.GetKey(KeyCode.A) && !Input.GetKey(KeyCode.D))
-        //        {
-        //            if (angle > 0)
-        //            {
-        //                angle -= 2;
-        //            }
-        //            else if (angle < 0)
-        //            {
-        //                angle += 2;
-        //            }
-        //        }
-        //#endif
-        //#if UNITY_ANDROID
         if (leftButtonPressed)
         {
             if (angle > -maxAngle)
@@ -252,11 +213,13 @@ public class DeliveryDodgeController : MonoBehaviour
         }
         if (frontButtonPressed)
         {
+            //Debug.Log("Front button pressed");
             frontLeftWheelCollider.motorTorque = 500;
             frontRightWheelCollider.motorTorque = 500;
         }
         if (reverseButtonPressed)
         {
+            //Debug.Log("Rev button pressed");
             frontRightWheelCollider.motorTorque = -300;
             frontLeftWheelCollider.motorTorque = -300;
         }
@@ -395,7 +358,7 @@ public class DeliveryDodgeController : MonoBehaviour
                     }
                     currentRestaurant = mapLoader.objectContainer.results[orderRestaurantIndex];
                     dialogPanel.SetActive(true);
-                    Text question = GameObject.Find("Canvas/DialogPanel/QuestionText").GetComponent<Text>();
+                    Text question = GameObject.Find("Canvas/DialogPanelDodge/QuestionText").GetComponent<Text>();
                     question.text = "New order from " + currentRestaurant.name + ". Do you want to deliver the order?";
 
                 }
@@ -484,6 +447,7 @@ public class DeliveryDodgeController : MonoBehaviour
 
     public void toggleStatus()
     {
+        Debug.Log("toggling status in dodge controller");
         dodgeActive = !dodgeActive;
         if (!dodgeActive)
         {
@@ -495,6 +459,7 @@ public class DeliveryDodgeController : MonoBehaviour
 
     public void OnFrontButtonPointerDown(BaseEventData eventData)
     {
+        //Debug.Log("front button pressed");
         frontButtonPressed = true;
     }
 

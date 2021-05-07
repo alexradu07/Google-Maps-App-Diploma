@@ -95,10 +95,14 @@ public class DeliveryCarController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (!tuktuk.activeSelf)
+        {
+            return;
+        }
         //Debug.Log(GetCurrentMethod());
         if (!Manager.gameStarted)
         {
-            Debug.Log("Game not started for vehicle");
+            //Debug.Log("Game not started for vehicle");
             return;
         }
         if (!timerStarted)
@@ -359,7 +363,7 @@ public class DeliveryCarController : MonoBehaviour
         {
             yield return null;
         }
-        if (tuktukActive)
+        if (tuktukActive && tuktuk.activeSelf)
         {
             if (waitingForOrder && Manager.gameStarted)
             {
@@ -380,6 +384,7 @@ public class DeliveryCarController : MonoBehaviour
                     Debug.Log("Random number selected : " + orderRestaurantIndex);
                     if (mapLoader.objectContainer.results.Count == 0)
                     {
+                        Debug.Log("object container results is null");
                         yield break;
                     }
                     currentRestaurant = mapLoader.objectContainer.results[orderRestaurantIndex];
@@ -408,9 +413,6 @@ public class DeliveryCarController : MonoBehaviour
         waitingForOrder = false;
         marker.SetActive(true);
         mapLoader.setQueryNotNeeded();
-        Debug.Log(mapLoader.mapsService == null);
-        Debug.Log(mapLoader.mapsService.Coords == null);
-        Debug.Log(currentRestaurant == null);
         Vector3 restaurantPosition = mapLoader.mapsService.Coords.FromLatLngToVector3(new LatLng(currentRestaurant.geometry.location.lat, currentRestaurant.geometry.location.lng));
         marker.transform.position = restaurantPosition + new Vector3(0, 100.5f, 0);
         arrow.SetActive(true);
@@ -476,6 +478,7 @@ public class DeliveryCarController : MonoBehaviour
 
     public void toggleStatus()
     {
+        Debug.Log("toggling status in tuktuk controller");
         tuktukActive = !tuktukActive;
         if (!tuktukActive)
         {

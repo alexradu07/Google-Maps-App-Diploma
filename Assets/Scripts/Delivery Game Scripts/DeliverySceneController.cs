@@ -21,6 +21,7 @@ public class DeliverySceneController : MonoBehaviour
     public GameObject tuktuk;
     public GameObject dodge;
     public GameObject cameraObject;
+    public GameObject dodgeStatusDialog;
     
     // Start is called before the first frame update
     void Start()
@@ -70,7 +71,14 @@ public class DeliverySceneController : MonoBehaviour
         }
         GameObject.Find("Canvas/Panel").SetActive(false);
         minimap.SetActive(true);
-        tukTukStatusDialog.SetActive(true);
+        if (dodge.activeSelf)
+        {
+            dodgeStatusDialog.SetActive(true);
+        }
+        else
+        {
+            tukTukStatusDialog.SetActive(true);
+        }
     }
 
     IEnumerator DisplayLocationError()
