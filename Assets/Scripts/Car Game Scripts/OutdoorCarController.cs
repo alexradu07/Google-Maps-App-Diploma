@@ -94,9 +94,13 @@ public class OutdoorCarController : MonoBehaviour
                     //car_tran.position = pos;
 
                     Vector3 directionVector = (pos - firstLoc).normalized;
-                    Quaternion lookRotation = Quaternion.LookRotation(directionVector);
+                    if (directionVector != new Vector3(0, 0, 0))
+                    {
+                        Quaternion lookRotation = Quaternion.LookRotation(directionVector);
+                        car_tran.rotation = lookRotation;
+                    }
                     //Quaternion lookRotation = Quaternion.FromToRotation(previousGPSLocation, currentGPSLocation);
-                    car_tran.rotation = lookRotation;
+                    
 
                     firstLoc = pos;
                 } else
