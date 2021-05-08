@@ -14,6 +14,8 @@ public class BroadcastReceiver : MonoBehaviour
 
     private double lastLat;
     private double lastLong;
+    private GameObject pinObj;
+    private GameObject mainCamera;
 
     // Start is called before the first frame update
     void Start()
@@ -28,7 +30,7 @@ public class BroadcastReceiver : MonoBehaviour
         isMapInitialized = false;
         lastLat = 0;
         lastLong = 0;
-
+        mainCamera = GameObject.Find("Main Camera");
         //startService("ro.pub.cs.systems.eim.unitylocationplugin.PluginStarter");
     }
 
@@ -49,6 +51,7 @@ public class BroadcastReceiver : MonoBehaviour
         {
             debugForPluginText.text = latitude + " " + longitude;
         }*/
+
         if (latitude != 0 && longitude != 0)
         {
             debugForPluginText.text = latitude + " " + longitude;
@@ -62,13 +65,21 @@ public class BroadcastReceiver : MonoBehaviour
 
             if (latitude != lastLat && longitude != lastLong)
             {
-                Object.Instantiate(pin,
+                pinObj = Object.Instantiate(pin,
                     GameObject.Find("GoogleMaps").GetComponent<MapLoaderRunningGame>().mapsService.Coords.FromLatLngToVector3(new Google.Maps.Coord.LatLng(latitude, longitude)),
                     Quaternion.Euler(0, 0, 0));
+                pinObj.transform.localScale = new Vector3(5, 1, 5);
             }
 
             lastLat = latitude;
             lastLong = longitude;
+        }
+
+        if (pinObj != null)
+        {
+            mainCamera.transform.position = Vector3.Lerp(mainCamera.transform.position,
+                new Vector3(pinObj.transform.position.x, mainCamera.transform.position.y, pinObj.transform.position.z),
+                0.1f);
         }
     }
 
