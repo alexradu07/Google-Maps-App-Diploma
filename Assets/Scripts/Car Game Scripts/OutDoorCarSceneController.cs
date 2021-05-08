@@ -77,14 +77,14 @@ public class OutDoorCarSceneController : MonoBehaviour
         /*HttpWebRequest request = (HttpWebRequest)WebRequest.Create("https://api.mapbox.com/geocoding/v5/mapbox.places/" + req + ".json?access_token=pk.eyJ1IjoibWl0emEwMDEwIiwiYSI6ImNrbmg2ZWE5ejJoeHUycGxjeTB6cXFkZWgifQ.bVjRsva6Fcuil-vUwsm9Ag");
         var resp = (HttpWebResponse)request.GetResponse();
         string response = new StreamReader(resp.GetResponseStream()).ReadToEnd();*/
-        await Func();
+        //await Func();
         Debug.Log(response);
         int index = response.IndexOf("center");
         index += 9;
         firstCoord = "";
         secondCoord = "";
         bool finishedFirst = false;
-        while (response[index].CompareTo(']') != 0)
+        /*while (response[index].CompareTo(']') != 0)
         {
             if (response[index].CompareTo(',') == 0)
             {
@@ -104,6 +104,7 @@ public class OutDoorCarSceneController : MonoBehaviour
         }
         Debug.Log("afisez firstcoord" + firstCoord);
         Debug.Log("afisez secondcoord" + secondCoord);
+        */
         if (!Permission.HasUserAuthorizedPermission(Permission.CoarseLocation))
         {
             Permission.RequestUserPermission(Permission.CoarseLocation);
@@ -167,21 +168,15 @@ public class OutDoorCarSceneController : MonoBehaviour
             Debug.Log("Longitude\t: " + Input.location.lastData.longitude);
             Manager.dynamicLatitude = Input.location.lastData.latitude;
             Manager.dynamicLongitude = Input.location.lastData.longitude;
-            String x1 = firstCoord;
-            String x2 = secondCoord;
-            firstCoord = firstCoord.Replace('.', ',');
-            secondCoord = secondCoord.Replace('.', ',');
-            Debug.Log(Convert.ToDouble(firstCoord));
-            Debug.Log(Convert.ToDouble(secondCoord));
-            GameObject.Find("GoogleMaps").GetComponent<OutdoorCarMapLoader>().LoadMap(Input.location.lastData.latitude, Input.location.lastData.longitude, Convert.ToDouble(secondCoord), Convert.ToDouble(firstCoord));
             Debug.Log("https://maps.googleapis.com/maps/api/directions/json?origin=" + Input.location.lastData.latitude.ToString().Replace(",", ".") +
-                ", " + Input.location.lastData.longitude.ToString().Replace(",", ".") + "&destination=" + x2 + ", " + x1 + "&key=AIzaSyAx5CM56TpQzOm-yVb33upTMbhnIMKa-44");
+                ", " + Input.location.lastData.longitude.ToString().Replace(",", ".") + "&destination=" + req + "&key=AIzaSyAx5CM56TpQzOm-yVb33upTMbhnIMKa-44");
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create("https://maps.googleapis.com/maps/api/directions/json?origin=" + Input.location.lastData.latitude.ToString().Replace(",",".") +
-                ", " + Input.location.lastData.longitude.ToString().Replace(",", ".") + "&destination=" + x2 + ", " + x1 + "&key=AIzaSyAx5CM56TpQzOm-yVb33upTMbhnIMKa-44");
+                ", " + Input.location.lastData.longitude.ToString().Replace(",", ".") + "&destination=" + req + "&key=AIzaSyAx5CM56TpQzOm-yVb33upTMbhnIMKa-44");
             var resp = (HttpWebResponse)request.GetResponse();
             string response = new StreamReader(resp.GetResponseStream()).ReadToEnd();
             Debug.Log(response);
             jsonResponse = JsonConvert.DeserializeObject<ResponseParse>(response);
+            GameObject.Find("GoogleMaps").GetComponent<OutdoorCarMapLoader>().LoadMap(Input.location.lastData.latitude, Input.location.lastData.longitude);
             Manager.locationQueryComplete = true;
         }
 

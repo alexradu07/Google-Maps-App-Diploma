@@ -92,13 +92,11 @@ public class OutdoorCarMapLoader : MonoBehaviour
         }
     }
 
-    public void LoadMap(double lat, double lng, double lat1, double lng1)
+    public void LoadMap(double lat, double lng)
     {
         latLng = new LatLng(lat, lng);
         Debug.Log(lat);
-        Debug.Log(lat1);
         Debug.Log(lng);
-        Debug.Log(lng1);
         Debug.Log("Start start");
         // Get required MapsService component on this GameObject.
         MapsService mapsService = GetComponent<MapsService>();

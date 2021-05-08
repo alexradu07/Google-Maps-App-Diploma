@@ -2171,7 +2171,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1547867847}
-        m_MethodName: SelectLocation
+        m_MethodName: SelectLocationAsync
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

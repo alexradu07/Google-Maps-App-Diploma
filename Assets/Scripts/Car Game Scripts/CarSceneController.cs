@@ -7,6 +7,7 @@ using System.Net.Http;
 using System.Text;
 using Google.Maps;
 using Google.Protobuf.WellKnownTypes;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -18,6 +19,7 @@ using UnityEngine.UI;
 public class CarSceneController : MonoBehaviour
 {
     public static bool canTakeControl = false;
+    public static ResponseParse jsonResponse = null;
     // Start is called before the first frame update
     void Start()
     {
@@ -39,7 +41,7 @@ public class CarSceneController : MonoBehaviour
         SceneManager.LoadScene(sceneName);
     }
 
-    public void SelectLocation()
+    public async void SelectLocationAsync()
     {
 
         string address = GameObject.Find("Canvas/InputField/Text").GetComponent<Text>().text;
@@ -59,12 +61,16 @@ public class CarSceneController : MonoBehaviour
         //Debug.Log(GameObject.Find("GoogleMaps").GetComponent<MapsService>().ApiKey);
         //List<IMultipartFormSection> data = new List<IMultipartFormSection>();
         //data.Add(new MultipartFormDataSection(req));
-        HttpWebRequest request = (HttpWebRequest)WebRequest.Create("https://api.mapbox.com/geocoding/v5/mapbox.places/" + req + ".json?access_token=pk.eyJ1IjoibWl0emEwMDEwIiwiYSI6ImNrbmg2ZWE5ejJoeHUycGxjeTB6cXFkZWgifQ.bVjRsva6Fcuil-vUwsm9Ag");
+        /*HttpWebRequest request = (HttpWebRequest)WebRequest.Create("https://api.mapbox.com/geocoding/v5/mapbox.places/" + req + ".json?access_token=pk.eyJ1IjoibWl0emEwMDEwIiwiYSI6ImNrbmg2ZWE5ejJoeHUycGxjeTB6cXFkZWgifQ.bVjRsva6Fcuil-vUwsm9Ag");
         var resp = (HttpWebResponse)request.GetResponse();
-        string response = new StreamReader(resp.GetResponseStream()).ReadToEnd();
-        /*var cerere = new HttpClient();
-        string response = cerere.GetStringAsync("https://api.mapbox.com/geocoding/v5/mapbox.places/" + req + ".json?access_token=pk.eyJ1IjoibWl0emEwMDEwIiwiYSI6ImNrbmg2ZWE5ejJoeHUycGxjeTB6cXFkZWgifQ.bVjRsva6Fcuil-vUwsm9Ag");
-        Debug.Log(response);*/
+        string response = new StreamReader(resp.GetResponseStream()).ReadToEnd();*/
+        var cerere = new HttpClient();
+        string response = await cerere.GetStringAsync("https://maps.googleapis.com/maps/api/directions/json?origin=" + "44.4526337" +
+                ", " + "26.0518842" + "&destination=" + req + "&key=AIzaSyAx5CM56TpQzOm-yVb33upTMbhnIMKa-44");
+        jsonResponse = JsonConvert.DeserializeObject<ResponseParse>(response);
+        Double secondCoord = jsonResponse.routes[0].legs[0].end_location.lat;
+        Double firstCoord = jsonResponse.routes[0].legs[0].end_location.lng;
+        /*Debug.Log(response);
         int index = response.IndexOf("center");
         index += 9;
         string firstCoord = "";
@@ -90,16 +96,17 @@ public class CarSceneController : MonoBehaviour
         }
         firstCoord = firstCoord.Replace('.', ',');
         secondCoord = secondCoord.Replace('.', ',');
+        */
         switch (locationString)
         {
             case "Grozavesti":
-                GameObject.Find("GoogleMaps").GetComponent<CarMapLoader>().LoadMap(44.4526337, 26.0518842, Convert.ToDouble(secondCoord), Convert.ToDouble(firstCoord));
+                GameObject.Find("GoogleMaps").GetComponent<CarMapLoader>().LoadMap(44.4526337, 26.0518842, secondCoord, firstCoord);
                 break;
             case "Unirii":
-                GameObject.Find("GoogleMaps").GetComponent<CarMapLoader>().LoadMap(44.426929, 26.1011807, Convert.ToDouble(secondCoord), Convert.ToDouble(firstCoord));
+                GameObject.Find("GoogleMaps").GetComponent<CarMapLoader>().LoadMap(44.426929, 26.1011807, secondCoord, firstCoord);
                 break;
             case "Brasov":
-                GameObject.Find("GoogleMaps").GetComponent<CarMapLoader>().LoadMap(45.6431122, 25.5858238, Convert.ToDouble(secondCoord), Convert.ToDouble(firstCoord));
+                GameObject.Find("GoogleMaps").GetComponent<CarMapLoader>().LoadMap(45.6431122, 25.5858238, secondCoord, firstCoord);
                 break;
             default:
                 break;
