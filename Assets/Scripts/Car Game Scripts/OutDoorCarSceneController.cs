@@ -9,8 +9,8 @@ using UnityEngine.Android;
 using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-
-
+using Newtonsoft.Json;
+using System.Collections.Generic;
 
 public class OutDoorCarSceneController : MonoBehaviour
 {
@@ -21,6 +21,7 @@ public class OutDoorCarSceneController : MonoBehaviour
     private String secondCoord;
     private String response = "";
     private string req;
+    public static ResponseParse jsonResponse = null;
     // Start is called before the first frame update
     void Start()
     {
@@ -51,17 +52,21 @@ public class OutDoorCarSceneController : MonoBehaviour
         }
     }
 
+    public async Task Func2()
+    {
+        using (var client = new HttpClient())
+        {
+            var response = await client.GetStringAsync(String.Format("https://api.mapbox.com/geocoding/v5/mapbox.places/" + req + ".json?access_token=pk.eyJ1IjoibWl0emEwMDEwIiwiYSI6ImNrbmg2ZWE5ejJoeHUycGxjeTB6cXFkZWgifQ.bVjRsva6Fcuil-vUwsm9Ag"));
+            this.response = response;
+        }
+    }
+
     public async void SelectLocation()
     {
 
         string address = GameObject.Find("Canvas/InputField/Text").GetComponent<Text>().text;
         GameObject.Find("Canvas/Panel").SetActive(false);
         GameObject.Find("Canvas/LocationButton").SetActive(false);
-        GameObject.Find("Canvas/Speedo/needle").SetActive(true);
-        GameObject.Find("Canvas/Speedo/speedo").SetActive(true);
-        GameObject.Find("Canvas/Speedo/needle2").SetActive(true);
-        GameObject.Find("Canvas/Speedo/revs").SetActive(true);
-        GameObject.Find("Canvas/MiniMap/Image").SetActive(true);
         GameObject.Find("Canvas/InputField/Text").SetActive(false);
         GameObject.Find("Canvas/InputField").SetActive(false);
         canTakeControl = true;
@@ -162,15 +167,101 @@ public class OutDoorCarSceneController : MonoBehaviour
             Debug.Log("Longitude\t: " + Input.location.lastData.longitude);
             Manager.dynamicLatitude = Input.location.lastData.latitude;
             Manager.dynamicLongitude = Input.location.lastData.longitude;
-            //firstCoord = firstCoord.Replace('.', ',');
-            //secondCoord = secondCoord.Replace('.', ',');
+            String x1 = firstCoord;
+            String x2 = secondCoord;
+            firstCoord = firstCoord.Replace('.', ',');
+            secondCoord = secondCoord.Replace('.', ',');
             Debug.Log(Convert.ToDouble(firstCoord));
             Debug.Log(Convert.ToDouble(secondCoord));
             GameObject.Find("GoogleMaps").GetComponent<OutdoorCarMapLoader>().LoadMap(Input.location.lastData.latitude, Input.location.lastData.longitude, Convert.ToDouble(secondCoord), Convert.ToDouble(firstCoord));
+            Debug.Log("https://maps.googleapis.com/maps/api/directions/json?origin=" + Input.location.lastData.latitude.ToString().Replace(",", ".") +
+                ", " + Input.location.lastData.longitude.ToString().Replace(",", ".") + "&destination=" + x2 + ", " + x1 + "&key=AIzaSyAx5CM56TpQzOm-yVb33upTMbhnIMKa-44");
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create("https://maps.googleapis.com/maps/api/directions/json?origin=" + Input.location.lastData.latitude.ToString().Replace(",",".") +
+                ", " + Input.location.lastData.longitude.ToString().Replace(",", ".") + "&destination=" + x2 + ", " + x1 + "&key=AIzaSyAx5CM56TpQzOm-yVb33upTMbhnIMKa-44");
+            var resp = (HttpWebResponse)request.GetResponse();
+            string response = new StreamReader(resp.GetResponseStream()).ReadToEnd();
+            Debug.Log(response);
+            jsonResponse = JsonConvert.DeserializeObject<ResponseParse>(response);
             Manager.locationQueryComplete = true;
         }
 
         //Input.location.Stop();
         Manager.gameStarted = true;
     }
+}
+
+public class distance
+{
+    public String text { get; set; }
+    public String value { get; set; }
+}
+
+public class duration
+{
+    public String text { get; set; }
+    public String value { get; set; }
+}
+
+public class lat_long
+{
+    public double lat { get; set; }
+    public double lng { get; set; }
+}
+
+public class polyline
+{
+    public String points { get; set; }
+}
+
+public class geocoded_waypoints
+{
+    public String status { get; set; }
+    public String place_id { get; set; }
+    public List<String> types { get; set; }
+}
+
+
+public class steps
+{
+    public distance distance { get; set; }
+    public duration duration { get; set; }
+    public lat_long end_location { get; set; }
+    public String html_instructions { get; set; }
+    public polyline polyline { get; set; }
+    public lat_long start_location { get; set; }
+    public String travel_mode { get; set; }
+}
+
+public class legs
+{
+    public distance distance { get; set; }
+    public duration duration { get; set; }
+    public String end_address { get; set; }
+    public lat_long end_location { get; set; }
+    public String start_address { get; set; }
+    public lat_long start_location { get; set; }
+    public List<steps> steps { get; set; }
+}
+
+public class bounds
+{
+    public lat_long northeast { get; set; }
+    public lat_long southwest { get; set; }
+}
+public class routes
+{
+    public bounds bounds { get; set; }
+    public String copyrights { get; set; }
+    public List<legs> legs { get; set; }
+    public polyline overview_polyline { get; set; }
+    public String summary { get; set; }
+    public List<String> warnings { get; set; }
+    public List<String> waypoint_order { get; set; }
+}
+
+public class ResponseParse
+{
+    public List<geocoded_waypoints> geocoded_waypoints { get; set; }
+    public List<routes> routes { get; set; }
+    public String status { get; set; }
 }

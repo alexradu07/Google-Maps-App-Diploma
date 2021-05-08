@@ -104,16 +104,16 @@ public class OutdoorCarMapLoader : MonoBehaviour
         MapsService mapsService = GetComponent<MapsService>();
 
         // Set real-world location to load.
-        mapsService.InitFloatingOrigin(new LatLng(lat1, lng1));
+        //mapsService.InitFloatingOrigin(new LatLng(lat1, lng1));
 
         // Register a listener to be notified when the map is loaded.
         // mapsService.Events.MapEvents.Loaded.AddListener(OnLoaded);
 
         // Load map with default options.
         DefaultGameObjectOptions = DefaultStyles.getDefaultStyles();
-        mapsService.LoadMap(new Bounds(Vector3.zero, new Vector3(300, 0, 300)), DefaultGameObjectOptions);
+        //mapsService.LoadMap(new Bounds(Vector3.zero, new Vector3(300, 0, 300)), DefaultGameObjectOptions);
 
-        mapsService.MoveFloatingOrigin(new LatLng(lat, lng), null);
+        mapsService.InitFloatingOrigin(new LatLng(lat, lng));
         mapsService.LoadMap(new Bounds(Vector3.zero, new Vector3(300, 0, 300)), DefaultGameObjectOptions);
         initSet = true;
 

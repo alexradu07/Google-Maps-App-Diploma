@@ -18,7 +18,11 @@ public class DeliverySceneController : MonoBehaviour
     public GameObject backButton;
     public GameObject leftButtonSelectVehicle;
     public GameObject rightButtonSelectVehicle;
-
+    public GameObject tuktuk;
+    public GameObject dodge;
+    public GameObject cameraObject;
+    public GameObject dodgeStatusDialog;
+    
     // Start is called before the first frame update
     void Start()
     {
@@ -67,7 +71,14 @@ public class DeliverySceneController : MonoBehaviour
         }
         GameObject.Find("Canvas/Panel").SetActive(false);
         minimap.SetActive(true);
-        tukTukStatusDialog.SetActive(true);
+        if (dodge.activeSelf)
+        {
+            dodgeStatusDialog.SetActive(true);
+        }
+        else
+        {
+            tukTukStatusDialog.SetActive(true);
+        }
     }
 
     IEnumerator DisplayLocationError()
@@ -118,6 +129,39 @@ public class DeliverySceneController : MonoBehaviour
 
         Input.location.Stop();
         Manager.gameStarted = true;
+    }
+
+    public void onLeftButtonSelectVehicle()
+    {
+        if (dodge.activeSelf)
+        {
+            dodge.SetActive(false);
+            tuktuk.SetActive(true);
+            cameraObject.GetComponent<DeliveryCameraScript>().setObjectToFollow(tuktuk.transform);
+        } else
+        {
+            dodge.SetActive(true);
+            tuktuk.SetActive(false);
+            cameraObject.GetComponent<DeliveryCameraScript>().setObjectToFollow(dodge.transform);
+        }
+
+    }
+
+    public void onRightButtonSelectVehicle()
+    {
+        if (dodge.activeSelf)
+        {
+            dodge.SetActive(false);
+            tuktuk.SetActive(true);
+            cameraObject.GetComponent<DeliveryCameraScript>().setObjectToFollow(tuktuk.transform);
+        }
+        else
+        {
+            dodge.SetActive(true);
+            tuktuk.SetActive(false);
+            cameraObject.GetComponent<DeliveryCameraScript>().setObjectToFollow(dodge.transform);
+        }
+
     }
 
     public void onSelectVehicleButton()

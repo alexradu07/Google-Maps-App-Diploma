@@ -20,6 +20,7 @@ public class DeliveryCarController : MonoBehaviour
     public WheelCollider rearLeftWheelCollider;
     public WheelCollider rearRightWheelCollider;
     public GameObject tuktuk;
+    public GameObject dodge;
     public GameObject marker;
     public GameObject dialogPanel;
     public GameObject dialogExitPanel;
@@ -94,10 +95,14 @@ public class DeliveryCarController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (!tuktuk.activeSelf)
+        {
+            return;
+        }
         //Debug.Log(GetCurrentMethod());
         if (!Manager.gameStarted)
         {
-            Debug.Log("Game not started for vehicle");
+            //Debug.Log("Game not started for vehicle");
             return;
         }
         if (!timerStarted)
@@ -358,7 +363,7 @@ public class DeliveryCarController : MonoBehaviour
         {
             yield return null;
         }
-        if (tuktukActive)
+        if (tuktukActive && tuktuk.activeSelf)
         {
             if (waitingForOrder && Manager.gameStarted)
             {
@@ -379,6 +384,7 @@ public class DeliveryCarController : MonoBehaviour
                     Debug.Log("Random number selected : " + orderRestaurantIndex);
                     if (mapLoader.objectContainer.results.Count == 0)
                     {
+                        Debug.Log("object container results is null");
                         yield break;
                     }
                     currentRestaurant = mapLoader.objectContainer.results[orderRestaurantIndex];
@@ -472,6 +478,7 @@ public class DeliveryCarController : MonoBehaviour
 
     public void toggleStatus()
     {
+        Debug.Log("toggling status in tuktuk controller");
         tuktukActive = !tuktukActive;
         if (!tuktukActive)
         {
@@ -573,16 +580,6 @@ public class DeliveryCarController : MonoBehaviour
             timerPanel.SetActive(true);
             arrow.SetActive(true);
         }
-    }
-
-    public void onLeftButtonSelectVehicle()
-    {
-
-    }
-
-    public void onRightButtonSelectVehicle()
-    {
-
     }
 
     [MethodImpl(MethodImplOptions.NoInlining)]
