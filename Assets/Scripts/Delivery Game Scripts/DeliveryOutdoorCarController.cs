@@ -144,7 +144,7 @@ public class DeliveryOutdoorCarController : MonoBehaviour
             arrow.transform.rotation = Quaternion.Euler(0,
                     arrow.transform.eulerAngles.y - 90,
                     arrow.transform.eulerAngles.z);
-            if (Vector3.Distance(rb.transform.position, marker.transform.position) - 100 < .7f)
+            if (Vector3.Distance(rb.transform.position, marker.transform.position) - 100 < 2)
             {
                 orderPickupAck.SetActive(true);
                 Text prompt = GameObject.Find("Canvas/OrderPickUpAck/PromptText").GetComponent<Text>();
@@ -161,7 +161,7 @@ public class DeliveryOutdoorCarController : MonoBehaviour
                     arrow.transform.eulerAngles.y - 90,
                     arrow.transform.eulerAngles.z);
 
-            if (Vector3.Distance(rb.transform.position, marker.transform.position) - 100 < .7f)
+            if (Vector3.Distance(rb.transform.position, marker.transform.position) - 100 < 2)
             {
                 orderPickupAck.SetActive(true);
                 Text prompt = GameObject.Find("Canvas/OrderPickUpAck/PromptText").GetComponent<Text>();
