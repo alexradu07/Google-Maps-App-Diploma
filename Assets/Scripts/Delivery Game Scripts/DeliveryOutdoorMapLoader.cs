@@ -14,9 +14,13 @@ public class DeliveryOutdoorMapLoader : MonoBehaviour
     public MapsService mapsService;
     public PlacesApiQueryResponse objectContainer;
     public GameObjectOptions DefaultGameObjectOptions;
-    public Camera minimapCamera;
+    public Camera minimapCameraTukTuk;
+    public Camera minimapCameraDodge;
+    public GameObject tuktuk;
+    public GameObject dodge;
     public Camera defaultCamera;
-    public GameObject cameraObject;
+    public GameObject cameraObjectTukTuk;
+    public GameObject cameraObjectDodge;
     public GameObject groundPanel;
     public GameObject vehicle;
     private Vector3 currentPosition;
@@ -28,7 +32,14 @@ public class DeliveryOutdoorMapLoader : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        currentPosition = previousPosition = cameraObject.transform.position;
+        if (dodge.activeSelf)
+        {
+            currentPosition = previousPosition = cameraObjectDodge.transform.position;
+        }
+        else
+        {
+            currentPosition = previousPosition = cameraObjectTukTuk.transform.position;
+        }
         // Get required MapsService component on this GameObject.
         mapsService = GetComponent<MapsService>();
         firstQuery = true;
@@ -44,8 +55,19 @@ public class DeliveryOutdoorMapLoader : MonoBehaviour
         }
         if (Manager.gameStarted)
         {
-            Vector3 currentOffset = cameraObject.transform.position - currentPosition;
-            Vector3 previousOffset = cameraObject.transform.position - previousPosition;
+            //Debug.Log("camera position : " + cameraObject.transform.position);
+            Vector3 currentOffset = Vector3.zero;
+            Vector3 previousOffset = Vector3.zero;
+            if (dodge.activeSelf)
+            {
+                currentOffset = cameraObjectDodge.transform.position - currentPosition;
+                previousOffset = cameraObjectDodge.transform.position - previousPosition;
+            }
+            else
+            {
+                currentOffset = cameraObjectTukTuk.transform.position - currentPosition;
+                previousOffset = cameraObjectTukTuk.transform.position - previousPosition;
+            }
             float currentDistance = currentOffset.sqrMagnitude;
             float previousDistance = previousOffset.sqrMagnitude;
 
@@ -64,14 +86,15 @@ public class DeliveryOutdoorMapLoader : MonoBehaviour
 
     private void AddCollidersToBuildings(MapLoadedArgs args)
     {
-        GameObject[] buildingObjects = GameObject.FindObjectsOfType<GameObject>();
-        foreach (GameObject obj in buildingObjects)
-        {
-            if (obj.transform.parent != null && obj.transform.parent.name == "GoogleMaps")
-            {
-                obj.AddComponent<MeshCollider>();
-            }
-        }
+        // TODO : remove me
+        //GameObject[] buildingObjects = GameObject.FindObjectsOfType<GameObject>();
+        //foreach (GameObject obj in buildingObjects)
+        //{
+        //    if (obj.transform.parent != null && obj.transform.parent.name == "GoogleMaps")
+        //    {
+        //        obj.AddComponent<MeshCollider>();
+        //    }
+        //}
     }
 
     IEnumerator dynamicLoad()
@@ -79,12 +102,21 @@ public class DeliveryOutdoorMapLoader : MonoBehaviour
         // if previously not set
         mapsService = GetComponent<MapsService>();
 
-        mapsService.MakeMapLoadRegion().AddViewport(minimapCamera, 200).Load(DefaultGameObjectOptions);
+        if (dodge.activeSelf)
+        {
+            mapsService.MakeMapLoadRegion().AddViewport(minimapCameraDodge, 200).Load(DefaultGameObjectOptions);
+            groundPanel.transform.position = new Vector3(cameraObjectDodge.transform.position.x, -0.05f, cameraObjectDodge.transform.position.z);
 
+            currentPosition = cameraObjectDodge.transform.position;
+        }
+        else
+        {
+            mapsService.MakeMapLoadRegion().AddViewport(minimapCameraTukTuk, 200).Load(DefaultGameObjectOptions);
+            groundPanel.transform.position = new Vector3(cameraObjectTukTuk.transform.position.x, -0.05f, cameraObjectTukTuk.transform.position.z);
 
-        groundPanel.transform.position = new Vector3(cameraObject.transform.position.x, -0.05f, cameraObject.transform.position.z);
+            currentPosition = cameraObjectTukTuk.transform.position;
+        }
 
-        currentPosition = cameraObject.transform.position;
         getAsyncRestaurants();
         Debug.Log("dynamic loading part of scene");
 
@@ -93,9 +125,17 @@ public class DeliveryOutdoorMapLoader : MonoBehaviour
 
     IEnumerator dynamicUnload()
     {
-        mapsService.MakeMapLoadRegion().AddCircle(minimapCamera.transform.position, 300).UnloadOutside();
+        if (dodge.activeSelf)
+        {
+            mapsService.MakeMapLoadRegion().AddCircle(minimapCameraDodge.transform.position, 300).UnloadOutside();
+            previousPosition = cameraObjectDodge.transform.position;
+        }
+        else
+        {
+            mapsService.MakeMapLoadRegion().AddCircle(minimapCameraTukTuk.transform.position, 300).UnloadOutside();
+            previousPosition = cameraObjectTukTuk.transform.position;
+        }
 
-        previousPosition = cameraObject.transform.position;
         getAsyncRestaurants();
         Debug.Log("dynamic unloading part of scene");
 
@@ -116,7 +156,7 @@ public class DeliveryOutdoorMapLoader : MonoBehaviour
         mapsService.LoadMap(new Bounds(Vector3.zero, new Vector3(500, 0, 500)), DefaultGameObjectOptions);
 
         // Register a listener to be notified when the map is loaded.
-        mapsService.Events.MapEvents.Loaded.AddListener(AddCollidersToBuildings);
+        //mapsService.Events.MapEvents.Loaded.AddListener(AddCollidersToBuildings);
         getAsyncRestaurants();
         Debug.Log("Start end");
     }

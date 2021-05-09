@@ -14,9 +14,13 @@ public class DeliveryMapLoader : MonoBehaviour
     public MapsService mapsService;
     public PlacesApiQueryResponse objectContainer;
     public GameObjectOptions DefaultGameObjectOptions;
-    public Camera minimapCamera;
+    public Camera minimapCameraTukTuk;
+    public Camera minimapCameraDodge;
+    public GameObject tuktuk;
+    public GameObject dodge;
     public Camera defaultCamera;
-    public GameObject cameraObject;
+    public GameObject cameraObjectTukTuk;
+    public GameObject cameraObjectDodge;
     public GameObject groundPanel;
     public GameObject dropdownLabel;
     public GameObject vehicle;
@@ -29,7 +33,14 @@ public class DeliveryMapLoader : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        currentPosition = previousPosition = cameraObject.transform.position;
+        if (dodge.activeSelf)
+        {
+            currentPosition = previousPosition = cameraObjectDodge.transform.position;
+        }
+        else
+        {
+            currentPosition = previousPosition = cameraObjectTukTuk.transform.position;
+        }
         // Get required MapsService component on this GameObject.
         mapsService = GetComponent<MapsService>();
         firstQuery = true;
@@ -45,8 +56,18 @@ public class DeliveryMapLoader : MonoBehaviour
         }
         if (Manager.gameStarted)
         {
-            Vector3 currentOffset = cameraObject.transform.position - currentPosition;
-            Vector3 previousOffset = cameraObject.transform.position - previousPosition;
+            Vector3 currentOffset = Vector3.zero;
+            Vector3 previousOffset = Vector3.zero;
+            if (dodge.activeSelf)
+            {
+                currentOffset = cameraObjectDodge.transform.position - currentPosition;
+                previousOffset = cameraObjectDodge.transform.position - previousPosition;
+            }
+            else
+            {
+                currentOffset = cameraObjectTukTuk.transform.position - currentPosition;
+                previousOffset = cameraObjectTukTuk.transform.position - previousPosition;
+            }
             float currentDistance = currentOffset.sqrMagnitude;
             float previousDistance = previousOffset.sqrMagnitude;
 
@@ -80,12 +101,20 @@ public class DeliveryMapLoader : MonoBehaviour
         // if previously not set
         mapsService = GetComponent<MapsService>();
 
-        mapsService.MakeMapLoadRegion().AddViewport(minimapCamera, 200).Load(DefaultGameObjectOptions);
+        if (dodge.activeSelf)
+        {
+            mapsService.MakeMapLoadRegion().AddViewport(minimapCameraDodge, 200).Load(DefaultGameObjectOptions);
+            groundPanel.transform.position = new Vector3(cameraObjectDodge.transform.position.x, -0.05f, cameraObjectDodge.transform.position.z);
 
+            currentPosition = cameraObjectDodge.transform.position;
+        }
+        else
+        {
+            mapsService.MakeMapLoadRegion().AddViewport(minimapCameraTukTuk, 200).Load(DefaultGameObjectOptions);
+            groundPanel.transform.position = new Vector3(cameraObjectTukTuk.transform.position.x, -0.05f, cameraObjectTukTuk.transform.position.z);
 
-        groundPanel.transform.position = new Vector3(cameraObject.transform.position.x, -0.05f, cameraObject.transform.position.z);
-
-        currentPosition = cameraObject.transform.position;
+            currentPosition = cameraObjectTukTuk.transform.position;
+        }
         getAsyncRestaurants();
         Debug.Log("dynamic loading part of scene");
 
@@ -94,9 +123,17 @@ public class DeliveryMapLoader : MonoBehaviour
 
     IEnumerator dynamicUnload()
     {
-        mapsService.MakeMapLoadRegion().AddCircle(minimapCamera.transform.position, 300).UnloadOutside();
-
-        previousPosition = cameraObject.transform.position;
+        if (dodge.activeSelf)
+        {
+            mapsService.MakeMapLoadRegion().AddCircle(minimapCameraDodge.transform.position, 300).UnloadOutside();
+            previousPosition = cameraObjectDodge.transform.position;
+        }
+        else
+        {
+            mapsService.MakeMapLoadRegion().AddCircle(minimapCameraTukTuk.transform.position, 300).UnloadOutside();
+            previousPosition = cameraObjectTukTuk.transform.position;
+        }
+        
         getAsyncRestaurants();
         Debug.Log("dynamic unloading part of scene");
 

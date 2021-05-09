@@ -712,9 +712,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mapsService: {fileID: 0}
-  minimapCamera: {fileID: 65973385}
+  minimapCameraTukTuk: {fileID: 65973385}
+  minimapCameraDodge: {fileID: 1857717488}
+  tuktuk: {fileID: 1692753705}
+  dodge: {fileID: 1986835330}
   defaultCamera: {fileID: 1621692603}
-  cameraObject: {fileID: 65973382}
+  cameraObjectTukTuk: {fileID: 65973382}
+  cameraObjectDodge: {fileID: 1857717485}
   groundPanel: {fileID: 1081601821}
   vehicle: {fileID: 1692753705}
 --- !u!1 &157547290

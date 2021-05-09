@@ -189,8 +189,6 @@ public class DeliveryOutdoorDodgeController : MonoBehaviour
                 if (currentGPSLocationLocal.Equals(currentGPSLocation))
                 {
                     currentInterpolationLocation = Vector3.Lerp(currentInterpolationLocation, currentGPSLocation, .1f);
-                    Debug.Log("No more updated GPS position");
-                    Debug.Log("Interpolated location :" + currentInterpolationLocation);
                 }
                 else
                 {
@@ -198,13 +196,12 @@ public class DeliveryOutdoorDodgeController : MonoBehaviour
                     currentGPSLocation = currentGPSLocationLocal;
                     currentInterpolationLocation = previousGPSLocation;
                     //currentInterpolationLocation = Vector3.Lerp(currentInterpolationLocation, previousGPSLocation, .1f); try this out
-                    Debug.Log("Received updated GPS location : " + currentGPSLocationLocal);
-
+                
                     Vector3 directionVector = (currentGPSLocation - previousGPSLocation).normalized;
                     Quaternion lookRotation = Quaternion.LookRotation(directionVector);
-                    tuktuk.transform.rotation = lookRotation;
+                    dodge.transform.rotation = lookRotation;
                 }
-                tuktuk.transform.position = currentInterpolationLocation;
+                dodge.transform.position = currentInterpolationLocation;
 
             }
             else
