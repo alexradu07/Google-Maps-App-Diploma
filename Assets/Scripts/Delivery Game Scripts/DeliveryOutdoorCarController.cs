@@ -42,8 +42,9 @@ public class DeliveryOutdoorCarController : MonoBehaviour
     public Text statusText;
     public GameObject leftButtonSelectVehicle;
     public GameObject rightButtonSelectVehicle;
-    private float maxAngle;
-    private float angle;
+    public GameObject lockImage;
+    public GameObject selectButton;
+    public GameObject lockedVehicleMessage;
     private DeliveryOutdoorMapLoader mapLoader;
     private bool waitingForOrder;
     private bool deliveringOrder;
@@ -59,8 +60,6 @@ public class DeliveryOutdoorCarController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        maxAngle = 30;
-        angle = 0;
         mapLoader = GameObject.Find("GoogleMaps").GetComponent<DeliveryOutdoorMapLoader>();
         if (mapLoader == null)
         {
@@ -473,6 +472,9 @@ public class DeliveryOutdoorCarController : MonoBehaviour
         {
             panel.SetActive(true);
             backButton.SetActive(false);
+            selectButton.SetActive(false);
+            lockedVehicleMessage.SetActive(false);
+            lockImage.SetActive(false);
             leftButtonSelectVehicle.SetActive(false);
             rightButtonSelectVehicle.SetActive(false);
         }
@@ -515,16 +517,6 @@ public class DeliveryOutdoorCarController : MonoBehaviour
             timerPanel.SetActive(true);
             arrow.SetActive(true);
         }
-    }
-
-    public void onLeftButtonSelectVehicle()
-    {
-
-    }
-
-    public void onRightButtonSelectVehicle()
-    {
-
     }
 
     [MethodImpl(MethodImplOptions.NoInlining)]

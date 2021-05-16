@@ -42,6 +42,9 @@ public class DeliveryDodgeController : MonoBehaviour
     public Text statusText;
     public GameObject leftButtonSelectVehicle;
     public GameObject rightButtonSelectVehicle;
+    public GameObject lockImage;
+    public GameObject selectButton;
+    public GameObject lockedVehicleMessage;
     private bool frontButtonPressed, reverseButtonPressed, brakeButtonPressed;
     private bool leftButtonPressed, rightButtonPressed;
     private float maxAngle;
@@ -514,6 +517,9 @@ public class DeliveryDodgeController : MonoBehaviour
         {
             panel.SetActive(true);
             backButton.SetActive(false);
+            selectButton.SetActive(false);
+            lockedVehicleMessage.SetActive(false);
+            lockImage.SetActive(false);
             leftButtonSelectVehicle.SetActive(false);
             rightButtonSelectVehicle.SetActive(false);
         }

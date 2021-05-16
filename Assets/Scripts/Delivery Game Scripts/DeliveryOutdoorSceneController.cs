@@ -23,10 +23,14 @@ public class DeliveryOutdoorSceneController : MonoBehaviour
     public GameObject dodge;
     public GameObject cameraObject;
     public GameObject dodgeStatusDialog;
+    public GameObject lockImage;
+    public GameObject selectButton;
+    public GameObject lockedVehicleMessage;
+
+    private int secondCarUnlocked;
 
     private bool locationServiceStarted = false;
-    private float deltaTime = .0f;
-
+    
     // Start is called before the first frame update
     void Start()
     {
@@ -36,12 +40,10 @@ public class DeliveryOutdoorSceneController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (locationServiceStarted) // && deltaTime > 1)
+        if (locationServiceStarted)
         {
             UpdateLocationData();
-            //deltaTime = .0f;
         }
-        //deltaTime += Time.deltaTime;
     }
 
     public void LoadScene(string sceneName)
@@ -59,6 +61,18 @@ public class DeliveryOutdoorSceneController : MonoBehaviour
         }
         StartCoroutine(GetCurrentLocation());
         GameObject.Find("Canvas/Panel").SetActive(false);
+        if (Manager.selectedVehicle == Manager.TUKTUK_SELECTED)
+        {
+            dodge.SetActive(false);
+            tuktuk.SetActive(true);
+            cameraObject.GetComponent<DeliveryCameraScript>().setObjectToFollow(tuktuk.transform);
+        }
+        else if (Manager.selectedVehicle == Manager.DODGE_SELECTED)
+        {
+            dodge.SetActive(true);
+            tuktuk.SetActive(false);
+            cameraObject.GetComponent<DeliveryCameraScript>().setObjectToFollow(dodge.transform);
+        }
         minimap.SetActive(true);
         if (dodge.activeSelf)
         {
@@ -126,12 +140,19 @@ public class DeliveryOutdoorSceneController : MonoBehaviour
     {
         if (dodge.activeSelf)
         {
+            lockImage.SetActive(false);
+            selectButton.SetActive(true);
+            lockedVehicleMessage.SetActive(false);
             dodge.SetActive(false);
             tuktuk.SetActive(true);
             cameraObject.GetComponent<DeliveryCameraScript>().setObjectToFollow(tuktuk.transform);
         }
         else
         {
+            if (secondCarUnlocked == 0)
+            {
+                lockImage.SetActive(true);
+            }
             dodge.SetActive(true);
             tuktuk.SetActive(false);
             cameraObject.GetComponent<DeliveryCameraScript>().setObjectToFollow(dodge.transform);
@@ -143,12 +164,19 @@ public class DeliveryOutdoorSceneController : MonoBehaviour
     {
         if (dodge.activeSelf)
         {
+            lockImage.SetActive(false);
+            selectButton.SetActive(true);
+            lockedVehicleMessage.SetActive(false);
             dodge.SetActive(false);
             tuktuk.SetActive(true);
             cameraObject.GetComponent<DeliveryCameraScript>().setObjectToFollow(tuktuk.transform);
         }
         else
         {
+            if (secondCarUnlocked == 0)
+            {
+                lockImage.SetActive(true);
+            }
             dodge.SetActive(true);
             tuktuk.SetActive(false);
             cameraObject.GetComponent<DeliveryCameraScript>().setObjectToFollow(dodge.transform);
@@ -156,14 +184,39 @@ public class DeliveryOutdoorSceneController : MonoBehaviour
 
     }
 
+    public void LoadPreferences()
+    {
+        secondCarUnlocked = PlayerPrefs.GetInt("SecondCarUnlocked", 0);
+    }
+
     public void onSelectVehicleButton()
     {
         //Debug.Log(GetCurrentMethod());
+        LoadPreferences();
         GameObject.Find("Canvas/Panel").SetActive(false);
+        selectButton.SetActive(true);
         backButton.SetActive(true);
         Manager.choosingCar = true;
         leftButtonSelectVehicle.SetActive(true);
         rightButtonSelectVehicle.SetActive(true);
+    }
+
+    public void onSelectButton()
+    {
+        if (dodge.activeSelf && secondCarUnlocked == 1)
+        {
+            Manager.selectedVehicle = Manager.DODGE_SELECTED;
+        }
+        else if (dodge.activeSelf && secondCarUnlocked == 0)
+        {
+            Manager.selectedVehicle = Manager.TUKTUK_SELECTED;
+            lockedVehicleMessage.SetActive(true);
+        }
+
+        if (tuktuk.activeSelf)
+        {
+            Manager.selectedVehicle = Manager.TUKTUK_SELECTED;
+        }
     }
 
     public void UpdateLocationData()
