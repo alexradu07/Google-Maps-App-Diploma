@@ -5,6 +5,7 @@ using Google.Maps.Coord;
 using Google.Maps.Unity.Intersections;
 using System.Diagnostics;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 using Debug = UnityEngine.Debug;
 using UnityEngine.EventSystems;
@@ -146,7 +147,7 @@ public class DeliveryDodgeController : MonoBehaviour
 
         if (onWayToRestaurant)
         {
-            Debug.Log("On way to restaurant");
+            //Debug.Log("On way to restaurant");
             Vector3 arrowDirection = (marker.transform.position - this.transform.position).normalized;
             arrow.transform.position = this.transform.position + new Vector3(0, 4, 0);
             arrow.transform.LookAt(marker.transform);
@@ -540,7 +541,10 @@ public class DeliveryDodgeController : MonoBehaviour
 
     public void onExitGame()
     {
-
+        Manager.gameStarted = false;
+        Manager.locationQueryComplete = false;
+        Scene currentScene = SceneManager.GetActiveScene();
+        SceneManager.LoadScene(currentScene.buildIndex);
     }
 
     public void onCancelExitGame()

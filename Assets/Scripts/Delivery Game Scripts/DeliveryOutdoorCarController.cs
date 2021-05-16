@@ -5,6 +5,7 @@ using Google.Maps.Coord;
 using Google.Maps.Unity.Intersections;
 using System.Diagnostics;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 using Debug = UnityEngine.Debug;
 using UnityEngine.EventSystems;
@@ -499,7 +500,10 @@ public class DeliveryOutdoorCarController : MonoBehaviour
 
     public void onExitGame()
     {
-
+        Manager.gameStarted = false;
+        Manager.locationQueryComplete = false;
+        Scene currentScene = SceneManager.GetActiveScene();
+        SceneManager.LoadScene(currentScene.buildIndex);
     }
 
     public void onCancelExitGame()
