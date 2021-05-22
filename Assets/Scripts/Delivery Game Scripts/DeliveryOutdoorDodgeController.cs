@@ -5,6 +5,7 @@ using Google.Maps.Coord;
 using Google.Maps.Unity.Intersections;
 using System.Diagnostics;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 using Debug = UnityEngine.Debug;
 using UnityEngine.EventSystems;
@@ -43,6 +44,9 @@ public class DeliveryOutdoorDodgeController : MonoBehaviour
     public Text statusText;
     public GameObject leftButtonSelectVehicle;
     public GameObject rightButtonSelectVehicle;
+    public GameObject lockImage;
+    public GameObject selectButton;
+    public GameObject lockedVehicleMessage;
     private DeliveryOutdoorMapLoader mapLoader;
     private bool waitingForOrder;
     private bool deliveringOrder;
@@ -144,7 +148,7 @@ public class DeliveryOutdoorDodgeController : MonoBehaviour
             arrow.transform.rotation = Quaternion.Euler(0,
                     arrow.transform.eulerAngles.y - 90,
                     arrow.transform.eulerAngles.z);
-            if (Vector3.Distance(rb.transform.position, marker.transform.position) - 100 < .7f)
+            if (Vector3.Distance(rb.transform.position, marker.transform.position) - 100 < 2)
             {
                 orderPickupAck.SetActive(true);
                 Text prompt = GameObject.Find("Canvas/OrderPickUpAckDodge/PromptText").GetComponent<Text>();
@@ -161,7 +165,7 @@ public class DeliveryOutdoorDodgeController : MonoBehaviour
                     arrow.transform.eulerAngles.y - 90,
                     arrow.transform.eulerAngles.z);
 
-            if (Vector3.Distance(rb.transform.position, marker.transform.position) - 100 < .7f)
+            if (Vector3.Distance(rb.transform.position, marker.transform.position) - 100 < 2)
             {
                 orderPickupAck.SetActive(true);
                 Text prompt = GameObject.Find("Canvas/OrderPickUpAckDodge/PromptText").GetComponent<Text>();
@@ -189,8 +193,6 @@ public class DeliveryOutdoorDodgeController : MonoBehaviour
                 if (currentGPSLocationLocal.Equals(currentGPSLocation))
                 {
                     currentInterpolationLocation = Vector3.Lerp(currentInterpolationLocation, currentGPSLocation, .1f);
-                    Debug.Log("No more updated GPS position");
-                    Debug.Log("Interpolated location :" + currentInterpolationLocation);
                 }
                 else
                 {
@@ -198,13 +200,12 @@ public class DeliveryOutdoorDodgeController : MonoBehaviour
                     currentGPSLocation = currentGPSLocationLocal;
                     currentInterpolationLocation = previousGPSLocation;
                     //currentInterpolationLocation = Vector3.Lerp(currentInterpolationLocation, previousGPSLocation, .1f); try this out
-                    Debug.Log("Received updated GPS location : " + currentGPSLocationLocal);
-
+                
                     Vector3 directionVector = (currentGPSLocation - previousGPSLocation).normalized;
                     Quaternion lookRotation = Quaternion.LookRotation(directionVector);
-                    tuktuk.transform.rotation = lookRotation;
+                    dodge.transform.rotation = lookRotation;
                 }
-                tuktuk.transform.position = currentInterpolationLocation;
+                dodge.transform.position = currentInterpolationLocation;
 
             }
             else
@@ -428,6 +429,9 @@ public class DeliveryOutdoorDodgeController : MonoBehaviour
         {
             panel.SetActive(true);
             backButton.SetActive(false);
+            selectButton.SetActive(false);
+            lockedVehicleMessage.SetActive(false);
+            lockImage.SetActive(false);
             leftButtonSelectVehicle.SetActive(false);
             rightButtonSelectVehicle.SetActive(false);
         }
@@ -455,7 +459,10 @@ public class DeliveryOutdoorDodgeController : MonoBehaviour
 
     public void onExitGame()
     {
-
+        Manager.gameStarted = false;
+        Manager.locationQueryComplete = false;
+        Scene currentScene = SceneManager.GetActiveScene();
+        SceneManager.LoadScene(currentScene.buildIndex);
     }
 
     public void onCancelExitGame()

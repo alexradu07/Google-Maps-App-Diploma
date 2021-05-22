@@ -5,6 +5,7 @@ using Google.Maps.Coord;
 using Google.Maps.Unity.Intersections;
 using System.Diagnostics;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 using Debug = UnityEngine.Debug;
 using UnityEngine.EventSystems;
@@ -39,6 +40,9 @@ public class DeliveryCarController : MonoBehaviour
     public Text statusText;
     public GameObject leftButtonSelectVehicle;
     public GameObject rightButtonSelectVehicle;
+    public GameObject lockImage;
+    public GameObject selectButton;
+    public GameObject lockedVehicleMessage;
     private bool frontButtonPressed, reverseButtonPressed, brakeButtonPressed;
     private bool leftButtonPressed, rightButtonPressed;
     private float maxAngle;
@@ -543,6 +547,9 @@ public class DeliveryCarController : MonoBehaviour
         {
             panel.SetActive(true);
             backButton.SetActive(false);
+            selectButton.SetActive(false);
+            lockedVehicleMessage.SetActive(false);
+            lockImage.SetActive(false);
             leftButtonSelectVehicle.SetActive(false);
             rightButtonSelectVehicle.SetActive(false);
         } else
@@ -568,7 +575,10 @@ public class DeliveryCarController : MonoBehaviour
 
     public void onExitGame()
     {
-
+        Manager.gameStarted = false;
+        Manager.locationQueryComplete = false;
+        Scene currentScene = SceneManager.GetActiveScene();
+        SceneManager.LoadScene(currentScene.buildIndex);
     }
 
     public void onCancelExitGame()

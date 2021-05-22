@@ -5,6 +5,7 @@ using Google.Maps.Coord;
 using Google.Maps.Unity.Intersections;
 using System.Diagnostics;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 using Debug = UnityEngine.Debug;
 using UnityEngine.EventSystems;
@@ -41,6 +42,9 @@ public class DeliveryDodgeController : MonoBehaviour
     public Text statusText;
     public GameObject leftButtonSelectVehicle;
     public GameObject rightButtonSelectVehicle;
+    public GameObject lockImage;
+    public GameObject selectButton;
+    public GameObject lockedVehicleMessage;
     private bool frontButtonPressed, reverseButtonPressed, brakeButtonPressed;
     private bool leftButtonPressed, rightButtonPressed;
     private float maxAngle;
@@ -146,7 +150,7 @@ public class DeliveryDodgeController : MonoBehaviour
 
         if (onWayToRestaurant)
         {
-            Debug.Log("On way to restaurant");
+            //Debug.Log("On way to restaurant");
             Vector3 arrowDirection = (marker.transform.position - this.transform.position).normalized;
             arrow.transform.position = this.transform.position + new Vector3(0, 4, 0);
             arrow.transform.LookAt(marker.transform);
@@ -513,6 +517,9 @@ public class DeliveryDodgeController : MonoBehaviour
         {
             panel.SetActive(true);
             backButton.SetActive(false);
+            selectButton.SetActive(false);
+            lockedVehicleMessage.SetActive(false);
+            lockImage.SetActive(false);
             leftButtonSelectVehicle.SetActive(false);
             rightButtonSelectVehicle.SetActive(false);
         }
@@ -540,7 +547,10 @@ public class DeliveryDodgeController : MonoBehaviour
 
     public void onExitGame()
     {
-
+        Manager.gameStarted = false;
+        Manager.locationQueryComplete = false;
+        Scene currentScene = SceneManager.GetActiveScene();
+        SceneManager.LoadScene(currentScene.buildIndex);
     }
 
     public void onCancelExitGame()

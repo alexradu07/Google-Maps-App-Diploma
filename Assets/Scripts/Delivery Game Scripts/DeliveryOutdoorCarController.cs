@@ -5,6 +5,7 @@ using Google.Maps.Coord;
 using Google.Maps.Unity.Intersections;
 using System.Diagnostics;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 using Debug = UnityEngine.Debug;
 using UnityEngine.EventSystems;
@@ -12,9 +13,10 @@ using System.Runtime.CompilerServices;
 
 public class DeliveryOutdoorCarController : MonoBehaviour
 {
-    private Vector3 previousGPSLocation = new Vector3(0, 0, 0);
-    private Vector3 currentGPSLocation = new Vector3(0, 0, 0);
-    private Vector3 currentInterpolationLocation = new Vector3(0, 0, 0);
+    private Vector3 previousGPSLocation = Vector3.zero;
+    private Vector3 currentGPSLocation = Vector3.zero;
+    private Vector3 currentInterpolationLocation = Vector3.zero;
+    private Vector3 followPosition = Vector3.zero;
     private bool firstGPSUpdateRecevied = false;
     public Rigidbody rb;
     public GameObject frontWheel;
@@ -40,8 +42,9 @@ public class DeliveryOutdoorCarController : MonoBehaviour
     public Text statusText;
     public GameObject leftButtonSelectVehicle;
     public GameObject rightButtonSelectVehicle;
-    private float maxAngle;
-    private float angle;
+    public GameObject lockImage;
+    public GameObject selectButton;
+    public GameObject lockedVehicleMessage;
     private DeliveryOutdoorMapLoader mapLoader;
     private bool waitingForOrder;
     private bool deliveringOrder;
@@ -57,8 +60,6 @@ public class DeliveryOutdoorCarController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        maxAngle = 30;
-        angle = 0;
         mapLoader = GameObject.Find("GoogleMaps").GetComponent<DeliveryOutdoorMapLoader>();
         if (mapLoader == null)
         {
@@ -106,7 +107,7 @@ public class DeliveryOutdoorCarController : MonoBehaviour
         }
         if (!timerStarted)
         {
-            Debug.Log("Intra fix o data pe aici");
+            //Debug.Log("Intra fix o data pe aici");
             waitingForOrder = true;
             tuktukActive = true;
             //watch.Start();
@@ -136,14 +137,14 @@ public class DeliveryOutdoorCarController : MonoBehaviour
 
         if (onWayToRestaurant)
         {
-            Debug.Log("On way to restaurant");
+            //Debug.Log("On way to restaurant");
             Vector3 arrowDirection = (marker.transform.position - this.transform.position).normalized;
             arrow.transform.position = this.transform.position + new Vector3(0, 4, 0);
             arrow.transform.LookAt(marker.transform);
             arrow.transform.rotation = Quaternion.Euler(0,
                     arrow.transform.eulerAngles.y - 90,
                     arrow.transform.eulerAngles.z);
-            if (Vector3.Distance(rb.transform.position, marker.transform.position) - 100 < .7f)
+            if (Vector3.Distance(rb.transform.position, marker.transform.position) - 100 < 2)
             {
                 orderPickupAck.SetActive(true);
                 Text prompt = GameObject.Find("Canvas/OrderPickUpAck/PromptText").GetComponent<Text>();
@@ -160,7 +161,7 @@ public class DeliveryOutdoorCarController : MonoBehaviour
                     arrow.transform.eulerAngles.y - 90,
                     arrow.transform.eulerAngles.z);
 
-            if (Vector3.Distance(rb.transform.position, marker.transform.position) - 100 < .7f)
+            if (Vector3.Distance(rb.transform.position, marker.transform.position) - 100 < 2)
             {
                 orderPickupAck.SetActive(true);
                 Text prompt = GameObject.Find("Canvas/OrderPickUpAck/PromptText").GetComponent<Text>();
@@ -189,8 +190,6 @@ public class DeliveryOutdoorCarController : MonoBehaviour
                 if (currentGPSLocationLocal.Equals(currentGPSLocation))
                 {
                     currentInterpolationLocation = Vector3.Lerp(currentInterpolationLocation, currentGPSLocation, .1f);
-                    Debug.Log("No more updated GPS position");
-                    Debug.Log("Interpolated location :" + currentInterpolationLocation);
                 }
                 else
                 {
@@ -198,14 +197,13 @@ public class DeliveryOutdoorCarController : MonoBehaviour
                     currentGPSLocation = currentGPSLocationLocal;
                     currentInterpolationLocation = previousGPSLocation;
                     //currentInterpolationLocation = Vector3.Lerp(currentInterpolationLocation, previousGPSLocation, .1f); try this out
-                    Debug.Log("Received updated GPS location : " + currentGPSLocationLocal);
 
                     Vector3 directionVector = (currentGPSLocation - previousGPSLocation).normalized;
                     Quaternion lookRotation = Quaternion.LookRotation(directionVector);
                     tuktuk.transform.rotation = lookRotation;
                 }
                 tuktuk.transform.position = currentInterpolationLocation;
-               
+
             }
             else
             {
@@ -215,6 +213,51 @@ public class DeliveryOutdoorCarController : MonoBehaviour
                 currentGPSLocation = currentGPSLocationLocal;
             }
         }
+
+        //if (Manager.locationQueryComplete)
+        //{
+        //    Vector3 currentGPSLocationLocal = mapLoader.mapsService.Coords.FromLatLngToVector3(new LatLng(Manager.dynamicLatitude, Manager.dynamicLongitude));
+        //    if (firstGPSUpdateRecevied)
+        //    {
+        //        tuktuk.transform.position = Vector3.Lerp(tuktuk.transform.position, followPosition, .1f);
+        //        List<RoadLatticeNode> latticeNodes;
+        //        latticeNodes = new List<RoadLatticeNode>(mapLoader.mapsService.RoadLattice.Nodes);
+        //        float closestDistance = int.MaxValue;
+        //        Vector3 closestLatticeNodePosition = Vector3.zero;
+        //        followPosition = currentGPSLocationLocal;
+        //        if (latticeNodes.Count != 0)
+        //        {
+        //            foreach (RoadLatticeNode node in latticeNodes)
+        //            {
+        //                float currentDistance = Vector3.Distance(currentGPSLocationLocal, new Vector3(node.Location.x, 0, node.Location.y));
+        //                if (currentDistance < closestDistance)
+        //                {
+        //                    closestDistance = currentDistance;
+        //                    closestLatticeNodePosition = new Vector3(node.Location.x, 0, node.Location.y);
+        //                }
+        //            }
+        //            followPosition = closestLatticeNodePosition;
+        //        }
+
+
+        //        previousGPSLocation = currentGPSLocation;
+        //        currentGPSLocation = currentGPSLocationLocal;
+        //        currentInterpolationLocation = previousGPSLocation;
+        //        //currentInterpolationLocation = Vector3.Lerp(currentInterpolationLocation, previousGPSLocation, .1f); // try this out
+
+        //        Vector3 directionVector = (followPosition - tuktuk.transform.position).normalized;
+        //        Quaternion lookRotation = Quaternion.LookRotation(directionVector);
+        //        tuktuk.transform.rotation = lookRotation;
+        //    }
+        //    else
+        //    {
+        //        firstGPSUpdateRecevied = true;
+        //        currentInterpolationLocation = currentGPSLocationLocal;
+        //        previousGPSLocation = currentGPSLocationLocal;
+        //        currentGPSLocation = currentGPSLocationLocal;
+        //        followPosition = currentGPSLocationLocal;
+        //    }
+        //}
 
     }
 
@@ -429,6 +472,9 @@ public class DeliveryOutdoorCarController : MonoBehaviour
         {
             panel.SetActive(true);
             backButton.SetActive(false);
+            selectButton.SetActive(false);
+            lockedVehicleMessage.SetActive(false);
+            lockImage.SetActive(false);
             leftButtonSelectVehicle.SetActive(false);
             rightButtonSelectVehicle.SetActive(false);
         }
@@ -456,7 +502,10 @@ public class DeliveryOutdoorCarController : MonoBehaviour
 
     public void onExitGame()
     {
-
+        Manager.gameStarted = false;
+        Manager.locationQueryComplete = false;
+        Scene currentScene = SceneManager.GetActiveScene();
+        SceneManager.LoadScene(currentScene.buildIndex);
     }
 
     public void onCancelExitGame()
@@ -468,16 +517,6 @@ public class DeliveryOutdoorCarController : MonoBehaviour
             timerPanel.SetActive(true);
             arrow.SetActive(true);
         }
-    }
-
-    public void onLeftButtonSelectVehicle()
-    {
-
-    }
-
-    public void onRightButtonSelectVehicle()
-    {
-
     }
 
     [MethodImpl(MethodImplOptions.NoInlining)]
