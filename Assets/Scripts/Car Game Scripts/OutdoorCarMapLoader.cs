@@ -85,10 +85,6 @@ public class OutdoorCarMapLoader : MonoBehaviour
             {
                 obj.transform.localScale = new Vector3(0.8f, 1f, 0.8f);
             }
-            if (obj.transform.parent != null && obj.transform.parent.name == "GoogleMaps")
-            {
-                obj.AddComponent<MeshCollider>();
-            }
         }
     }
 

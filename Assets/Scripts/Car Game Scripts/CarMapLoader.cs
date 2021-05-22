@@ -69,6 +69,22 @@ public class CarMapLoader : MonoBehaviour
         Debug.Log("dau load");
         yield return null;
     }
+    IEnumerator addColliders()
+    {
+        GameObject[] buildingObjects = GameObject.FindObjectsOfType<GameObject>();
+        foreach (GameObject obj in buildingObjects)
+        {
+            if (obj.transform.parent != null && !obj.name.Contains("Segment") && !obj.name.Contains("Region") && !obj.name.Contains("AreaWater") && obj.transform.parent.name == "GoogleMaps")
+            {
+                obj.transform.localScale = new Vector3(0.8f, 1f, 0.8f);
+            }
+            if (obj.transform.parent != null && obj.transform.parent.name == "GoogleMaps" && !obj.name.Contains("Segment"))
+            {
+                obj.AddComponent<MeshCollider>();
+            }
+        }
+        yield return null;
+    }
     IEnumerator deleteAsync()
     {
         mapsService.MakeMapLoadRegion()
@@ -81,18 +97,7 @@ public class CarMapLoader : MonoBehaviour
 
     private void AddCollidersToBuildings(MapLoadedArgs args)
     {
-        GameObject[] buildingObjects = GameObject.FindObjectsOfType<GameObject>();
-        foreach (GameObject obj in buildingObjects)
-        {
-            if (obj.transform.parent != null && !obj.name.Contains("Segment") && !obj.name.Contains("Region") && !obj.name.Contains("AreaWater") && obj.transform.parent.name == "GoogleMaps")
-            {
-                obj.transform.localScale = new Vector3(0.8f, 1f, 0.8f);
-            }
-            if (obj.transform.parent != null && obj.transform.parent.name == "GoogleMaps")
-            {
-                obj.AddComponent<MeshCollider>();
-            }
-        }
+        StartCoroutine(addColliders());
     }
 
     public void LoadMap(double lat, double lng, double lat1, double lng1)

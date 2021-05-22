@@ -68,7 +68,6 @@ public class OutdoorCarController : MonoBehaviour
         if (OutDoorCarSceneController.canTakeControl)
         {
             time += Time.deltaTime;
-            elapsedSinceLastUpdate += Time.deltaTime;
             if (Input.location.status != LocationServiceStatus.Failed && OutdoorCarMapLoader.initSet)
             {
                 LocationInfo current = Input.location.lastData;
@@ -77,7 +76,7 @@ public class OutdoorCarController : MonoBehaviour
                 car_tran.position = Vector3.Lerp(tempLoc, pos, 0.1f);
                 if (gotFirstLocation)
                 {
-                    tempLoc = firstLoc;
+                    //tempLoc = firstLoc;
                     lattices = new List<RoadLatticeNode>(mapsService.RoadLattice.Nodes);
                     secondLoc = mapsService.Coords.FromLatLngToVector3(new Google.Maps.Coord.LatLng(current.latitude, current.longitude));
                     float closest = 1000;
@@ -92,7 +91,6 @@ public class OutdoorCarController : MonoBehaviour
                     }
                     //car_tran.rotation = Quaternion.FromToRotation(firstLoc, pos);
                     //car_tran.position = pos;
-
                     Vector3 directionVector = (pos - firstLoc).normalized;
                     if (directionVector != new Vector3(0, 0, 0))
                     {
@@ -100,7 +98,10 @@ public class OutdoorCarController : MonoBehaviour
                         car_tran.rotation = lookRotation;
                     }
                     //Quaternion lookRotation = Quaternion.FromToRotation(previousGPSLocation, currentGPSLocation);
-                    
+                    if (firstLoc != pos)
+                    {
+                        tempLoc = firstLoc;
+                    }
 
                     firstLoc = pos;
                 } else
@@ -108,7 +109,6 @@ public class OutdoorCarController : MonoBehaviour
                     gotFirstLocation = true;
                     firstLoc = mapsService.Coords.FromLatLngToVector3(new Google.Maps.Coord.LatLng(current.latitude, current.longitude));
                 }
-                elapsedSinceLastUpdate = 0;
             }
             timeElapsed.text = string.Format("{0:00}:{1:00}", Mathf.FloorToInt(time / 60), Mathf.FloorToInt(time % 60));
         }
