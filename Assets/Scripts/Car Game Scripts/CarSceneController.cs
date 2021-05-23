@@ -20,14 +20,17 @@ public class CarSceneController : MonoBehaviour
 {
     public static bool canTakeControl = false;
     public static ResponseParse jsonResponse = null;
+    public GameObject popup;
+    public GameObject backbutton;
+    public GameObject speedo;
+    public GameObject minimap;
     // Start is called before the first frame update
     void Start()
     {
-        GameObject.Find("Canvas/Speedo/needle").SetActive(false);
-        GameObject.Find("Canvas/Speedo/speedo").SetActive(false);
-        GameObject.Find("Canvas/Speedo/needle2").SetActive(false);
-        GameObject.Find("Canvas/Speedo/revs").SetActive(false);
-        GameObject.Find("Canvas/MiniMap/Image").SetActive(false);
+        //GameObject.Find("Canvas/Speedo/speedo").SetActive(false);
+        //GameObject.Find("Canvas/Speedo/needle2").SetActive(false);
+        //GameObject.Find("Canvas/Speedo/revs").SetActive(false);
+        //GameObject.Find("Canvas/MiniMap/Image").SetActive(false);
     }
 
     // Update is called once per frame
@@ -41,21 +44,31 @@ public class CarSceneController : MonoBehaviour
         SceneManager.LoadScene(sceneName);
     }
 
+    public void TogglePrompt()
+    {
+        popup.SetActive(true);
+    }
+
+    public void noPrompt()
+    {
+        popup.SetActive(false);
+    }
+
+
     public async void SelectLocationAsync()
     {
 
         string address = GameObject.Find("Canvas/InputField/Text").GetComponent<Text>().text;
         string locationString = GameObject.Find("Canvas/LocationDropdownSelector/Label").GetComponent<Text>().text;
-        GameObject.Find("Canvas/Panel").SetActive(false);
+        backbutton.SetActive(true);
         GameObject.Find("Canvas/LocationDropdownSelector").SetActive(false);
         GameObject.Find("Canvas/LocationButton").SetActive(false);
-        GameObject.Find("Canvas/Speedo/needle").SetActive(true);
-        GameObject.Find("Canvas/Speedo/speedo").SetActive(true);
-        GameObject.Find("Canvas/Speedo/needle2").SetActive(true);
-        GameObject.Find("Canvas/Speedo/revs").SetActive(true);
-        GameObject.Find("Canvas/MiniMap/Image").SetActive(true);
+        speedo.SetActive(true);
+        minimap.SetActive(true);
+        GameObject.Find("Canvas/Panel").SetActive(false);
         GameObject.Find("Canvas/InputField/Text").SetActive(false);
         GameObject.Find("Canvas/InputField").SetActive(false);
+        GameObject.Find("Canvas/BackButton").SetActive(false);
         canTakeControl = true;
         string req = address.Replace(' ', '+');
         //Debug.Log(GameObject.Find("GoogleMaps").GetComponent<MapsService>().ApiKey);
