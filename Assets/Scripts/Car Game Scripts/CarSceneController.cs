@@ -1,16 +1,10 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
-using System.Net;
+using System.Linq;
 using System.Net.Http;
-using System.Text;
-using Google.Maps;
-using Google.Protobuf.WellKnownTypes;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using UnityEngine;
-using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -24,6 +18,11 @@ public class CarSceneController : MonoBehaviour
     public GameObject backbutton;
     public GameObject speedo;
     public GameObject minimap;
+    public Transform carTrans;
+    LinkedList<string> spoilers;
+    LinkedList<string> fbumpers;
+    LinkedList<string> bbumpers;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -31,12 +30,75 @@ public class CarSceneController : MonoBehaviour
         //GameObject.Find("Canvas/Speedo/needle2").SetActive(false);
         //GameObject.Find("Canvas/Speedo/revs").SetActive(false);
         //GameObject.Find("Canvas/MiniMap/Image").SetActive(false);
+        spoilers = new LinkedList<string>();
+        spoilers.AddLast("none");
+        spoilers.AddLast("Spoiler_8");
+        fbumpers = new LinkedList<string>();
+        fbumpers.AddLast("Classic_16_Bumper_F_1");
+        fbumpers.AddLast("Classic_16_Bumper_F_2");
+        fbumpers.AddLast("Classic_16_Bumper_F_3");
+        bbumpers = new LinkedList<string>();
+        bbumpers.AddLast("Classic_16_Bumper_B_1");
+        bbumpers.AddLast("Classic_16_Bumper_B_2");
+        bbumpers.AddLast("Classic_16_Bumper_B_3");
     }
 
     // Update is called once per frame
     void Update()
     {
-
+        if (Globals.spoiler != 0)
+        {
+            GameObject objPrefab = Resources.Load("Low Poly Destructible 2Cars no. 8/Attachments/Spoilers/" + spoilers.ElementAt(Globals.spoiler)) as GameObject;
+            GameObject obj = Instantiate(objPrefab) as GameObject;
+            obj.transform.parent = carTrans;
+            obj.transform.localScale = new Vector3(1, 1, 1);
+            obj.transform.localPosition = new Vector3(0, 1.57f, -1.5f);
+            Globals.spoiler = 0;
+        }
+        if (Globals.bbumper != 0)
+        {
+            foreach (string i in bbumpers)
+            {
+                GameObject obj1 = GameObject.Find(i);
+                if (obj1 != null)
+                {
+                    Destroy(obj1);
+                }
+                obj1 = GameObject.Find(i + "(Clone)");
+                if (obj1 != null)
+                {
+                    Destroy(obj1);
+                }
+            }
+            GameObject objPrefab = Resources.Load("Low Poly Destructible 2Cars no. 8/Cars/16_Classic/Upgrades/Bumper_B/" + bbumpers.ElementAt(Globals.bbumper)) as GameObject;
+            GameObject obj = Instantiate(objPrefab) as GameObject;
+            obj.transform.parent = carTrans;
+            obj.transform.localScale = new Vector3(1, 1, 1);
+            obj.transform.localPosition = new Vector3(0,0,0);
+            Globals.bbumper = 0;
+        }
+        if (Globals.fbumper != 0)
+        {
+            foreach (string i in fbumpers)
+            {
+                GameObject obj1 = GameObject.Find(i);
+                if (obj1 != null)
+                {
+                    Destroy(obj1);
+                }
+                obj1 = GameObject.Find(i + "(Clone)");
+                if (obj1 != null)
+                {
+                    Destroy(obj1);
+                }
+            }
+            GameObject objPrefab = Resources.Load("Low Poly Destructible 2Cars no. 8/Cars/16_Classic/Upgrades/Bumper_F/" + fbumpers.ElementAt(Globals.fbumper)) as GameObject;
+            GameObject obj = Instantiate(objPrefab) as GameObject;
+            obj.transform.parent = carTrans;
+            obj.transform.localScale = new Vector3(1, 1, 1);
+            obj.transform.localPosition = new Vector3(0, 0, 0);
+            Globals.fbumper = 0;
+        }
     }
 
     public void LoadScene(string sceneName)
@@ -69,6 +131,7 @@ public class CarSceneController : MonoBehaviour
         GameObject.Find("Canvas/InputField/Text").SetActive(false);
         GameObject.Find("Canvas/InputField").SetActive(false);
         GameObject.Find("Canvas/BackButton").SetActive(false);
+        GameObject.Find("Canvas/custom").SetActive(false);
         canTakeControl = true;
         string req = address.Replace(' ', '+');
         //Debug.Log(GameObject.Find("GoogleMaps").GetComponent<MapsService>().ApiKey);

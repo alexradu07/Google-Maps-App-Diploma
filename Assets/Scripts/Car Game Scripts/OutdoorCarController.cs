@@ -73,7 +73,7 @@ public class OutdoorCarController : MonoBehaviour
                 LocationInfo current = Input.location.lastData;
                 MapsService mapsService = OutdoorCarMapLoader.mapsService;
                 //car_tran.position = mapsService.Coords.FromLatLngToVector3(new Google.Maps.Coord.LatLng(current.latitude, current.longitude));
-                car_tran.position = Vector3.Lerp(tempLoc, pos, 0.1f);
+                car_tran.position = Vector3.Lerp(tempLoc, pos, 0.05f);
                 if (gotFirstLocation)
                 {
                     //tempLoc = firstLoc;

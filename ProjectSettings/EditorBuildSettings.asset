@@ -30,6 +30,9 @@ EditorBuildSettings:
     path: Assets/Scenes/IOModeDeliveryManager.unity
     guid: 540df1763e8c24645977053a4bbb01fd
   - enabled: 1
+    path: Assets/Scenes/ModifyCar.unity
+    guid: 5d963537d23610f4e9b9fb71c1febad5
+  - enabled: 1
     path: Assets/Scenes/OutdoorDeliveryScene.unity
     guid: 541212282af4c9c4ca825d35adfbf189
   - enabled: 1
