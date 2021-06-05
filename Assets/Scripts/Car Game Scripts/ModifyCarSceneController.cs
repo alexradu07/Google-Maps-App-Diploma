@@ -18,6 +18,7 @@ public class ModifyCarSceneController : MonoBehaviour
     public Transform carTrans;
     public Camera camera;
     GameObject lastAddedObj = null;
+    public GameObject lockimg;
     // Start is called before the first frame update
     void Start()
     {
@@ -55,16 +56,26 @@ public class ModifyCarSceneController : MonoBehaviour
                 if (current_pos != 0)
                 {
                     GameObject objPrefab = Resources.Load("Low Poly Destructible 2Cars no. 8/Attachments/Spoilers/" + spoilers.ElementAt(current_pos)) as GameObject;
-                    GameObject obj = Instantiate(objPrefab) as GameObject;
-                    Globals.spoiler = 1;
-                    lastAddedObj = obj;
-                    obj.transform.parent = carTrans;
-                    obj.transform.localScale = new Vector3(1, 1, 1);
-                    obj.transform.localPosition = new Vector3(0, 1.57f, -1.5f);
+                    if (Globals.noOfCheckpoints < 5)
+                    {
+                        lockimg.SetActive(true);
+                    } else
+                    {
+                        Globals.spoiler = 1;
+                        GameObject obj = Instantiate(objPrefab) as GameObject;
+                        lastAddedObj = obj;
+                        obj.transform.parent = carTrans;
+                        obj.transform.localScale = new Vector3(1, 1, 1);
+                        obj.transform.localPosition = new Vector3(0, 1.57f, -1.5f);
+                    }
+                } else
+                {
+                    lockimg.SetActive(false);
                 }
             }
             if (last_pressed.Equals("fbumper"))
             {
+                lockimg.SetActive(false);
                 foreach (string i in fbumpers)
                 {
                     GameObject obj1 = GameObject.Find(i);
@@ -79,15 +90,26 @@ public class ModifyCarSceneController : MonoBehaviour
                     }
                 }
                 GameObject objPrefab = Resources.Load("Low Poly Destructible 2Cars no. 8/Cars/16_Classic/Upgrades/Bumper_F/" + fbumpers.ElementAt(current_pos)) as GameObject;
-                GameObject obj = Instantiate(objPrefab) as GameObject;
-                lastAddedObj = obj;
-                Globals.fbumper = current_pos;
-                obj.transform.parent = carTrans;
-                obj.transform.localScale = new Vector3(1, 1, 1);
-                obj.transform.localPosition = new Vector3(0, 0, 0);
+                if (Globals.noOfCheckpoints < 5 && current_pos == 1)
+                {
+                    lockimg.SetActive(true);
+                } else if (Globals.noOfFinishes < 3 && current_pos == 2)
+                {
+                    lockimg.SetActive(true);
+                }
+                else
+                {
+                    GameObject obj = Instantiate(objPrefab) as GameObject;
+                    lastAddedObj = obj;
+                    Globals.fbumper = current_pos;
+                    obj.transform.parent = carTrans;
+                    obj.transform.localScale = new Vector3(1, 1, 1);
+                    obj.transform.localPosition = new Vector3(0, 0, 0);
+                }
             }
             if (last_pressed.Equals("bbumper"))
             {
+                lockimg.SetActive(false);
                 foreach (string i in bbumpers)
                 {
                     GameObject obj1 = GameObject.Find(i);
@@ -102,12 +124,23 @@ public class ModifyCarSceneController : MonoBehaviour
                     }
                 }
                 GameObject objPrefab = Resources.Load("Low Poly Destructible 2Cars no. 8/Cars/16_Classic/Upgrades/Bumper_B/" + bbumpers.ElementAt(current_pos)) as GameObject;
-                GameObject obj = Instantiate(objPrefab) as GameObject;
-                Globals.bbumper = current_pos;
-                lastAddedObj = obj;
-                obj.transform.parent = carTrans;
-                obj.transform.localScale = new Vector3(1, 1, 1);
-                obj.transform.localPosition = new Vector3(0, 0, 0);
+                if (Globals.noOfCheckpoints < 5 && current_pos == 1)
+                {
+                    lockimg.SetActive(true);
+                }
+                else if (Globals.noOfFinishes < 3 && current_pos == 2)
+                {
+                    lockimg.SetActive(true);
+                }
+                else
+                {
+                    GameObject obj = Instantiate(objPrefab) as GameObject;
+                    Globals.bbumper = current_pos;
+                    lastAddedObj = obj;
+                    obj.transform.parent = carTrans;
+                    obj.transform.localScale = new Vector3(1, 1, 1);
+                    obj.transform.localPosition = new Vector3(0, 0, 0);
+                }
             }
             // other stuff
         }

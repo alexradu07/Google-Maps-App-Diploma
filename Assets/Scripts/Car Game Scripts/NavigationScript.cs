@@ -46,6 +46,7 @@ public class NavigationScript : MonoBehaviour
     private ulong finalUid = 0;
     private bool lastPlaced = false;
     private List<ulong> uids = new List<ulong>();
+    bool incrementedGames = false;
 
     IEnumerator pathfinder()
     {
@@ -269,6 +270,8 @@ public class NavigationScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        Debug.Log(Globals.noOfCheckpoints);
+        Debug.Log(Globals.noOfFinishes);
         //if (checkpoints.Count > 0 && currentIndex < checkpoints.Count)
         if (checkpoints.Count > 0)
         {
@@ -284,6 +287,7 @@ public class NavigationScript : MonoBehaviour
             if (Vector3.Distance(checkpoints[currentIndex].transform.position, carObj.transform.position) < 3)
             {
                 checkpoints[0].SetActive(false);
+                Globals.noOfCheckpoints += 1;
                 checkpoints.RemoveAt(0);
             }
         }
@@ -294,6 +298,11 @@ public class NavigationScript : MonoBehaviour
         }
         if (checkpoints.Count == 0 && checkpointsReady == true)
         {
+            if (incrementedGames == false)
+            {
+                Globals.noOfFinishes += 1;
+                incrementedGames = true;
+            }
             CarController.gameEnded = true;
             checkpoints.Clear();
             checkpointsPlaced = false;
