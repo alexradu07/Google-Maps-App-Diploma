@@ -172,6 +172,24 @@ public class DeliveryOutdoorDodgeController : MonoBehaviour
                 prompt.text = "You have successfully delivered order to destination.";
                 DeliveryTimerScript timerScript = timerText.GetComponent<DeliveryTimerScript>();
                 timerScript.StopTimer();
+                if (Manager.fastestOutdoorDelivery == 0)
+                {
+                    Manager.fastestOutdoorDelivery = (int) timerScript.getCurrentDeliveryTime();
+                    PlayerPrefs.SetInt(Manager.fastestOutdoorDeliveryString, Manager.fastestOutdoorDelivery);
+                }
+                else
+                {
+                    if (timerScript.getCurrentDeliveryTime() < Manager.fastestOutdoorDelivery)
+                    {
+                        Manager.fastestOutdoorDelivery = (int) timerScript.getCurrentDeliveryTime();
+                        PlayerPrefs.SetInt(Manager.fastestOutdoorDeliveryString, Manager.fastestOutdoorDelivery);
+                    }
+                }
+                if (Manager.fastestOutdoorDelivery < 300 && Manager.multipleRestaurantsUnlocked == 0)
+                {
+                    Manager.multipleRestaurantsUnlocked = 1;
+                    PlayerPrefs.SetInt(Manager.multipleRestaurantsUnlockedString, Manager.multipleRestaurantsUnlocked);
+                }
             }
         }
         if (!coroutineStarted)
@@ -316,7 +334,17 @@ public class DeliveryOutdoorDodgeController : MonoBehaviour
                         }
                     }
 
-                    int orderRestaurantIndex = random.Next(mapLoader.objectContainer.results.Count);
+                    int orderRestaurantIndex = -1;
+                    // Uncomment this
+                    //if (Manager.multipleRestaurantsUnlocked == 0)
+                    //{
+                    //    orderRestaurantIndex = random.Next(5);
+                    //}
+                    //else
+                    //{
+                    //    orderRestaurantIndex = random.Next(mapLoader.objectContainer.results.Count);
+                    //}
+                    orderRestaurantIndex = random.Next(mapLoader.objectContainer.results.Count);
                     Debug.Log("Random number selected : " + orderRestaurantIndex);
                     if (mapLoader.objectContainer.results.Count == 0)
                     {
@@ -408,6 +436,21 @@ public class DeliveryOutdoorDodgeController : MonoBehaviour
             orderPickupAck.SetActive(false);
             marker.SetActive(false);
             arrow.SetActive(false);
+
+            Manager.completedOutdoorDeliveries += 1;
+            Manager.consecutiveOutdoorDeliveries += 1;
+            if (Manager.completedOutdoorDeliveries >= 10)
+            {
+                Manager.secondCarUnlocked = 1;
+                PlayerPrefs.SetInt(Manager.secondCarUnlockedString, 1);
+            }
+            if (Manager.consecutiveOutdoorDeliveries >= 3)
+            {
+                Manager.dynamicLoadingUnlocked = 1;
+                PlayerPrefs.SetInt(Manager.dynamicLoadingUnlockedString, 1);
+            }
+            PlayerPrefs.SetInt(Manager.completedOutdoorDeliveriesString, Manager.completedOutdoorDeliveries);
+            PlayerPrefs.SetInt(Manager.consecutiveOutdoorDeliveriesString, Manager.consecutiveOutdoorDeliveries);
         }
     }
 

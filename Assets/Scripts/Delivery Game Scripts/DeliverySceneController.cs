@@ -26,12 +26,16 @@ public class DeliverySceneController : MonoBehaviour
     public GameObject selectButton;
     public GameObject lockedVehicleMessage;
 
-    private int secondCarUnlocked;
+    public GameObject tasksPanel;
+    public GameObject mainPanel;
+    public GameObject task1Progress;
+    public GameObject task2Progress;
+    public GameObject task3Progress;
 
     // Start is called before the first frame update
     void Start()
     {
-
+        LoadPreferences();
     }
 
     // Update is called once per frame
@@ -49,6 +53,9 @@ public class DeliverySceneController : MonoBehaviour
     public void SelectLocation()
     {
         //Debug.Log(GetCurrentMethod());
+        Manager.consecutiveOutdoorDeliveries = 0;
+        PlayerPrefs.SetInt(Manager.consecutiveOutdoorDeliveriesString, Manager.consecutiveOutdoorDeliveries);
+
         string locationString = GameObject.Find("Canvas/Panel/LocationDropdownSelector/Label").GetComponent<Text>().text;
         switch (locationString)
         {
@@ -159,7 +166,7 @@ public class DeliverySceneController : MonoBehaviour
             cameraObject.GetComponent<DeliveryCameraScript>().setObjectToFollow(tuktuk.transform);
         } else
         {
-            if (secondCarUnlocked == 0)
+            if (Manager.secondCarUnlocked == 0)
             {
                 lockImage.SetActive(true);
             }
@@ -183,7 +190,7 @@ public class DeliverySceneController : MonoBehaviour
         }
         else
         {
-            if (secondCarUnlocked == 0)
+            if (Manager.secondCarUnlocked == 0)
             {
                 lockImage.SetActive(true);
             }
@@ -196,7 +203,12 @@ public class DeliverySceneController : MonoBehaviour
 
     public void LoadPreferences()
     {
-        secondCarUnlocked = PlayerPrefs.GetInt("SecondCarUnlocked", 0);
+        Manager.secondCarUnlocked = PlayerPrefs.GetInt(Manager.secondCarUnlockedString, 0);
+        Manager.completedOutdoorDeliveries = PlayerPrefs.GetInt(Manager.completedOutdoorDeliveriesString, 0);
+        Manager.multipleRestaurantsUnlocked = PlayerPrefs.GetInt(Manager.multipleRestaurantsUnlockedString, 0);
+        Manager.fastestOutdoorDelivery = PlayerPrefs.GetInt(Manager.fastestOutdoorDeliveryString, 0);
+        Manager.dynamicLoadingUnlocked = PlayerPrefs.GetInt(Manager.dynamicLoadingUnlockedString, 0);
+        Manager.consecutiveOutdoorDeliveries = PlayerPrefs.GetInt(Manager.consecutiveOutdoorDeliveriesString, 0);
     }
 
     public void onSelectVehicleButton()
@@ -213,11 +225,11 @@ public class DeliverySceneController : MonoBehaviour
 
     public void onSelectButton()
     {
-        if (dodge.activeSelf && secondCarUnlocked == 1)
+        if (dodge.activeSelf && Manager.secondCarUnlocked == 1)
         {
             Manager.selectedVehicle = Manager.DODGE_SELECTED;
         }
-        else if (dodge.activeSelf && secondCarUnlocked == 0)
+        else if (dodge.activeSelf && Manager.secondCarUnlocked == 0)
         {
             Manager.selectedVehicle = Manager.TUKTUK_SELECTED;
             lockedVehicleMessage.SetActive(true);
@@ -227,6 +239,48 @@ public class DeliverySceneController : MonoBehaviour
         {
             Manager.selectedVehicle = Manager.TUKTUK_SELECTED;
         }
+    }
+
+    public void onSeeTasksButton()
+    {
+        //LoadPreferences(); // Maybe needed here ?? 
+        GameObject.Find("Canvas/Panel").SetActive(false);
+        Manager.choosingCar = true; // FIXME: try some other way here
+        tasksPanel.SetActive(true);
+        if (Manager.secondCarUnlocked == 1)
+        {
+            task1Progress.GetComponent<Text>().text = "Progress: Completed";
+        }
+        else
+        {
+            task1Progress.GetComponent<Text>().text = "Progress: " + (Manager.completedOutdoorDeliveries / 10) * 100 + "%";
+        }
+
+        if (Manager.multipleRestaurantsUnlocked == 1)
+        {
+            task1Progress.GetComponent<Text>().text = "Progress: completed";
+        }
+        else
+        {
+            task2Progress.GetComponent<Text>().text = "Fastest delivery: " + Manager.fastestOutdoorDelivery + " seconds";
+        }
+
+        if (Manager.dynamicLoadingUnlocked == 1)
+        {
+            task3Progress.GetComponent<Text>().text = "Progress: completed";
+        }
+        else
+        {
+            task3Progress.GetComponent<Text>().text = "Most consecutive deliveries: " + Manager.consecutiveOutdoorDeliveries;
+        }
+    }
+
+    public void onTasksBackButton()
+    {
+        Manager.choosingCar = false; // FIXME
+        tasksPanel.SetActive(false);
+        mainPanel.SetActive(true);
+
     }
 
     [MethodImpl(MethodImplOptions.NoInlining)]

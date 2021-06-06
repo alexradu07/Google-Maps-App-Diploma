@@ -384,7 +384,17 @@ public class DeliveryCarController : MonoBehaviour
                         }
                     }
 
-                    int orderRestaurantIndex = random.Next(mapLoader.objectContainer.results.Count);
+                    int orderRestaurantIndex = -1;
+                    // Uncomment this
+                    //if (Manager.multipleRestaurantsUnlocked == 0)
+                    //{
+                    //    orderRestaurantIndex = random.Next(5);
+                    //}
+                    //else
+                    //{
+                    //    orderRestaurantIndex = random.Next(mapLoader.objectContainer.results.Count);
+                    //}
+                    orderRestaurantIndex = random.Next(mapLoader.objectContainer.results.Count);
                     Debug.Log("Random number selected : " + orderRestaurantIndex);
                     if (mapLoader.objectContainer.results.Count == 0)
                     {
@@ -477,6 +487,8 @@ public class DeliveryCarController : MonoBehaviour
             orderPickupAck.SetActive(false);
             marker.SetActive(false);
             arrow.SetActive(false);
+
+            //Manager.completedOutdoorDeliveries += 1; // Removed, maybe use in debug purposes
         }
     }
 

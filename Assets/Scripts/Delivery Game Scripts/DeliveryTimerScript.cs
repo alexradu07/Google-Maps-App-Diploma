@@ -45,4 +45,9 @@ public class DeliveryTimerScript : MonoBehaviour
 
         timer = .0f;
     }
+
+    public float getCurrentDeliveryTime()
+    {
+        return timer;
+    }
 }
