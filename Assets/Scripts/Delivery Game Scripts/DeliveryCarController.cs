@@ -128,6 +128,12 @@ public class DeliveryCarController : MonoBehaviour
         }
         UpdateCarPosition();
 
+        if (Input.GetKey(KeyCode.Escape))
+        {
+            Debug.Log("El intra pe aici, da' plm...");
+            onBackButton();
+        }
+
         if (mapLoader.objectContainer == null)
         {
             Debug.Log("Object container is null");

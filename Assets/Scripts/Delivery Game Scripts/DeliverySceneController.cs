@@ -42,6 +42,14 @@ public class DeliverySceneController : MonoBehaviour
     void Update()
     {
 
+        if (Input.GetKey(KeyCode.Escape))
+        {
+            Debug.Log("El intra pe aici, da' plm...");
+            if (mainPanel.activeSelf)
+            {
+                SceneManager.LoadScene("IOModeDeliveryManager");
+            }
+        }
     }
 
     public void LoadScene(string sceneName)

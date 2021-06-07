@@ -55,7 +55,7 @@ public class DeliveryMapLoader : MonoBehaviour
             queryNeeded = false;
         }
         //if (Manager.gameStarted && Manager.dynamicLoadingUnlocked == 1)
-            if (Manager.gameStarted) // for debug
+        if (Manager.gameStarted) // for debug
         {
             Vector3 currentOffset = Vector3.zero;
             Vector3 previousOffset = Vector3.zero;
