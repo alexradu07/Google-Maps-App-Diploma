@@ -54,7 +54,8 @@ public class DeliveryMapLoader : MonoBehaviour
             getAsyncRestaurants();
             queryNeeded = false;
         }
-        if (Manager.gameStarted)
+        //if (Manager.gameStarted && Manager.dynamicLoadingUnlocked == 1)
+        if (Manager.gameStarted) // for debug
         {
             Vector3 currentOffset = Vector3.zero;
             Vector3 previousOffset = Vector3.zero;
