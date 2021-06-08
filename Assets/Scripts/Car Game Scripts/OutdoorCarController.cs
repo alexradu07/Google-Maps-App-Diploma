@@ -41,6 +41,7 @@ public class OutdoorCarController : MonoBehaviour
     private Vector3 secondLoc = new Vector3(0, 0, 0);
     private Vector3 tempLoc = new Vector3(0, 0, 0);
     private Vector3 pos = new Vector3(0, 0, 0);
+    private AndroidJavaClass gps;
 
     // Start is called before the first frame update
     public void UpdateWheelPosition(WheelCollider col, Transform tran)
@@ -54,12 +55,6 @@ public class OutdoorCarController : MonoBehaviour
     }
     void Start()
     {
-        ratios.Add(0.00171428f);
-        ratios.Add(0.0024285f);
-        ratios.Add(0.0034285f);
-        ratios.Add(0.0048571f);
-        ratios.Add(0.0062857f);
-        currentPower = power * (ratios[2] / ratios[currentGear]);
     }
 
     // Update is called once per frame
@@ -72,13 +67,19 @@ public class OutdoorCarController : MonoBehaviour
             {
                 LocationInfo current = Input.location.lastData;
                 MapsService mapsService = OutdoorCarMapLoader.mapsService;
+                //double x = NativeToolkit.GetLatitude();
+                Debug.Log(Input.location.lastData.latitude.ToString("R"));
+                Debug.Log("latitudinea de acum" + (double)Input.location.lastData.latitude);
+                Debug.Log("longitudinea de acum" + (double)Input.location.lastData.longitude);
                 //car_tran.position = mapsService.Coords.FromLatLngToVector3(new Google.Maps.Coord.LatLng(current.latitude, current.longitude));
-                car_tran.position = Vector3.Lerp(tempLoc, pos, 0.05f);
+                //car_tran.position = Vector3.Lerp(tempLoc, pos, 0.05f);
+                car_tran.position = pos;
                 if (gotFirstLocation)
                 {
                     //tempLoc = firstLoc;
                     lattices = new List<RoadLatticeNode>(mapsService.RoadLattice.Nodes);
-                    secondLoc = mapsService.Coords.FromLatLngToVector3(new Google.Maps.Coord.LatLng(current.latitude, current.longitude));
+                    secondLoc = mapsService.Coords.FromLatLngToVector3(new Google.Maps.Coord.LatLng((double)current.latitude, (double)current.longitude));
+                    //secondLoc = mapsService.Coords.FromLatLngToVector3(new Google.Maps.Coord.LatLng(NativeToolkit.GetLatitude(), NativeToolkit.GetLongitude()));
                     float closest = 1000;
                     foreach (RoadLatticeNode i in lattices)
                     {
