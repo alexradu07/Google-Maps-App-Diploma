@@ -67,7 +67,6 @@ public class OutdoorCarController : MonoBehaviour
             {
                 LocationInfo current = Input.location.lastData;
                 MapsService mapsService = OutdoorCarMapLoader.mapsService;
-                //double x = NativeToolkit.GetLatitude();
                 Debug.Log(Input.location.lastData.latitude.ToString("R"));
                 Debug.Log("latitudinea de acum" + (double)Input.location.lastData.latitude);
                 Debug.Log("longitudinea de acum" + (double)Input.location.lastData.longitude);
