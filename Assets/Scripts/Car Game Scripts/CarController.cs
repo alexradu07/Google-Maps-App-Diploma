@@ -221,8 +221,8 @@ public class CarController : MonoBehaviour
         }
         Vector3 x = Input.gyro.rotationRate;
 
-        FR.steerAngle = Input.acceleration.x * 20;
-        FL.steerAngle = Input.acceleration.x * 20;
+        FR.steerAngle = Input.acceleration.x * 40;
+        FL.steerAngle = Input.acceleration.x * 40;
         if (FR.steerAngle > 30)
         {
             FR.steerAngle = 30;

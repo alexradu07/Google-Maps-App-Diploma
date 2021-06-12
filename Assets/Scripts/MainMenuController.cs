@@ -1,6 +1,15 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 
+public static class Globals
+{
+    public static int spoiler = 0;
+    public static int bbumper = 0;
+    public static int fbumper = 0;
+    public static int noOfCheckpoints = 0;
+    public static int noOfFinishes = 0;
+}
+
 public class MainMenuController : MonoBehaviour
 {
     public Button carGameButton;

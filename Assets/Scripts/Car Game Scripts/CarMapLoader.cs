@@ -60,13 +60,9 @@ public class CarMapLoader : MonoBehaviour
     IEnumerator loadAsync()
     {
         mapsService = GetComponent<MapsService>();
-        //mapsService.LoadMap(new Bounds(cameraObj.transform.position, new Vector3(200, 0, 200)), DefaultGameObjectOptions);
-        //mapsService.MakeMapLoadRegion().AddCircle(cam.transform.position, 100).Load(DefaultGameObjectOptions);
         mapsService.MakeMapLoadRegion().AddCircle(cam.transform.position, 400).Load(DefaultGameObjectOptions);
         groundPlane.transform.position = new Vector3(cameraObj.transform.position.x, -0.01f, cameraObj.transform.position.z);
         oldPos1 = cameraObj.transform.position;
-        //canUnload = true;
-        Debug.Log("dau load");
         yield return null;
     }
     IEnumerator addColliders()
@@ -90,7 +86,6 @@ public class CarMapLoader : MonoBehaviour
         mapsService.MakeMapLoadRegion()
                      .AddCircle(cam.transform.position, 400)
                      .UnloadOutside();
-        Debug.Log("dau unload");
         oldPos2 = cameraObj.transform.position;
         yield return null;
     }
@@ -105,19 +100,11 @@ public class CarMapLoader : MonoBehaviour
         latLng = new LatLng(lat, lng);
 
         Debug.Log("Start start");
-        // Get required MapsService component on this GameObject.
         MapsService mapsService = GetComponent<MapsService>();
 
-        // Set real-world location to load.
         mapsService.InitFloatingOrigin(new LatLng(lat1, lng1));
-
-        // Register a listener to be notified when the map is loaded.
-        // mapsService.Events.MapEvents.Loaded.AddListener(OnLoaded);
-
-        // Load map with default options.
         DefaultGameObjectOptions = DefaultStyles.getDefaultStyles();
         mapsService.LoadMap(new Bounds(Vector3.zero, new Vector3(300, 0, 300)), DefaultGameObjectOptions);
-
         mapsService.MoveFloatingOrigin(new LatLng(lat, lng), null);
         mapsService.LoadMap(new Bounds(Vector3.zero, new Vector3(300, 0, 300)), DefaultGameObjectOptions);
 

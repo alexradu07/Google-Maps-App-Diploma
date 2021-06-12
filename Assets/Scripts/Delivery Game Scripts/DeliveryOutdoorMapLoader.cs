@@ -53,7 +53,8 @@ public class DeliveryOutdoorMapLoader : MonoBehaviour
             getAsyncRestaurants();
             queryNeeded = false;
         }
-        if (Manager.gameStarted)
+        //if (Manager.gameStarted && Manager.dynamicLoadingUnlocked)
+        if (Manager.gameStarted) // for debug
         {
             //Debug.Log("camera position : " + cameraObject.transform.position);
             Vector3 currentOffset = Vector3.zero;
