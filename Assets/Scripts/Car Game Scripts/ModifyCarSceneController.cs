@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class ModifyCarSceneController : MonoBehaviour
 {
@@ -19,6 +20,9 @@ public class ModifyCarSceneController : MonoBehaviour
     public Camera camera;
     GameObject lastAddedObj = null;
     public GameObject lockimg;
+    public GameObject unlockablePanel;
+    public Text text3;
+    public Text text4;
     // Start is called before the first frame update
     void Start()
     {
@@ -174,6 +178,19 @@ public class ModifyCarSceneController : MonoBehaviour
         {
             CameraScript cam_comp = camera.GetComponent<CameraScript>();
             cam_comp.offset = new Vector3(5, 5, -12);
+        }
+    }
+
+    public void pressUnlockable()
+    {
+        if (unlockablePanel.activeInHierarchy == false)
+        {
+            unlockablePanel.SetActive(true);
+            text3.text = Globals.noOfCheckpoints + "/5 Checkpoints";
+            text4.text = Globals.noOfFinishes + "/2 Finishes";
+        } else
+        {
+            unlockablePanel.SetActive(false);
         }
     }
 
