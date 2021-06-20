@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using Google.Maps.Coord;
 using Google.Maps.Event;
 using Google.Maps;
@@ -59,11 +60,20 @@ public class MapLoaderRunningGame : MonoBehaviour
 
         // Load map with default options.
         DefaultGameObjectOptions = DefaultStyles.getDefaultStyles();
-        mapsService.LoadMap(new Bounds(Vector3.zero, new Vector3(500, 0, 500)), DefaultGameObjectOptions);
+        if (SceneManager.GetActiveScene().name == "RunningScene")
+        {
+            mapsService.LoadMap(new Bounds(Vector3.zero, new Vector3(500, 0, 500)), DefaultGameObjectOptions);
+        } else
+        {
+            mapsService.LoadMap(new Bounds(Vector3.zero, new Vector3(5000, 0, 5000)), DefaultGameObjectOptions);
+        }
 
         mapsService.Events.MapEvents.Loaded.AddListener(AddCollidersToBuildings);
         // mapsService.Events.MapEvents.Loaded.AddListener(RoadScript.GenerateRoad);
-        mapsService.Events.MapEvents.Loaded.AddListener(GameObject.Find("RoadController").GetComponent<RoadScript>().GenerateRoad);
+        if (SceneManager.GetActiveScene().name == "RunningScene")
+        {
+            mapsService.Events.MapEvents.Loaded.AddListener(GameObject.Find("RoadController").GetComponent<RoadScript>().GenerateRoad);
+        }
 
         Debug.Log("Start end");
     }

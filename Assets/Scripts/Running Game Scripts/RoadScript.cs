@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 using Google.Maps.Unity.Intersections;
 using Google.Maps;
 using Google.Maps.Event;
@@ -64,6 +65,12 @@ public class RoadScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (Application.platform == RuntimePlatform.Android && Input.GetKeyDown(KeyCode.Escape))
+        {
+            // Baack button pressed
+            SceneManager.LoadScene("IORunningScene");
+        }
+
         if (startNode == null || !hasGameStarted)
         {
             return;
@@ -730,5 +737,10 @@ public class RoadScript : MonoBehaviour
         }
 
         return nextNode;
+    }
+
+    public void GoToRewards()
+    {
+        SceneManager.LoadScene("RunningRewardsScene");
     }
 }

@@ -24,6 +24,12 @@ EditorBuildSettings:
     path: Assets/Scenes/OutdoorRunningScene.unity
     guid: c86b17f03d9e68e4cbc11ad54bbe9210
   - enabled: 1
+    path: Assets/Scenes/RunningStatisticsScene.unity
+    guid: 85bc99bce7dfd964c906de422f7e4d41
+  - enabled: 1
+    path: Assets/Scenes/RunningRewardsScene.unity
+    guid: ecb7788f83995ec44bc7b8bc30ec4cfe
+  - enabled: 1
     path: Assets/Scenes/IoO CarGame.unity
     guid: c4efceffd9670ef4398a1ebe20056dec
   - enabled: 1
